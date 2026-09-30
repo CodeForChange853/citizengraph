@@ -51,6 +51,8 @@ class RuleBasedAgent:
     def run(self, task: Task, toolbox: Toolbox, max_steps: int | None = None) -> AgentResult:
         """Answer ``task``. ``max_steps`` is the same budget the agent gets (tool calls plus the
         final answer); when it runs out the result is the same safe fallback."""
+        if task.clock != toolbox.now:
+            raise ValueError("the task clock and the toolbox clock differ")
         rec = _Recorder(toolbox, max_steps or toolbox.config.max_steps)
         try:
             final = self._answer(task, rec)

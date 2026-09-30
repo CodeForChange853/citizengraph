@@ -2,7 +2,7 @@
 evaluation scenarios)."""
 
 import pytest
-from core2_helpers import chain, dt, fixture_calendar, make_app, toolbox
+from test_core2_support import chain, dt, fixture_calendar, make_app, toolbox
 
 from citizengraph.core2.baseline import RuleBasedAgent
 from citizengraph.core2.runtime import Task, validate_final
@@ -40,7 +40,7 @@ def test_b1_any_timestamp_issue_stops_at_a_flag():
 
 
 def test_b2_completed():
-    n = len(__import__("core2_helpers").graph().steps("occupational_permit"))
+    n = len(__import__("test_core2_support").graph().steps("occupational_permit"))
     res, _ = run(
         [make_app("occupational_permit", chain(dt(3, 9), [1] * n, open_last=False))], dt(3, 12)
     )
@@ -175,3 +175,11 @@ def test_the_baseline_obeys_the_same_step_cap_as_the_agent():
     assert res.stopped_reason == "step_cap" and res.steps <= 3
     assert res.final["fallback"] == "check_with_office" and res.final["applications"] == []
     assert RuleBasedAgent().run(task, tb, max_steps=12).stopped_reason == "final"
+
+
+def test_the_baseline_also_insists_on_one_clock():
+    with pytest.raises(ValueError):
+        RuleBasedAgent().run(
+            Task(kind="status", now="2026-03-03T11:00", ref="CG-SIM-0001"),
+            toolbox([], now=dt(3, 10)),
+        )

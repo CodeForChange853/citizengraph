@@ -14,6 +14,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from citizengraph.core2.calendar import as_date
+from citizengraph.core2.config import Core2Config, resolve_path
 from citizengraph.core2.models import ALERT_KINDS, AUDIENCE, Application
 
 
@@ -111,6 +112,11 @@ class AlertStore:
             for line in self._path.read_text(encoding="utf-8").splitlines():
                 if line.strip():
                     self._alerts.append(Alert.model_validate_json(line))
+
+    @classmethod
+    def from_config(cls, config: Core2Config) -> AlertStore:
+        """The JSONL store named in ``config/core2.yaml`` (``alert_store``)."""
+        return cls(resolve_path(config.alert_store))
 
     def all(self) -> list[Alert]:
         return list(self._alerts)

@@ -4,8 +4,8 @@ import json
 from datetime import timedelta
 
 import pytest
-from core2_helpers import dt, fixture_calendar, graph, toolbox
 from graph_fixtures import staff_names
+from test_core2_support import dt, fixture_calendar, graph, toolbox
 
 from citizengraph.core2.models import SIM_CODE
 from citizengraph.core2.simulator import AppSpec, SimulationError, Simulator

@@ -1,8 +1,8 @@
 """AgentResult -> the API's kind "status" response (templates only, EN and FIL draft)."""
 
 import pytest
-from core2_helpers import graph
 from graph_fixtures import staff_names
+from test_core2_support import graph
 
 from citizengraph.api.schemas import ChatResponse
 from citizengraph.core2.agent import ReActAgent

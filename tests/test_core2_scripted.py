@@ -5,8 +5,8 @@ well a language model would do: the policy is a test double written by the same 
 """
 
 import pytest
-from core2_helpers import dt, fixture_calendar, graph
-from gbnf_regex import to_regex
+from test_core2_gbnf_regex import to_regex
+from test_core2_support import dt, fixture_calendar, graph
 
 from citizengraph.core2.agent import ReActAgent, build_preamble, build_prompt
 from citizengraph.core2.config import Core2Config, load_statutory_caps

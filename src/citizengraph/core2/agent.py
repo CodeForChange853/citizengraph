@@ -135,6 +135,8 @@ class ReActAgent:
     def run(self, task: Task, toolbox: Toolbox, max_steps: int | None = None) -> AgentResult:
         cfg = self.config or toolbox.config
         cap = max_steps or cfg.max_steps
+        if task.clock != toolbox.now:
+            raise ValueError("the task clock and the toolbox clock differ")
         preamble = build_preamble(toolbox)
         grammar = build_grammar(toolbox) if self.use_grammar else None
         history: list[tuple[str, str]] = []

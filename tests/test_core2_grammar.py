@@ -3,8 +3,8 @@
 import json
 
 import pytest
-from core2_helpers import dt, toolbox
-from gbnf_regex import parse_rules, referenced, to_regex
+from test_core2_gbnf_regex import parse_rules, referenced, to_regex
+from test_core2_support import dt, toolbox
 
 from citizengraph.core2.grammar import build_grammar
 from citizengraph.core2.models import ALERT_KINDS, STATUSES

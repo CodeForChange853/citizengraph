@@ -46,6 +46,12 @@ class Core2Config(BaseModel):
         return v
 
 
+def resolve_path(text: str) -> Path:
+    """A config path: absolute as given, otherwise relative to the repository root."""
+    p = Path(text)
+    return p if p.is_absolute() else REPO_ROOT / p
+
+
 def load_core2_config(path: str | Path | None = None) -> Core2Config:
     p = Path(path) if path else DEFAULT_CORE2_YAML
     if not p.exists():

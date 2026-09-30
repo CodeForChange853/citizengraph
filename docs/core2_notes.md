@@ -372,7 +372,7 @@ Full alert texts as they render (English beside the Filipino draft):
 * Code: `src/citizengraph/core2/` (`calendar`, `config`, `models`, `store`, `sla`, `tools`,
   `alerts`, `simulator`, `runtime`, `baseline`, `agent`, `grammar`, `scripted`, `eval`, `report`, `traces`).
   Config: `config/core2.yaml` (not `limits.yaml`, `sla.yaml` or `calendar.yaml`, which are only read).
-  Data: `eval/core2/scenarios/`. Tests: `tests/test_core2*.py` (+ helpers `core2_helpers.py`, `gbnf_regex.py`).
+  Data: `eval/core2/scenarios/`. Tests: `tests/test_core2*.py` (+ helpers `test_core2_support.py`, `test_core2_gbnf_regex.py`).
 * `python -m citizengraph.core2.eval [-v] [--runner baseline scripted]`: results table.
 * `python -m citizengraph.core2.traces --out data/simulated/core2_gold_traces.jsonl --apps 200 --seed 9000`:
   synthetic chat-format gold trajectories (`data/simulated/` is not tracked; do not commit output).

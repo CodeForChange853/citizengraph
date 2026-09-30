@@ -3,7 +3,7 @@
 import json
 
 import pytest
-from core2_helpers import chain, dt, make_app, toolbox
+from test_core2_support import chain, dt, make_app, toolbox
 
 from citizengraph.core2.agent import (
     ActionError,
@@ -269,3 +269,9 @@ class TestTrajectoryLog:
         p = tmp_path / "t.jsonl"
         ReActAgent(FakeLLM(["x", "y"]), log_path=p).run(TASK, tb())
         assert json.loads(p.read_text(encoding="utf-8"))["stopped_reason"] == "invalid_json"
+
+
+def test_task_and_toolbox_clocks_must_agree():
+    late = Task(kind="status", now="2026-03-03T11:00", ref="CG-SIM-0001")
+    with pytest.raises(ValueError):
+        ReActAgent(FakeLLM([fin()])).run(late, tb())

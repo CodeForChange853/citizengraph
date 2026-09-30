@@ -4,7 +4,7 @@ import json
 from collections import Counter
 
 import pytest
-from core2_helpers import graph
+from test_core2_support import graph
 
 from citizengraph.core2.agent import ReActAgent
 from citizengraph.core2.baseline import RuleBasedAgent

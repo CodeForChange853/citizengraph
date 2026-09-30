@@ -3,8 +3,8 @@
 import json
 
 import pytest
-from core2_helpers import chain, dt, fixture_calendar, graph, make_app, toolbox
 from graph_fixtures import staff_names
+from test_core2_support import chain, dt, fixture_calendar, graph, make_app, toolbox
 
 from citizengraph.core2.store import AlertStore
 from citizengraph.core2.tools import ToolArgumentError, UnknownToolError

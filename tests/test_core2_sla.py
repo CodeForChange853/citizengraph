@@ -3,7 +3,7 @@
 from datetime import timedelta
 
 import pytest
-from core2_helpers import chain, dt, fixture_calendar, graph, make_app
+from test_core2_support import chain, dt, fixture_calendar, graph, make_app
 
 from citizengraph.core2.config import Core2Config, load_statutory_caps
 from citizengraph.core2.sla import (

@@ -141,3 +141,14 @@ class TestAlertStore:
     def test_unknown_kind_is_rejected(self):
         with pytest.raises(ValueError):
             self.alert("shout_at_staff")
+
+
+def test_default_store_paths_come_from_the_config(tmp_path):
+    from citizengraph.core2.config import resolve_path
+
+    cfg = Core2Config(alert_store=str(tmp_path / "a.jsonl"))
+    store = AlertStore.from_config(cfg)
+    assert store.all() == []
+    assert resolve_path("data/simulated/x.jsonl").is_absolute()
+    assert resolve_path(str(tmp_path)) == tmp_path
+    assert not resolve_path(Core2Config().alert_store).exists()  # tests never write it

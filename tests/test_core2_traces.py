@@ -4,8 +4,8 @@ import json
 import re
 
 import pytest
-from core2_helpers import graph
-from gbnf_regex import to_regex
+from test_core2_gbnf_regex import to_regex
+from test_core2_support import graph
 
 from citizengraph.core2.agent import ReActAgent, parse_action
 from citizengraph.core2.config import load_core2_config
@@ -30,7 +30,7 @@ def test_format_is_chat_messages_with_synthetic_markers():
 
 
 def test_assistant_turns_are_valid_actions_under_the_grammar():
-    from core2_helpers import dt, toolbox
+    from test_core2_support import dt, toolbox
 
     rx = to_regex(build_grammar(toolbox(now=dt(4, 14))))
     for ex in EXAMPLES:
