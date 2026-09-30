@@ -24,6 +24,7 @@ _UNIT = re.compile(
     r"^\s*(?:/|per\b)\s*(?P<unit>[A-Za-z]+(?: [A-Za-z]+)*?)\s*(?=$|\s[-–—]\s|\()", re.I
 )
 _PARENS = re.compile(r"\(([^)]*)\)")
+_PAYMENT_NOTE = re.compile(r"^\*|^all fees\b", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -84,7 +85,7 @@ def _join_wrapped(lines: list[str]) -> list[str]:
         line = lines[i]
         while (
             i + 1 < len(lines)
-            and not line.startswith("*")
+            and not _PAYMENT_NOTE.match(line)
             and not _AMOUNT.search(line)
             and (
                 line.endswith(tuple(_DASHES))
@@ -156,7 +157,7 @@ def parse_fees(text: str | None) -> FeeParse:
     has_free_text = False
     prev_label: str | None = None
     for line in lines:
-        if line.startswith("*"):
+        if _PAYMENT_NOTE.match(line):
             notes.append(line.strip("* ").strip())
         elif _AMOUNT.search(line):
             parsed = _parse_line(line, prev_label)

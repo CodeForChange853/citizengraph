@@ -163,3 +163,9 @@ def test_to_dict_is_yaml_friendly():
         }
     ]
     assert d["raw"] == "₱20.00 per copy"
+
+
+def test_settle_at_cto_note_without_asterisks_is_still_a_note():
+    f = parse_fees("ALL FEES MUST BE SETTLED AT THE CTO")
+    assert f.status == "not_stated"
+    assert f.notes == ("ALL FEES MUST BE SETTLED AT THE CTO",)
