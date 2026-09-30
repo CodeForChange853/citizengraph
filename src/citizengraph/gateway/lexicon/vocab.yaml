@@ -1,0 +1,139 @@
+# Small vocabulary. Used for (1) language guessing, (2) the "known word" test behind typo repair
+# and the gibberish score, (3) typo-repair targets (words of 5+ letters). A word listed here is
+# never "repaired" into something else, so real words that sit one typo away from a service word
+# (carriage / marriage, berth / birth, feel / fees ...) belong here. Service words come from
+# graph/seed/aliases.yaml, intent words from intents.yaml; do not repeat them here.
+
+# English function words: count as English when guessing the message language.
+en_function: [
+  the, a, an, of, for, to, in, "on", is, are, am, was, were, be, been, do, does, did, done, i, me,
+  my, mine, we, our, you, your, it, its, this, that, these, those, what, whats, how, when, where,
+  which, who, whom, why, can, could, should, would, will, shall, may, might, must, please, want,
+  wants, get, got, with, about, from, have, has, had, there, here, if, so, but, not, just, also,
+  any, some, all, much, many, more, much, very, too, then, than, after, before, need, needs,
+  like, know, tell, ask, help, go, going, make, take, into, out, up, down, over, under, again,
+  thanks, thank, hello, hi, hey, good, morning, afternoon, evening, sir, maam, madam, ok, okay,
+  "yes", yeah, yep, "no", nope, right, sure, correct, wrong, only, still, now, today, tomorrow,
+  yesterday, every, each, other, another, same, own, such, both, either, neither, because,
+  while, through, between, without, within, per, via, "off", name, names, kind, type, way, thing,
+  things, person, people, someone, something, anyone, anything, everyone, everything, nothing,
+]
+
+# Filipino function words (DRAFT): count as Filipino when guessing the language.
+# NEEDS-NATIVE-REVIEW
+fil_function: [
+  ang, ng, sa, mga, ay, na, pa, ba, po, opo, oo, din, rin, naman, lang, daw, raw, kasi, kaya,
+  pero, dahil, para, ko, mo, ka, ako, ikaw, siya, kami, tayo, kayo, sila, namin, natin, ninyo,
+  nila, ito, iyan, iyon, yan, yun, yung, ano, anong, aling, paano, saan, saang, kailan, magkano,
+  sino, sinong, bakit, gusto, nais, may, mayroon, meron, wala, hindi, huwag, wag, pwede, puwede,
+  maaari, dapat, kung, kapag, pag, mula, hanggang, tungkol, kasama, lahat, bawat, ilan, ilang,
+  diba, salamat, magandang, umaga, hapon, gabi, kumusta, kamusta, pakiusap, paki, sana, muna,
+  pala, nga, kayo, amin, atin, iyo, inyo, doon, dito, diyan, nito, niyan, noon, ngayon, bukas,
+  kahapon, mismo, lamang, rin, lalo, talaga, sobra, medyo, masyado, hindi, di, oo, sige, tama,
+  mali, tanong, tulong, tulungan, ibig, sabihin, anu, anuman, alin, nasaan, asan, asa,
+]
+
+# Everyday English words that are neither function words nor service words but that sit within one
+# or two letters of one, so they must be "known". Also ordinary words that show up in questions.
+en_common: [
+  carriage, marriages, partner, partners, parent, parents, permission, permitted, permits, berth,
+  dearth, feel, feet, fast, list, lost, loss, cost, cast, vote, votes, birthday, birthdays,
+  deaths, dealt, delay, delays, certain, certainly, certify, certified, certification, licensed,
+  licenses, registered, registering, registrar, registry, applied, applying, applicant,
+  applicants, renewed, renewing, business, businesses, worker, workers, working, works, work,
+  job, jobs, employee, employees, employer, employment, employed, company, companies, person,
+  family, families, child, children, baby, babies, son, daughter, mother, father, husband, wife,
+  spouse, married, single, widow, widower, divorce, annulment, adoption, court, judge, lawyer,
+  notary, affidavit, birth, death, dead, died, born, age, years, year, months, month, weeks, week,
+  days, day, hours, hour, minutes, minute, date, dates, time, times, money, peso, pesos, cash,
+  paid, paying, free, cheap, expensive, price, prices, amount, total, deposit, receipt, receipts,
+  bank, tax, taxes, form, forms, paper, papers, copy, copies, original, photocopy, valid, expired,
+  id, ids, picture, pictures, photo, photos, signature, signed, sign, stamp, stamped, seal,
+  online, internet, website, email, phone, number, numbers, address, location, street, city, town,
+  barangay, province, country, foreign, filipino, citizen, resident, local, hall, building, floor,
+  room, counter, window, line, queue, waiting, wait, open, closed, opening, closing, hours,
+  monday, tuesday, wednesday, thursday, friday, saturday, sunday, holiday, holidays, weekend,
+  weekday, soon, later, early, late, fast, slow, long, short, big, small, old, new, first, second,
+  third, last, next, previous, other, another, more, less, enough, able, unable, allowed,
+  required, optional, urgent, emergency, problem, problems, issue, issues, error, errors,
+  mistake, mistakes, wrong, correct, correction, wrong, lost, found, missing, damaged, stolen,
+  replacement, replace, update, updated, change, changed, changes, edit, remove, delete, add,
+  answer, answers, question, questions, information, inform, details, detail, explain, show,
+  give, send, bring, brought, carry, submit, submitted, file, filed, filing, fill, filled,
+  complete, completed, completion, finish, finished, start, started, begin, pass, passed,
+  driver, drivers, driving, vehicle, plate, school, student, students, teacher,
+  hospital, doctor, nurse, medical, medicine, clinic, patient, patients, sick, illness, disease,
+  treatment, vaccine, injection, pregnant, pregnancy, pregnancies, delivery, newborn, infant,
+  toddler, elderly, senior, disabled, disability, poor, indigent, assistance, benefit, benefits,
+  program, programs, project, projects, service, services, support, request, requests, requested,
+  inquire, inquiry, inquiries, concern, concerns, complaint, complaints, report, reports,
+  thank, thanks, welcome, sorry, hello, goodbye, bye, morning, afternoon, evening, night,
+  market, store, shop, shops, stall, vendor, vendors, selling, sell, buy, buying, sale, goods,
+  product, products, food, water, electric, electricity, light, lights, sign, signs, banner,
+  banners, poster, posters, advertisement, advertise, advertising, promote, promotion, promotions,
+  fish, fishing, fisherman, fishermen, boat, boats, sea, farm, farmer, farmers, animal, animals,
+  dog, dogs, cat, cats, rabies, bite, bitten, bites, chicken, chickens, rooster, roosters,
+  game, games, event, events, party, parties, wedding, weddings, church, pastor, priest, mayor,
+  mayors, governor, president, council, councilor, government, national, official, officials,
+  staff, personnel, employee, clerk, officer, officers, head, chief, boss, manager, receptionist,
+]
+
+# Everyday Filipino words (DRAFT); same purpose. NEEDS-NATIVE-REVIEW
+fil_common: [
+  negosyo, tindahan, puwesto, paninda, nagtitinda, magtitinda, tindera, mangingisda, isda,
+  pamilya, anak, bata, sanggol, magulang, nanay, tatay, ina, ama, asawa, kapatid, lolo, lola,
+  buntis, panganganak, kapanganakan, kamatayan, namatay, patay, bangkay, kasal, kasalan,
+  ikakasal, magpakasal, mag-asawa, kasalanan, papel, papeles, dokumento, kopya, litrato,
+  lagda, pirma, selyo, opisina, tanggapan, munisipyo, lungsod, barangay, probinsya, bayan,
+  kalye, daan, pila, bintana, oras, araw, linggo, buwan, taon, petsa, bukas, ngayon, kahapon,
+  pera, piso, bayad, presyo, halaga, libre, mura, mahal, resibo, buwis, gamot, botika, ospital,
+  doktor, nars, klinika, sakit, bakuna, ngipin, dugo, hayop, aso, pusa, manok, sabong, tandang,
+  trabaho, empleyado, amo, kumpanya, korporasyon, samahan, kooperatiba, pangalan, apelyido,
+  edad, kasarian, tirahan, lugar, bansa, dayuhan, banyaga, pilipino, mamamayan, residente,
+  hinihingi, hinihiling, hiling, kahilingan, tanong, sagot, sagutin, tulong, serbisyo, proseso,
+  paraan, hakbang, gawin, gagawin, gawa, punan, isumite, ipasa, dalhin, kunin, kumuha, makakuha,
+  magpa, mag, nag, pag, ipa, magrehistro, magpa-rehistro, mag-apply, magrenew, mag-renew,
+  mahirap, mayaman, matanda, bata, bagong, bago, luma, huli, nahuli, maaga, tama, mali, kulang,
+  sobra, pwedeng, puwedeng, maaaring, makukuha, nakuha, nawala, nasira, ninakaw, ibang,
+  iba, lahat, ilan, wala, meron, mayroon, magandang, umaga, hapon, gabi, salamat, pasensya,
+]
+
+# Greeting and thanks words: a message made only of these (and function words) is not a request.
+greetings: [
+  hello, hi, hey, good, morning, afternoon, evening, thanks, thank, salamat, kumusta, kamusta,
+  magandang, umaga, hapon, gabi, po, opo, ok, okay, bye, goodbye, sir, maam, madam, helo, hallo,
+  hai, yo,
+]
+
+# Short typed answers to an echo ("I understood ... Correct?")
+confirm_yes: [
+  "yes", yeah, yep, yup, correct, right, sure, ok, okay, oo, opo, tama, sige, yess, yea, tama,
+  po, confirm, confirmed, exactly,
+]
+confirm_no: [
+  "no", nope, wrong, incorrect, hindi, mali, nah, cancel, di, hnd, hindi,
+]
+
+# Words that join two requests when they sit between two service mentions.
+conjunctions: [and, at, saka, tsaka, atsaka, tapos, plus, also, pati, then, or, o, versus, vs]
+
+# Words left out of an alias' "content tokens" (the words that must all be present for a
+# reordered match). Real stop words only; do not add nouns here.
+stopwords: [
+  the, a, an, of, for, to, in, "on", at, is, are, am, was, be, do, does, did, i, me, my, we, our,
+  you, your, it, its, this, that, with, from, about, by, as, and, or, if, so, ang, ng, sa, mga,
+  ay, na, pa, ba, po, opo, para, ko, mo, ka, ako, namin, natin, ito, iyan, yan, yun, nito, o, at,
+]
+
+# Government services that exist but are not in the four offices. A message about one of these
+# (and no charter service) is "out of scope" rather than "unclear". Phrases, normalized.
+other_services: [
+  passport, visa, nbi, "police clearance", sss, philhealth, "pag ibig", pagibig, gsis, tin,
+  "tax identification", bir, dti, sec, lto, "driver license", "drivers license",
+  "driving license", "postal id", "voters id", "voter id", "national id", philsys, "barangay clearance",
+  cedula, "community tax certificate", scholarship, "4ps", "land title", "real property tax",
+  "tax declaration", "building permit", "fire safety", "fire clearance", "cctv", "senior citizen id",
+  "pwd id", "solo parent id", "osca", "voters registration", "comelec", "dole", "tesda",
+  "vehicle registration", "motorcycle registration", "franchise", "tricycle", "cenomar online",
+  "swab", "covid", "quarantine pass",
+]

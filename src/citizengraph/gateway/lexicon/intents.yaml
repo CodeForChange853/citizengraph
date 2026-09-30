@@ -1,0 +1,104 @@
+# Intent keywords. Phrases are matched on normalized tokens (lowercase, no punctuation, SMS table
+# applied), longest phrase first, and a matched phrase is used up. `weak` phrases are dropped when
+# a processing_time phrase sits within 5 words (so "how long is the process" is not also "steps").
+# Filipino phrases are DRAFT. NEEDS-NATIVE-REVIEW (every `fil` list below)
+
+requirements:
+  en: [
+    requirements, requirement, required, documents, document, paperwork, papers, checklist,
+    "what do i need", "what do you need", "what i need", "do i need", "what to bring",
+    "what to prepare", "what to submit", "needed", "what is needed", "what are needed",
+    "what should i bring", "what should i prepare", "what to present", "to bring", "to prepare",
+  ]
+  fil: [
+    kailangan, kinakailangan, "mga kailangan", dokumento, papeles, dalhin, ihanda, isumite,
+    "ano ang kailangan", "anong kailangan", "anu ang kailangan", "ano ang dadalhin",
+    "ano ang hinihingi", "anong hinihingi", "mga hinihingi", hinihingi,
+  ]
+fees:
+  en: [
+    fee, fees, "how much", cost, costs, price, prices, pay, paying, payment, payments, charge,
+    charges, amount, "how much is", "how much does", "how much to pay", rate, rates,
+  ]
+  fil: [
+    magkano, bayad, babayaran, bayaran, presyo, singil, gastos, halaga, "magkano ang",
+    "magkano po", "magkano ba",
+  ]
+steps:
+  en: [
+    steps, step, procedure, procedures, "how to", "how do i", "how can i", "how do you",
+    "how should i", "what to do", "what are the steps", "step by step", "how does it work",
+    "how to apply", "how to get", "how to process", workflow, "how to register", "how to file",
+  ]
+  fil: [
+    paano, hakbang, paraan, "anong gagawin", "ano ang gagawin", "anong proseso", "ano ang proseso",
+    "paano mag apply", "paano kumuha", "paano magparehistro", "paano ang proseso",
+  ]
+steps_weak:
+  en: [process, processing]
+  fil: [proseso]
+processing_time:
+  en: [
+    "how long", "processing time", "how many days", "how many hours", "how many minutes",
+    "how many weeks", turnaround, duration, "how soon", "when will it be ready",
+    "how long does it take", "how long is the process", "how long does the process take",
+    "how fast", "waiting time", "how long to wait", "when can i get",
+  ]
+  fil: [
+    "gaano katagal", "gaano ka tagal", "ilang araw", "ilang oras", "ilang minuto", "ilang linggo",
+    katagal, tagal, matagal, "gaano kabilis", "kailan matatapos", "kailan makukuha",
+    "kailan pwede kunin", "kailan puwede kunin", "ilang araw bago",
+  ]
+where_to_secure:
+  en: [
+    "where to get", "where to secure", "where to obtain", "where can i get", "where do i get",
+    "where can i secure", "where do i secure", "where can i obtain", "where to request",
+    "where can i request", "where to buy", "where to claim", "where to pick up", "where can i claim",
+  ]
+  fil: [
+    "saan kukuha", "saan kumuha", "saan makakakuha", "saan makakuha", "saan kukunin",
+    "saan mag secure", "saan i secure", "saan mahahanap", "saan nakukuha", "saan nakakakuha",
+    "saan pwede kumuha", "saan puwede kumuha", "saan makukuha", "saan ako kukuha",
+  ]
+who_may_avail:
+  en: [
+    "who can apply", "who may apply", "who can avail", "who may avail", "who is eligible",
+    "who qualifies", eligible, eligibility, qualified, qualify, qualifications, qualification,
+    "who is allowed", "who can get", "who can request", "who is qualified", "who are eligible",
+    "can anyone apply", "am i eligible", "am i qualified",
+  ]
+  fil: [
+    "sino ang pwede", "sino ang puwede", "sino pwede", "sino puwede", "sino ang maaaring",
+    "sino maaaring", "pwede ba ako", "puwede ba ako", "para kanino", "sino ang qualified",
+    "sino ang pwedeng", "sino ang puwedeng", "sino ang maaari", "sino ang eligible",
+    "sino ang pwedeng mag apply", "sino ang puwedeng mag apply", "pwede ba akong mag apply",
+  ]
+office:
+  en: [
+    "where is", "where is the office", "which office", "what office", "office address", address,
+    location, located, "where to apply", "where to file", "where to submit", "where do i apply",
+    "where do i go", "where can i apply", "where can i file", "where should i go",
+    "where do i file", "where do i submit", "where can i submit", "which office handles",
+    "what office handles", "where to go", "where do i process",
+  ]
+  fil: [
+    "saan mag apply", "saan mag file", "saan magpa", "saan pupunta", "saan pumunta",
+    "saan ang opisina", "nasaan ang opisina", "anong opisina", "aling opisina", "saang opisina",
+    nasaan, "saan matatagpuan", "saan ang", "saan po ang", "saan pwede mag apply",
+    "saan puwede mag apply", "saan magpaparehistro", "saan magpaproseso", "saan ako pupunta",
+    "saan ako mag apply", "saan ito", "saan po", saan,
+  ]
+status:
+  en: [
+    status, "where is my", "where is my application", "track", tracking, "follow up", "update on",
+    "update on my", "how is my", "what happened to my", "still waiting", "approved already",
+    "is it approved", "is it done", "is it ready", "any update", "any news", "pending", pending,
+    "application status", "check status", "check my application", "has it been approved",
+    "already approved", "already done",
+  ]
+  fil: [
+    "asa na", "asan na", "nasaan na", "nasaan na ang", "kumusta na", "kamusta na",
+    "anong balita", "wala pa", "hindi pa", "approved na ba", "tapos na ba", "ready na ba",
+    "na approve na ba", "matagal na", "ilang araw na", "kumusta na ang", "kamusta na ang",
+    "asa na ang", "asan na ang", "anong nangyari sa", "ano na nangyari sa",
+  ]
