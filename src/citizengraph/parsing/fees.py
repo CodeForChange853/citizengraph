@@ -24,6 +24,8 @@ _UNIT = re.compile(
     r"^\s*(?:/|per\b)\s*(?P<unit>[A-Za-z]+(?: [A-Za-z]+)*?)\s*(?=$|\s[-–—]\s|\()", re.IGNORECASE
 )
 _PARENS = re.compile(r"\(([^)]*)\)")
+_BARE_NUMBER = re.compile(r"^\s*(\d[\d,]*(?:\.\d+)?)\s*$")
+NO_CURRENCY_NOTE = "no currency sign in source"
 _PAYMENT_NOTE = re.compile(r"^\*|^all fees\b", re.IGNORECASE)
 
 
@@ -148,6 +150,12 @@ def parse_fees(text: str | None) -> FeeParse:
         if not notes and rest.strip(" ()"):
             notes = (rest.strip(),)
         return FeeParse("none", (), notes, text)
+
+    bare = _BARE_NUMBER.match(text)
+    if bare:
+        amount = _to_float(bare.group(1))
+        item = FeeItem(None, amount, amount, note=NO_CURRENCY_NOTE)
+        return FeeParse("amounts", (item,), (), text)
 
     lines = [ln.strip() for ln in text.replace("\r", "").split("\n")]
     lines = _join_wrapped([ln for ln in lines if ln])
