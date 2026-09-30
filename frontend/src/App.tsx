@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { ApiProvider } from "./api/ApiProvider";
 import { Shell } from "./components/Shell";
+import Chat from "./routes/Chat";
 import Design from "./routes/Design";
 import Home from "./routes/Home";
 import Placeholder from "./routes/Placeholder";
@@ -15,7 +16,7 @@ export function AppRoutes() {
     <Routes>
       <Route element={<Shell />}>
         <Route path="/" element={<Home />} />
-        <Route path="/chat" element={<Placeholder title={t("nav.ask")} />} />
+        <Route path="/chat" element={<Chat />} />
         <Route path="/saved" element={<Placeholder title={t("nav.saved")} />} />
         <Route path="/help" element={<Placeholder title={t("nav.help")} />} />
       </Route>

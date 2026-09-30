@@ -14,7 +14,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   icon?: IconName;
   block?: boolean;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 /** 44px minimum height and width. Text label always present. */

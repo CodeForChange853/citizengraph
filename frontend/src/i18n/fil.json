@@ -56,10 +56,12 @@
     "otherOffice": "Sa ibang tanggapan",
     "where": "Saan pupunta",
     "also": "Kakailanganin mo rin",
-    "alsoGoTo": "Pumunta sa {{office}}",
+    "alsoGoTo": "Pumunta muna sa {{office}}",
     "keep": "Itago ang listahang ito sa telepono ko",
     "kept": "Na-save sa telepono na ito",
-    "tick": "Markahang handa na: {{item}}"
+    "tick": "Markahang handa na: {{item}}",
+    "total": "Kabuuan",
+    "stepNumber": "Hakbang {{n}}:"
   },
   "clarify": {
     "title": "Alin ang kailangan mo?"
@@ -95,5 +97,17 @@
   },
   "placeholder": {
     "soon": "Ginagawa pa ang screen na ito sa susunod na yugto."
+  },
+  "chat": {
+    "loading": "Hinahanap",
+    "ready": "Handa na ang sagot",
+    "error": "May nagkamali. Pakisubukan ulit.",
+    "retry": "Subukan ulit",
+    "you": "Tinanong mo",
+    "inputLabel": "Ang tanong mo",
+    "inputPlaceholder": "Magtanong pa",
+    "send": "Ipadala",
+    "newQuestion": "Bagong tanong",
+    "empty": "Magtanong sa ibaba, o pumili ng paksa."
   }
 }

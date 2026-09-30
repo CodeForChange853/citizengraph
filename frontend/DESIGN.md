@@ -71,3 +71,18 @@ Button, Chip, Segmented, LanguageToggle, DisplayControls (theme and text size), 
 - **Sample data tag** on the Services heading comes from `GET /health` (`mock: true`), because `/services` has no `meta`. `ApiClient` gained `health()`.
 - **Errors:** loading failure shows the red alert card (the only use of red) with "Try again". Loading shows plain text with `aria-busy`.
 - Task names use the API's service names as they are. Plain-language task phrasing ("Get a business permit") would be invented text for 40 services, so it waits for curated display names from the real API.
+
+## Stage 3: chat and the answer card
+
+- **Chat flow:** Home (or a tapped service row) navigates to `/chat` with the message in router state; Chat starts a new conversation, sends it, and clears the state so a reload does not resend. A bar above the bottom nav takes follow-ups (Enter sends). The session id from each response is sent back. A visually hidden `<h1>` and a `role="status"` line ("Looking it up" / "Answer ready") serve screen readers; the answer itself is not read out in a live region.
+- **Conversation is kept** in memory (survives Ask/Saved/Help) and copied to `localStorage` (`cg.chat.v1`, last 20 turns). This is how "last answers" stay readable offline, without caching POSTs in the service worker. "New question" clears it. Answers stay in the language they were asked in; toggling FIL does not translate old answers.
+- **Answer card order:** service name, summary line at key-fact size (from `summary`), notes, What to bring (tickable, progress "3 of 9 ready", saved on the device), What it costs, Steps timeline, Where to go, You will also need. One card per service. Notes come right under the summary, because "some items are only for some kinds of business" applies to the checklist.
+- **Fees:** rows of label and amount; a total (from `summary.fee_text`) only when there is more than one fee. No fees means "The office does not list a fee... Ask the office before you go", never "free".
+- **Steps:** numbered dots on a line, each step's time or "Time not listed", and "At another office" for external steps (for example payment at the City Treasurer's Office). Step text is the charter's own wording.
+- **Where to go:** non-tappable office chips: the service's office plus offices in `related[]`. **You will also need:** "Go to {office} first", what is needed, and the API's note ("Get this first, then come back.").
+- **Pending (`pending_lgu`):** name, "Being checked with the office", the calm banner and the office chip only. Checklist, fees, steps and related are not rendered even if the API sends them (test).
+- **Clarify:** option buttons are live only on the latest reply; after a tap the choice appears as the citizen's message and the options disappear.
+- **Fallback and refusal never dead-end:** a short honest message plus the four topic chips. Tapping a topic adds the services of that topic as clarify buttons, built from `GET /services` on the device (no API call), so a topic always leads to something.
+- **Errors:** a failed send shows the red alert card with "Try again", which resends the same question.
+- Motion is limited to a 200ms fade and 8px rise for each new message; it is skipped when the phone asks for reduced motion (MotionConfig and CSS).
+- `/design` now also shows a confirmed and a pending answer card.

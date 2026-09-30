@@ -56,10 +56,12 @@
     "otherOffice": "At another office",
     "where": "Where to go",
     "also": "You will also need",
-    "alsoGoTo": "Go to {{office}}",
+    "alsoGoTo": "Go to {{office}} first",
     "keep": "Keep this list on my phone",
     "kept": "Saved on this phone",
-    "tick": "Mark as ready: {{item}}"
+    "tick": "Mark as ready: {{item}}",
+    "total": "Total",
+    "stepNumber": "Step {{n}}:"
   },
   "clarify": {
     "title": "Which one do you need?"
@@ -95,5 +97,17 @@
   },
   "placeholder": {
     "soon": "This screen is built in a later stage."
+  },
+  "chat": {
+    "loading": "Looking it up",
+    "ready": "Answer ready",
+    "error": "Something went wrong. Please try again.",
+    "retry": "Try again",
+    "you": "You asked",
+    "inputLabel": "Your question",
+    "inputPlaceholder": "Ask another question",
+    "send": "Send",
+    "newQuestion": "New question",
+    "empty": "Ask a question below, or pick a topic."
   }
 }

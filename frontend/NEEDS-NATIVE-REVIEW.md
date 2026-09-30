@@ -51,10 +51,12 @@ own English wording in both languages and are not translated.
 | `answer.otherOffice` | At another office | Sa ibang tanggapan | |
 | `answer.where` | Where to go | Saan pupunta | |
 | `answer.also` | You will also need | Kakailanganin mo rin | |
-| `answer.alsoGoTo` | Go to {{office}} | Pumunta sa {{office}} | |
+| `answer.alsoGoTo` | Go to {{office}} first | Pumunta muna sa {{office}} | |
 | `answer.keep` | Keep this list on my phone | Itago ang listahang ito sa telepono ko | |
 | `answer.kept` | Saved on this phone | Na-save sa telepono na ito | |
 | `answer.tick` | Mark as ready: {{item}} | Markahang handa na: {{item}} | |
+| `answer.total` | Total | Kabuuan | |
+| `answer.stepNumber` | Step {{n}}: | Hakbang {{n}}: | |
 | `clarify.title` | Which one do you need? | Alin ang kailangan mo? | |
 | `fallback.title` | I could not match that | Hindi ko maintindihan iyon | |
 | `fallback.body` | I can help with services from four city offices. Pick a topic to start. | Makakatulong ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng paksa para magsimula. | |
@@ -78,6 +80,16 @@ own English wording in both languages and are not translated.
 | `home.error` | We could not load the services. | Hindi namin makuha ang mga serbisyo. | |
 | `home.retry` | Try again | Subukan ulit | |
 | `placeholder.soon` | This screen is built in a later stage. | Ginagawa pa ang screen na ito sa susunod na yugto. | |
+| `chat.loading` | Looking it up | Hinahanap | |
+| `chat.ready` | Answer ready | Handa na ang sagot | |
+| `chat.error` | Something went wrong. Please try again. | May nagkamali. Pakisubukan ulit. | |
+| `chat.retry` | Try again | Subukan ulit | |
+| `chat.you` | You asked | Tinanong mo | |
+| `chat.inputLabel` | Your question | Ang tanong mo | |
+| `chat.inputPlaceholder` | Ask another question | Magtanong pa | |
+| `chat.send` | Send | Ipadala | |
+| `chat.newQuestion` | New question | Bagong tanong | |
+| `chat.empty` | Ask a question below, or pick a topic. | Magtanong sa ibaba, o pumili ng paksa. | |
 
 ## Sentences from the mock API (`src/citizengraph/api/main.py`, `_TEXT["fil"]`)
 

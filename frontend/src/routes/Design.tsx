@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import fixtures from "../api/fixtures.json";
 import type { Group, Section } from "../api/types";
+import { AnswerCard } from "../components/AnswerCard";
 import { Button } from "../components/Button";
 import { ChecklistCard } from "../components/ChecklistCard";
 import { Chip } from "../components/Chip";
@@ -250,6 +251,14 @@ export default function Design() {
           <SampleDataTag meta={{ mock: true }} />
           <span className="text-body">{t("app.prototype")}</span>
         </div>
+      </Block>
+
+      <Block title="Answer card (confirmed)">
+        <AnswerCard section={sample} />
+      </Block>
+
+      <Block title="Answer card (pending_lgu)">
+        <AnswerCard section={pendingSample} />
       </Block>
 
       <Block title="Language toggle">
