@@ -6,11 +6,18 @@ The source spreadsheets are human-formatted documents, not tables. Workflow: a p
 
 ## 1. Sources
 
-| File | Office | Sheet | Services |
-|---|---|---|---|
-| `data/raw/BPLO-CC.xlsx` | Business Permits & Licensing Office, Calbayog City | `BPLO` (~165 rows) | 7 |
-| `data/raw/LCRO-CC.xlsx` | Civil Registry Office, Calbayog City | `CRO` (~421 rows) | 17 |
-| (pending) | Health domain (City Health Office or as advised) | | ? |
+| File | Office | Sheet | Services | Source URL | Retrieved |
+|---|---|---|---|---|---|
+| `data/raw/BPLO-CC.xlsx` | Business Permits & Licensing Office (BPLO), Calbayog City | `BPLO` (~165 rows) | 7 | not recorded (calbayog.gov.ph; add the exact URL) | not recorded |
+| `data/raw/LCRO-CC.xlsx` | Civil Registry Office (LCRO), Calbayog City | `CRO` (~421 rows) | 17 | not recorded (calbayog.gov.ph; add the exact URL) | not recorded |
+| `data/raw/CYPCC_HEALTH.xlsx` | City Health Office (CHO), Calbayog City | `HEALTH` (195 rows) | 15 | https://calbayog.gov.ph/wp-content/uploads/2025/10/CYPCC_HEALTH.xlsx | 2026-09-30 |
+| `data/raw/CYPCC_SOCIALWELFARE.xlsx` | City Social Welfare and Development Office (CSWDO), Calbayog City | `CSWDO` (38 rows) | 1 | https://calbayog.gov.ph/wp-content/uploads/2025/10/CYPCC_SOCIALWELFARE.xlsx | 2026-09-30 |
+
+The BPLO and LCRO files were received before this table recorded URLs and dates; fill in the two "not recorded" cells rather than guessing. The site refused an automated fetch (HTTP 403), so the two new URLs are as given by the team and have not been re-checked by a script.
+
+### Scope
+
+Four offices, **40 services**: BPLO 7, Civil Registry (LCRO) 17, CSWDO 1, CHO 15. Row and service counts for CHO and CSWDO were counted from the files on 2026-09-30. The CSWDO sheet holds a single service ("Referrals"); its numbered lines 1 to 5 are the requirements checklist, not further services.
 
 Each service block has: name, office, classification (SIMPLE/COMPLEX), transaction type, who may avail, a requirements checklist with "where to secure", a steps table (citizen step, agency action, fees, processing time, person responsible), and a stated TOTAL (fees and time).
 
@@ -21,9 +28,9 @@ Each service block has: name, office, classification (SIMPLE/COMPLEX), transacti
 | Business permit | BPLO 1 (Business Permit, new and renewal) |
 | Birth certificate | LCRO 1 (timely registration), 2 (delayed registration), 9 (certified transcript), 17 (BREQS / PSA copies), 8 (endorsement to PSA) |
 | Marriage certificate | LCRO 3 (marriage license), 4 (timely registration), 5 (delayed registration) |
-| Healthcare eligibility | pending |
+| Healthcare eligibility | CHO charter received (15 services, listed below). Which of them count as "eligibility" for Chapter 1 is not decided; adviser to confirm. CSWDO 1 (Referrals) may also be relevant. |
 
-Chapter 1 says "issuance"; the charters mostly describe *registration*, with issuance appearing in LCRO 9 and 17. Adviser to confirm. Recommendation: load all services from both offices (cheap), and report metrics per domain.
+Chapter 1 says "issuance"; the charters mostly describe *registration*, with issuance appearing in LCRO 9 and 17. Adviser to confirm. Recommendation: load all services from all four offices (cheap), and report metrics per domain.
 
 ### BPLO services (7)
 1 Business Permit, 2 Occupational Permit, 3 Special Mayor's Permit (Streamers & Tarpaulins), 4 Product Promotion & Peddlers, 5 Cockfight Permit, 6 Indigency Certification, 7 Fishing Permits. All SIMPLE.
@@ -52,6 +59,13 @@ Classification and stated totals (fee / time), in charter order:
 | 17 | BREQS processing (PSA) | SIMPLE | P255 to P295 | 7-10 days, 26 min |
 
 These totals are the charter's own claims. Services 6 to 17 have not been checked line by line yet; the loader must validate them (section 4).
+
+### CHO services (15)
+Sheet `HEALTH`, office "City Health Office". All are classified Simple in the sheet. Names are as written there (typos included):
+1 Routine Immunization, 2 Pre-Natal Consultation, 3 Family Planning, 4 TB/HPN/Filariasis/Schstosomiasis/Leprosy treatment, 5 Nutrition Center Services, 6 Laboratory Services, 7 Pharmacy Services, 8 Issuance of Death Certificate, 9 Issuance of permit to transfer cadaver, 10 Issuance of Sanitary Permit, 11 Dental Services, 12 The Out-Patient/Animal Bite Center services, 13 Post-Mortem examination, 14 Medico-Legal Consultation, 15 Issuance of Medial Certificates for employment.
+
+### CSWDO services (1)
+Sheet `CSWDO`, office "City Social Welfare Development Office". 1 Referrals: classified Complex, who may avail "General Public", stated total "1 week, 1 hour, 40 minutes". Requirements: Barangay certification as to residence (Brgy Hall), certification from the City Assessor's Office that the client owns no real property, certification from BPLO that the client has no existing business, medical abstract, death certificate.
 
 ## 3. Parsing rules
 
