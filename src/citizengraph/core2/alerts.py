@@ -127,7 +127,7 @@ def _escalation_en(c: AlertContext) -> str:
             f"{c.statutory_cap} (this limit is NOT verified against RA 11032)."
         )
     if c.role_title:
-        absent = " and is marked absent today" if c.role_absent else ""
+        absent = " (marked absent today)" if c.role_absent else ""
         parts.append(f"Responsible role: {c.role_title}{absent}.")
     return " ".join(parts)
 
@@ -147,7 +147,7 @@ def _escalation_fil(c: AlertContext) -> str:  # NEEDS-NATIVE-REVIEW
             f"{c.statutory_cap} (HINDI pa napapatunayan sa RA 11032 ang limitasyong ito)."
         )
     if c.role_title:
-        absent = " at absent ngayon" if c.role_absent else ""
+        absent = " (absent ngayon)" if c.role_absent else ""
         parts.append(f"Responsableng tungkulin: {c.role_title}{absent}.")
     return " ".join(parts)  # NEEDS-NATIVE-REVIEW
 
@@ -234,7 +234,7 @@ FILIPINO_STRINGS: tuple[str, ...] = (  # NEEDS-NATIVE-REVIEW
     "itinakdang limitasyon:",
     "HINDI pa napapatunayan sa RA 11032 ang limitasyong ito",
     "Responsableng tungkulin:",
-    "at absent ngayon",
+    "(absent ngayon)",
     "naghihintay sa ibang ahensya",
     "nang mas matagal kaysa karaniwan",
     "karaniwang oras:",
