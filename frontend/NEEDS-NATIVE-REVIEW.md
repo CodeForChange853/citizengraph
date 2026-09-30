@@ -26,6 +26,7 @@ own English wording in both languages and are not translated.
 | `display.sizeLarge` | Large | Malaki | |
 | `display.sizeXlarge` | Extra large | Napakalaki | |
 | `offline.banner` | You are offline. Lists you saved still work. | Walang internet. Gumagana pa rin ang mga listahang na-save mo. | |
+| `offline.askDisabled` | You are offline. You can still read your saved lists and your last answers. | Walang internet. Mababasa mo pa rin ang mga naka-save mong listahan at ang huling mga sagot. | |
 | `groups.business` | Business | Negosyo | |
 | `groups.family` | Family records | Talaan ng pamilya | |
 | `groups.health` | Health | Kalusugan | |
@@ -79,7 +80,6 @@ own English wording in both languages and are not translated.
 | `home.loading` | Loading services | Kinukuha ang mga serbisyo | |
 | `home.error` | We could not load the services. | Hindi namin makuha ang mga serbisyo. | |
 | `home.retry` | Try again | Subukan ulit | |
-| `placeholder.soon` | This screen is built in a later stage. | Ginagawa pa ang screen na ito sa susunod na yugto. | |
 | `chat.loading` | Looking it up | Hinahanap | |
 | `chat.ready` | Answer ready | Handa na ang sagot | |
 | `chat.error` | Something went wrong. Please try again. | May nagkamali. Pakisubukan ulit. | |
@@ -90,6 +90,33 @@ own English wording in both languages and are not translated.
 | `chat.send` | Send | Ipadala | |
 | `chat.newQuestion` | New question | Bagong tanong | |
 | `chat.empty` | Ask a question below, or pick a topic. | Magtanong sa ibaba, o pumili ng paksa. | |
+| `saved.title` | Saved lists | Mga naka-save na listahan | |
+| `saved.note` | Saved lists stay on this phone. There is no account. | Nasa telepono na ito ang mga naka-save na listahan. Walang account. | |
+| `saved.empty` | Nothing saved yet. Tick an item on a checklist, or tap “Keep this list on my phone”, and it will show here. | Wala pang naka-save. Mag-tick ng item sa checklist, o pindutin ang “Itago ang listahang ito sa telepono ko”, at lalabas ito rito. | |
+| `saved.ask` | Ask a question | Magtanong | |
+| `saved.remove` | Remove | Alisin | |
+| `saved.removeAsk` | Remove this list? | Alisin ang listahang ito? | |
+| `saved.removeYes` | Yes, remove | Oo, alisin | |
+| `saved.removeNo` | Keep it | Itago pa rin | |
+| `help.title` | Help | Tulong | |
+| `help.aboutTitle` | What this is | Ano ito | |
+| `help.about1` | Citizen Graph tells you what to bring, what it costs and where to go for city services. | Sinasabi ng Citizen Graph kung ano ang dadalhin, magkano, at saan pupunta para sa mga serbisyo ng lungsod. | |
+| `help.about2` | It is a thesis prototype. It is not an official government app and it does not replace the office. | Prototype ito para sa thesis. Hindi ito opisyal na app ng gobyerno at hindi nito pinapalitan ang tanggapan. | |
+| `help.howTitle` | How to use it | Paano gamitin | |
+| `help.how1` | Type what you need, or pick a topic. | I-type ang kailangan mo, o pumili ng paksa. | |
+| `help.how2` | Read the answer. Tick each paper when it is ready. | Basahin ang sagot. Mag-tick ng bawat papel kapag handa na. | |
+| `help.how3` | Follow the steps and go to the office shown. | Sundin ang mga hakbang at pumunta sa tanggapang nakasaad. | |
+| `help.pendingTitle` | If a list says it is being checked | Kapag sinabing sinusuri pa ang listahan | |
+| `help.pending` | Some lists are still being confirmed with the office. We show no numbers for them. Please ask the office before you go. | May mga listahang kinukumpirma pa sa tanggapan. Wala kaming ipinapakitang numero para sa mga ito. Magtanong muna sa tanggapan bago pumunta. | |
+| `help.privacyTitle` | Your privacy | Ang privacy mo | |
+| `help.privacy1` | There is no login and no account. | Walang login at walang account. | |
+| `help.privacy2` | Lists you save and the items you tick stay on this phone only. | Nasa telepono na ito lang ang mga listahang sine-save mo at mga item na tina-tick mo. | |
+| `help.privacy3` | Your questions are sent to the service so it can find the answer. | Ipinapadala ang mga tanong mo sa serbisyo para makahanap ng sagot. | |
+| `help.offlineTitle` | Without internet | Kapag walang internet | |
+| `help.offline` | You can read the lists you saved and your last answers with no signal. You need a signal to ask a new question. | Mababasa mo ang mga listahang na-save mo at ang huling mga sagot kahit walang signal. Kailangan ng signal para magtanong ng bago. | |
+| `help.sampleTitle` | Sample data | Halimbawang datos | |
+| `help.sample` | This prototype uses a small set of sample services from the published service charters of the city offices. Some are still being verified. | Gumagamit ang prototype na ito ng maliit na set ng halimbawang serbisyo mula sa mga inilathalang service charter ng mga tanggapan ng lungsod. May ilan pang sinusuri. | |
+| `help.displayTitle` | Display and language | Hitsura at wika | |
 
 ## Sentences from the mock API (`src/citizengraph/api/main.py`, `_TEXT["fil"]`)
 

@@ -22,7 +22,8 @@
     "sizeXlarge": "Napakalaki"
   },
   "offline": {
-    "banner": "Walang internet. Gumagana pa rin ang mga listahang na-save mo."
+    "banner": "Walang internet. Gumagana pa rin ang mga listahang na-save mo.",
+    "askDisabled": "Walang internet. Mababasa mo pa rin ang mga naka-save mong listahan at ang huling mga sagot."
   },
   "groups": {
     "business": "Negosyo",
@@ -95,9 +96,6 @@
     "error": "Hindi namin makuha ang mga serbisyo.",
     "retry": "Subukan ulit"
   },
-  "placeholder": {
-    "soon": "Ginagawa pa ang screen na ito sa susunod na yugto."
-  },
   "chat": {
     "loading": "Hinahanap",
     "ready": "Handa na ang sagot",
@@ -109,5 +107,36 @@
     "send": "Ipadala",
     "newQuestion": "Bagong tanong",
     "empty": "Magtanong sa ibaba, o pumili ng paksa."
+  },
+  "saved": {
+    "title": "Mga naka-save na listahan",
+    "note": "Nasa telepono na ito ang mga naka-save na listahan. Walang account.",
+    "empty": "Wala pang naka-save. Mag-tick ng item sa checklist, o pindutin ang “Itago ang listahang ito sa telepono ko”, at lalabas ito rito.",
+    "ask": "Magtanong",
+    "remove": "Alisin",
+    "removeAsk": "Alisin ang listahang ito?",
+    "removeYes": "Oo, alisin",
+    "removeNo": "Itago pa rin"
+  },
+  "help": {
+    "title": "Tulong",
+    "aboutTitle": "Ano ito",
+    "about1": "Sinasabi ng Citizen Graph kung ano ang dadalhin, magkano, at saan pupunta para sa mga serbisyo ng lungsod.",
+    "about2": "Prototype ito para sa thesis. Hindi ito opisyal na app ng gobyerno at hindi nito pinapalitan ang tanggapan.",
+    "howTitle": "Paano gamitin",
+    "how1": "I-type ang kailangan mo, o pumili ng paksa.",
+    "how2": "Basahin ang sagot. Mag-tick ng bawat papel kapag handa na.",
+    "how3": "Sundin ang mga hakbang at pumunta sa tanggapang nakasaad.",
+    "pendingTitle": "Kapag sinabing sinusuri pa ang listahan",
+    "pending": "May mga listahang kinukumpirma pa sa tanggapan. Wala kaming ipinapakitang numero para sa mga ito. Magtanong muna sa tanggapan bago pumunta.",
+    "privacyTitle": "Ang privacy mo",
+    "privacy1": "Walang login at walang account.",
+    "privacy2": "Nasa telepono na ito lang ang mga listahang sine-save mo at mga item na tina-tick mo.",
+    "privacy3": "Ipinapadala ang mga tanong mo sa serbisyo para makahanap ng sagot.",
+    "offlineTitle": "Kapag walang internet",
+    "offline": "Mababasa mo ang mga listahang na-save mo at ang huling mga sagot kahit walang signal. Kailangan ng signal para magtanong ng bago.",
+    "sampleTitle": "Halimbawang datos",
+    "sample": "Gumagamit ang prototype na ito ng maliit na set ng halimbawang serbisyo mula sa mga inilathalang service charter ng mga tanggapan ng lungsod. May ilan pang sinusuri.",
+    "displayTitle": "Hitsura at wika"
   }
 }

@@ -22,7 +22,8 @@
     "sizeXlarge": "Extra large"
   },
   "offline": {
-    "banner": "You are offline. Lists you saved still work."
+    "banner": "You are offline. Lists you saved still work.",
+    "askDisabled": "You are offline. You can still read your saved lists and your last answers."
   },
   "groups": {
     "business": "Business",
@@ -95,9 +96,6 @@
     "error": "We could not load the services.",
     "retry": "Try again"
   },
-  "placeholder": {
-    "soon": "This screen is built in a later stage."
-  },
   "chat": {
     "loading": "Looking it up",
     "ready": "Answer ready",
@@ -109,5 +107,36 @@
     "send": "Send",
     "newQuestion": "New question",
     "empty": "Ask a question below, or pick a topic."
+  },
+  "saved": {
+    "title": "Saved lists",
+    "note": "Saved lists stay on this phone. There is no account.",
+    "empty": "Nothing saved yet. Tick an item on a checklist, or tap “Keep this list on my phone”, and it will show here.",
+    "ask": "Ask a question",
+    "remove": "Remove",
+    "removeAsk": "Remove this list?",
+    "removeYes": "Yes, remove",
+    "removeNo": "Keep it"
+  },
+  "help": {
+    "title": "Help",
+    "aboutTitle": "What this is",
+    "about1": "Citizen Graph tells you what to bring, what it costs and where to go for city services.",
+    "about2": "It is a thesis prototype. It is not an official government app and it does not replace the office.",
+    "howTitle": "How to use it",
+    "how1": "Type what you need, or pick a topic.",
+    "how2": "Read the answer. Tick each paper when it is ready.",
+    "how3": "Follow the steps and go to the office shown.",
+    "pendingTitle": "If a list says it is being checked",
+    "pending": "Some lists are still being confirmed with the office. We show no numbers for them. Please ask the office before you go.",
+    "privacyTitle": "Your privacy",
+    "privacy1": "There is no login and no account.",
+    "privacy2": "Lists you save and the items you tick stay on this phone only.",
+    "privacy3": "Your questions are sent to the service so it can find the answer.",
+    "offlineTitle": "Without internet",
+    "offline": "You can read the lists you saved and your last answers with no signal. You need a signal to ask a new question.",
+    "sampleTitle": "Sample data",
+    "sample": "This prototype uses a small set of sample services from the published service charters of the city offices. Some are still being verified.",
+    "displayTitle": "Display and language"
   }
 }

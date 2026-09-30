@@ -9,6 +9,7 @@ import { Chip } from "../components/Chip";
 import { GroupChips } from "../components/GroupChips";
 import { HeaderIllustration } from "../components/HeaderIllustration";
 import { Icon } from "../components/Icon";
+import { useOnline } from "../lib/useOnline";
 import { SampleDataTag } from "../components/SampleDataTag";
 import { ServiceRow } from "../components/ServiceRow";
 
@@ -18,13 +19,14 @@ export default function Home() {
   const navigate = useNavigate();
   const services = useServices();
   const health = useHealth();
+  const online = useOnline();
   const [message, setMessage] = useState("");
   const [group, setGroup] = useState<Group | null>(null);
   const [office, setOffice] = useState<string | null>(null);
 
   const ask = (text: string) => {
     const trimmed = text.trim();
-    if (trimmed) void navigate("/chat", { state: { message: trimmed } });
+    if (trimmed && online) void navigate("/chat", { state: { message: trimmed } });
   };
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -67,9 +69,9 @@ export default function Home() {
             className="w-full resize-none rounded-md border-2 border-border-strong bg-surface p-3 text-lead text-fg placeholder:text-fg-muted"
           />
           <p id="ask-hint" className="text-body text-fg-muted">
-            {t("home.hint")}
+            {online ? t("home.hint") : t("offline.askDisabled")}
           </p>
-          <Button type="submit" icon="send" block>
+          <Button type="submit" icon="send" block disabled={!online}>
             {t("home.ask")}
           </Button>
         </form>
@@ -115,7 +117,7 @@ export default function Home() {
             <ul className="flex flex-col gap-3">
               {items.map((s) => (
                 <li key={s.id}>
-                  <ServiceRow service={s} onOpen={open} />
+                  <ServiceRow service={s} onOpen={open} disabled={!online} />
                 </li>
               ))}
             </ul>

@@ -31,6 +31,16 @@ uvicorn citizengraph.api.main:app --port 8000
 
 The dev server proxies `/api/*` to `http://127.0.0.1:8000`.
 
+## Try it as an installed, offline app
+
+```
+npm run build
+npm run preview        # http://localhost:4173, the service worker only runs in a build
+```
+
+Open it once, then stop the server or turn on airplane mode and reload: the app shell, saved lists and your
+last answers still open. Icons are rendered with `npm run icons` from `public/icon.svg`.
+
 ## Checks
 
 ```
