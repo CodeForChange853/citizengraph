@@ -19,6 +19,7 @@ from pydantic import ValidationError
 from citizengraph.graph.ids import clean_name, slug
 from citizengraph.graph.models import (
     Fee,
+    Link,
     Office,
     Requirement,
     Seed,
@@ -36,6 +37,7 @@ _FILES: dict[str, type] = {
     "steps": Step,
     "fees": Fee,
     "variants": Variant,
+    "links": Link,
 }
 
 
@@ -136,12 +138,13 @@ class _Validator:
         self.fee_steps()
         self.sources()
         self.slugs()
+        self.links()
 
     def duplicate_ids(self) -> None:
         s = self.seed
         for kind, records in (
             ("offices", s.offices), ("services", s.services), ("requirements", s.requirements),
-            ("steps", s.steps), ("fees", s.fees), ("variants", s.variants),
+            ("steps", s.steps), ("fees", s.fees), ("variants", s.variants), ("links", s.links),
         ):  # fmt: skip
             for rec_id, n in Counter(r.id for r in records).items():
                 if n > 1:
@@ -355,3 +358,66 @@ class _Validator:
                         "duplicate_slug",
                         f"{label} names {sorted(variants)} all become id {s!r}; make them identical",
                     )
+
+    def links(self) -> None:
+        blocks = [svc.source for svc in self.seed.services]
+        offices = {o.id for o in self.seed.offices}
+        agencies = {clean_name(r.secured_at) for r in self.seed.requirements if r.secured_at}
+        seen: set[tuple[str, str, str]] = set()
+        offices_of_agency: dict[str, set[str]] = defaultdict(set)
+        for link in self.seed.links:
+            for src in link.sources:
+                if src not in blocks:
+                    self.add(
+                        "source_mismatch",
+                        f"link {link.id}: source {src.sheet} rows {src.rows} is not a service "
+                        "block of the seed",
+                    )
+            req = self.requirements.get(link.requirement_id) if link.requirement_id else None
+            if link.requirement_id and req is None:
+                self.add(
+                    "unknown_requirement",
+                    f"link {link.id}: requirement {link.requirement_id!r} not found",
+                )
+            if link.kind == "requirement_satisfied_by":
+                if link.service_id not in self.services:
+                    self.add(
+                        "unknown_service", f"link {link.id}: service {link.service_id!r} not found"
+                    )
+                elif req is not None and req.service_id == link.service_id:
+                    self.add(
+                        "link_self",
+                        f"link {link.id}: requirement {req.id} cannot be satisfied by its own service",
+                    )
+                key = (link.kind, link.requirement_id or "", link.service_id or "")
+            else:
+                agency = clean_name(link.agency or "")
+                if link.office_id not in offices:
+                    self.add(
+                        "unknown_office", f"link {link.id}: office {link.office_id!r} not found"
+                    )
+                if agency not in agencies:
+                    self.add(
+                        "unknown_agency",
+                        f"link {link.id}: no requirement is secured at an agency named {agency!r}",
+                    )
+                if req is not None and (
+                    req.secured_at is None or clean_name(req.secured_at) != agency
+                ):
+                    self.add(
+                        "agency_context_mismatch",
+                        f"link {link.id}: requirement {req.id} is not secured at {agency!r}",
+                    )
+                offices_of_agency[agency].add(link.office_id or "")
+                key = (link.kind, agency, link.office_id or "")
+            if key in seen:
+                self.add(
+                    "duplicate_link", f"link {link.id} repeats {key[0]} {key[1]!r} -> {key[2]!r}"
+                )
+            seen.add(key)
+        for agency, targets in offices_of_agency.items():
+            if len(targets) > 1:
+                self.add(
+                    "agency_two_offices",
+                    f"agency {agency!r} is linked to offices {sorted(targets)}",
+                )

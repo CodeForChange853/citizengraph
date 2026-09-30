@@ -14,7 +14,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 ReviewStatus = Literal["needs_review", "reviewed"]
-Unit = Literal["minute", "hour", "day"]
+Unit = Literal["minute", "hour", "day", "week"]
 DayType = Literal["working", "calendar", "unknown"]
 Classification = Literal["SIMPLE", "COMPLEX"]
 
@@ -196,6 +196,40 @@ class Fee(_Conditional):
         return self
 
 
+LinkKind = Literal["requirement_satisfied_by", "agency_is_office"]
+
+
+class Link(_Record):
+    """A cross-office (or cross-service) link. Every link starts as a suggestion.
+
+    ``requirement_satisfied_by``: the requirement is obtained by using another charter service
+    (needs ``requirement_id`` and ``service_id``). ``agency_is_office``: the Agency named exactly
+    ``agency`` is one of the scoped offices (needs ``agency`` and ``office_id``);
+    ``requirement_id`` may name the requirement that made the link worth suggesting.
+    """
+
+    kind: LinkKind
+    requirement_id: str | None = None
+    agency: str | None = None
+    service_id: str | None = None
+    office_id: str | None = None
+    sources: Annotated[list[SourceRef], Field(min_length=1)]
+
+    @model_validator(mode="after")
+    def _fields_match_the_kind(self) -> Link:
+        if self.kind == "requirement_satisfied_by":
+            if self.requirement_id is None or self.service_id is None:
+                raise ValueError("requirement_satisfied_by needs requirement_id and service_id")
+            if self.agency is not None or self.office_id is not None:
+                raise ValueError("requirement_satisfied_by takes no agency or office_id")
+        else:
+            if self.agency is None or self.office_id is None:
+                raise ValueError("agency_is_office needs agency and office_id")
+            if self.service_id is not None:
+                raise ValueError("agency_is_office takes no service_id")
+        return self
+
+
 class Seed(_Strict):
     offices: list[Office]
     services: list[Service]
@@ -203,3 +237,4 @@ class Seed(_Strict):
     steps: list[Step]
     fees: list[Fee]
     variants: list[Variant]
+    links: list[Link] = Field(default_factory=list)

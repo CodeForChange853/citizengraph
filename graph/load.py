@@ -1,5 +1,6 @@
 """Admin-only: write the curated seed (graph/seed/*.yaml) into Neo4j.
 
+    pip install -e .        # once; the script imports citizengraph.graph
     NEO4J_PASSWORD=... python graph/load.py [--uri bolt://localhost:7687] [--user neo4j]
                                             [--database NAME] [--batch-size 500] [--dry-run]
 
@@ -11,7 +12,8 @@ What it does:
   1. loads and cross-validates the seed with citizengraph.graph (stops on any problem);
   2. runs graph/schema.cypher (constraints and indexes, all `IF NOT EXISTS`);
   3. upserts nodes, then relationships, with parameterized `UNWIND $rows ... MERGE` statements,
-     one write transaction per batch of at most --batch-size rows.
+     one write transaction per batch of at most --batch-size rows. Cross-office links that are
+     still `needs_review` suggestions are held back unless --include-suggested-links is given.
 
 Re-running is idempotent: every node is MERGEd on its id and its properties are replaced, every
 relationship is MERGEd. It only adds and updates; it never deletes, so a record removed from the
@@ -30,10 +32,6 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
-
-_SRC = Path(__file__).resolve().parents[1] / "src"
-if _SRC.is_dir() and str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
 
 from citizengraph.graph.ids import clean_name, slug
 from citizengraph.graph.loader import DEFAULT_SEED_DIR, SeedError, load_seed
@@ -92,11 +90,15 @@ def _pairs(pairs: list[tuple[str, str]]) -> list[dict[str, Any]]:
     return [{"a": a, "b": b} for a, b in pairs]
 
 
-def build_plan(seed: Seed) -> list[Batch]:
-    """Turn a validated seed into ordered batches (nodes first). Pure: touches no database."""
-    offices = [
-        _props(id=o.id, name=o.name, review_status=o.review_status) for o in seed.offices
-    ]
+def build_plan(seed: Seed, *, include_unreviewed_links: bool = False) -> list[Batch]:
+    """Turn a validated seed into ordered batches (nodes first). Pure: touches no database.
+
+    Cross-office links (`links.yaml`) are suggestions until a person marks them `reviewed`; by
+    default only reviewed links become relationships, so unreviewed suggestions never reach the
+    graph Core 1 reads. `include_unreviewed_links` writes them all (development databases).
+    """
+    links = [x for x in seed.links if include_unreviewed_links or x.review_status == "reviewed"]
+    offices = [_props(id=o.id, name=o.name, review_status=o.review_status) for o in seed.offices]
     services = [
         _props(
             id=s.id,
@@ -114,9 +116,7 @@ def build_plan(seed: Seed) -> list[Batch]:
         )
         for s in seed.services
     ]
-    variants = [
-        _props(id=v.id, dimension=v.dimension, value=v.value) for v in seed.variants
-    ]
+    variants = [_props(id=v.id, dimension=v.dimension, value=v.value) for v in seed.variants]
 
     agencies: dict[str, str] = {}
     for r in seed.requirements:
@@ -214,8 +214,15 @@ def build_plan(seed: Seed) -> list[Batch]:
             [(st.id, slug(st.role)) for st in seed.steps if st.role]),
         rel("rel:HAS_FEE", "Service", "HAS_FEE", "Fee",
             [(f.service_id, f.id) for f in seed.fees]),
+        rel("rel:CHARGES", "Step", "CHARGES", "Fee",
+            [(f.step_id, f.id) for f in seed.fees if f.step_id]),
         rel("rel:APPLIES_WHEN:Fee", "Fee", "APPLIES_WHEN", "Variant",
             [(f.id, v) for f in seed.fees for v in f.variant_ids]),
+        rel("rel:SATISFIED_BY", "Requirement", "SATISFIED_BY", "Service",
+            [(x.requirement_id, x.service_id) for x in links
+             if x.kind == "requirement_satisfied_by"]),
+        rel("rel:IS_OFFICE", "Agency", "IS_OFFICE", "Office",
+            [(slug(x.agency), x.office_id) for x in links if x.kind == "agency_is_office"]),
     ]  # fmt: skip
 
 
@@ -251,11 +258,12 @@ def write_seed(
     database: str | None = None,
     batch_size: int = DEFAULT_BATCH_SIZE,
     schema_path: Path = SCHEMA_PATH,
+    include_unreviewed_links: bool = False,
 ) -> LoadReport:
     """Run the schema, then write every batch in its own write transaction."""
     if batch_size < 1:
         raise ValueError("batch_size must be at least 1")
-    plan = build_plan(seed)
+    plan = build_plan(seed, include_unreviewed_links=include_unreviewed_links)
     report = LoadReport(plan=plan)
     session_args = {"database": database} if database else {}
     with driver.session(**session_args) as session:
@@ -268,6 +276,13 @@ def write_seed(
                 report.transactions += 1
             report.counts[batch.name] = len(batch.rows)
     return report
+
+
+def _links_note(seed: Seed, included: bool) -> str:
+    held = sum(1 for x in seed.links if x.review_status != "reviewed")
+    if included:
+        return f"{held} suggested links included"
+    return f"{held} suggested links held back (use --include-suggested-links)"
 
 
 def _summary(seed: Seed) -> str:
@@ -286,6 +301,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--database", default=os.environ.get("NEO4J_DATABASE"))
     ap.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
     ap.add_argument("--dry-run", action="store_true", help="validate and print counts only")
+    ap.add_argument(
+        "--include-suggested-links",
+        action="store_true",
+        help="also write cross-office links that are still needs_review (development only)",
+    )
     args = ap.parse_args(argv)
     if args.batch_size < 1:
         ap.error("--batch-size must be at least 1")
@@ -296,15 +316,19 @@ def main(argv: list[str] | None = None) -> int:
         print(exc, file=sys.stderr)
         return 1
     if args.dry_run:
-        plan = build_plan(seed)
-        print(f"dry run: seed is valid ({_summary(seed)}); {len(plan)} statements planned, "
-              "nothing written")
+        plan = build_plan(seed, include_unreviewed_links=args.include_suggested_links)
+        print(
+            f"dry run: seed is valid ({_summary(seed)}); {len(plan)} statements planned; "
+            f"{_links_note(seed, args.include_suggested_links)}; nothing written"
+        )
         return 0
 
     password = os.environ.get("NEO4J_PASSWORD")
     if not password:
-        print("NEO4J_PASSWORD is not set (the password is only read from the environment)",
-              file=sys.stderr)
+        print(
+            "NEO4J_PASSWORD is not set (the password is only read from the environment)",
+            file=sys.stderr,
+        )
         return 2
 
     from neo4j import GraphDatabase  # imported here so dry runs and tests need no driver
@@ -313,12 +337,19 @@ def main(argv: list[str] | None = None) -> int:
         with GraphDatabase.driver(args.uri, auth=(args.user, password)) as driver:
             driver.verify_connectivity()
             report = write_seed(
-                driver, seed, database=args.database, batch_size=args.batch_size
+                driver,
+                seed,
+                database=args.database,
+                batch_size=args.batch_size,
+                include_unreviewed_links=args.include_suggested_links,
             )
     except Exception as exc:  # noqa: BLE001 - admin CLI: report any driver/server failure once
         print(f"load failed: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 3
-    print(f"loaded {_summary(seed)} in {report.transactions} write transactions")
+    print(
+        f"loaded {_summary(seed)} in {report.transactions} write transactions; "
+        f"{_links_note(seed, args.include_suggested_links)}"
+    )
     return 0
 
 

@@ -770,3 +770,50 @@ fees:
   - code: fee_label_null
     message: 'the fee cell has no label; see the agency action of step 2: ''Advice for required fees (total
       fees)'''
+- id: cho_dental_services-F01
+  service_id: cho_dental_services
+  step_id: cho_dental_services-S01
+  label: null
+  amount_min: 250
+  amount_max: 250
+  unit: null
+  note: no currency sign in source
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 132
+    - 141
+  source_row: 140
+  flags:
+  - code: fee_label_null
+    message: the fee cell has no label; see the agency action of step 1
+  - code: fee_no_currency_sign
+    message: '''250'' has no peso sign in the sheet; read as an amount. The unit (per visit, per tooth,
+      ...) is not stated'
+- id: cho_medical_certificate-F01
+  service_id: cho_medical_certificate
+  step_id: cho_medical_certificate-S01
+  label: null
+  amount_min: 30
+  amount_max: 30
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 184
+    - 195
+  source_row: 192
+  flags:
+  - code: fee_label_null
+    message: the fee cell has no label; see the agency action of step 1

@@ -14,7 +14,7 @@ Nodes:
 - `Agency {id, name}` (where a requirement is secured)
 - `Step {id, order, citizen_action, agency_action, external_agency, dur_min, dur_max, dur_unit, minutes_min, minutes_max, day_type}`
 - `Role {id, title}`
-- `Fee {id, label, amount_min, amount_max, unit, note}`
+- `Fee {id, label, amount_min, amount_max, unit, note, condition_text}`
 - `Variant {id, dimension, value}` (e.g. applicant_type new|renewal; business_type single_proprietor|corporation|association|cooperative; taxpayer company|individual; cockfight_category MD|Derby|2C..5C; birth_status marital|non_marital; foreign_parent yes|no; applicant_nationality filipino|foreigner)
 - `Alias {text, lang}` (lang en|fil)
 
@@ -30,9 +30,14 @@ Relationships:
 (Step)-[:NEXT]->(Step)
 (Step)-[:PERFORMED_BY]->(Role)
 (Service)-[:HAS_FEE]->(Fee)
+(Step)-[:CHARGES]->(Fee)
 (Fee)-[:APPLIES_WHEN]->(Variant)
+(Requirement)-[:SATISFIED_BY]->(Service)
+(Agency)-[:IS_OFFICE]->(Office)
 (Service|Requirement|Agency|Office)-[:KNOWN_AS]->(Alias)
 ```
+
+`CHARGES` ties a fee row to the step where it is paid (`HAS_FEE` from the service stays, so both routes work). `SATISFIED_BY` says a requirement is obtained by using another charter service (for example a business-permit requirement that is the output of the Sanitary Permit service); `IS_OFFICE` marks an Agency whose name is exactly one of the four scoped offices (BPLO, LCRO, CHO, CSWDO). Both are cross-office links that start as suggestions in the seed (`links.yaml`, flag `link_suggested`); the loader writes them only once a person has marked them `reviewed` (or with an explicit switch), so unreviewed suggestions never reach the graph Core 1 reads.
 
 Simulated workflow data for Core 2 uses separate labels or a separate database, never mixed into the official charter graph:
 
@@ -87,6 +92,8 @@ Reject any generated Cypher that:
 - has a node pattern without a label (the one exception is a bare variable already bound with a label earlier in scope, e.g. `(f)` after `(f:Fee)`), or a relationship pattern without a type (`[r]`, `[]`, `--`, `-->`, `<--`), or a negated label or type (`:!X`), anywhere, including inside `WHERE`, `EXISTS` and `COUNT`. This keeps queries such as `MATCH (n) RETURN n` and `MATCH ()-[r]->() RETURN r` inside the official charter graph;
 - is longer than `core1.cypher_max_chars` in `config/limits.yaml` (2000);
 - hides keywords via case changes, comments (`//`, `/* */`), string concatenation, Unicode homoglyphs, or backtick-quoted identifiers.
+
+The property allow-list is the union of the node properties in section 1 and nothing else. The loader also stores bookkeeping properties (`review_status`, `source_sheet`, `source_row`, `source_rows`, `charter_ref`, `key`, `condition_structured`); they are **deliberately not on the allow-list**, so Core 1 cannot read them. It does not need them: it can read `condition_text` (on requirements and fees) and follow `APPLIES_WHEN` to the variant links, and a condition that could not be structured comes back as its `condition_text` and is shown as written. `tests/test_graph_schema_alignment.py` fails if this section, the allow-list, the loader and the seed drift apart.
 
 Use a real tokenizer that handles string literals and comments, not a regex on raw text. Validate with `EXPLAIN` when Neo4j is available. Always execute with read transactions (`session.execute_read`). Where the edition supports roles, also use a read-only user (Neo4j Community has no RBAC, so guardrail plus read transactions are the defense). This module gets the largest test suite in the repo.
 

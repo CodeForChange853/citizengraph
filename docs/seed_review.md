@@ -10,7 +10,7 @@ How to read it:
 - **Other agency** marks a step that belongs to another agency (Core 2 must not blame the LGU for it).
 - **⚑** counts review flags; each one is listed under the service's *Review flags* with a tick box.
 
-13 services · 67 requirements · 95 steps · 35 fees · 15 variants · 151 review flags. Services left out of the seed: see `docs/seed_status.md`.
+4 offices · 26 services · 74 requirements · 133 steps · 37 fees · 15 variants · 9 cross-office links · 201 review flags. Services left out of the seed: see `docs/seed_status.md`.
 
 | Service | Id | Requirements | Steps | Fees | Flags |
 |---|---|---|---|---|---|
@@ -27,13 +27,29 @@ How to read it:
 | [LCRO-11](#lcro-11-registration-of-court-order) Registration of Court Order | `court_order_registration` | 5 | 11 | 13 | 36 |
 | [LCRO-13](#lcro-13-registration-of-legal-instrument--affidavit-to-use-surname-of-the-father-ausf) Registration of Legal Instrument – Affidavit to Use Surname of the Father (AUSF) | `ausf_registration` | 4 | 7 | 1 | 6 |
 | [LCRO-14](#lcro-14-registration-of-legal-instrument--instrument-other-than-legitimation-and-ausf) Registration of Legal Instrument – Instrument other than Legitimation and AUSF | `legal_instrument_other` | 1 | 7 | 1 | 5 |
+| [CSWDO-01](#cswdo-01-referrals) Referrals | `cswdo_referrals` | 5 | 4 | 0 | 14 |
+| [CHO-01](#cho-01-routine-immunization) Routine Immunization | `cho_routine_immunization` | 0 | 3 | 0 | 2 |
+| [CHO-02](#cho-02-pre-natal-consultation) Pre-Natal Consultation | `cho_prenatal_consultation` | 0 | 3 | 0 | 2 |
+| [CHO-03](#cho-03-family-planning) Family Planning | `cho_family_planning` | 0 | 2 | 0 | 2 |
+| [CHO-07](#cho-07-pharmacy-services) Pharmacy Services | `cho_pharmacy_services` | 0 | 3 | 0 | 2 |
+| [CHO-08](#cho-08-issuance-of-death-certificate) Issuance of Death Certificate | `cho_death_certificate` | 0 | 3 | 0 | 5 |
+| [CHO-09](#cho-09-issuance-of-permit-to-transfer-cadaver) Issuance of permit to transfer cadaver | `cho_cadaver_transfer_permit` | 0 | 3 | 0 | 3 |
+| [CHO-10](#cho-10-issuance-of-sanitary-permit) Issuance of Sanitary Permit | `cho_sanitary_permit` | 1 | 3 | 0 | 5 |
+| [CHO-11](#cho-11-dental-services) Dental Services | `cho_dental_services` | 0 | 1 | 1 | 5 |
+| [CHO-12](#cho-12-the-out-patientanimal-bite-center-services) The Out-Patient/Animal Bite Center services | `cho_animal_bite_center` | 0 | 4 | 0 | 2 |
+| [CHO-13](#cho-13-post-mortem-examination) Post-Mortem examination | `cho_post_mortem_examination` | 1 | 3 | 0 | 1 |
+| [CHO-14](#cho-14-medico-legal-consultation) Medico-Legal Consultation | `cho_medico_legal_consultation` | 0 | 3 | 0 | 3 |
+| [CHO-15](#cho-15-issuance-of-medial-certificates-for-employment) Issuance of Medial Certificates for employment | `cho_medical_certificate` | 0 | 3 | 1 | 4 |
 
-## Offices and variants
+## Offices, variants and cross-office links
 
 - Office `bplo`: Business Permits & Licensing Office (`BPLO-CC.xlsx`, rows 11–49, rows 51–73, rows 94–111, rows 113–130, rows 149–165)
   - [ ] `divisions_in_charter`: the sheet names 'Assessment Division / Administrative Division' for BPLO-01 and 'Administrative Division' for BPLO-02, 04, 05, 07; divisions are not modelled
 - Office `lcro`: Civil Registry Office (`LCRO-CC.xlsx`, rows 21–40, rows 42–73, rows 106–124, rows 148–168, rows 210–227, rows 250–276, rows 304–325, rows 327–345)
   - [ ] `name_recased`: the sheet writes 'CIVIL REGISTRY OFFICE' in capitals
+- Office `cho`: City Health Office (`CYPCC_HEALTH.xlsx`, rows 2–13, rows 15–26, rows 28–38, rows 79–91, rows 93–104, rows 106–117, rows 119–130, rows 132–141, rows 143–155, rows 157–168, rows 170–182, rows 184–195)
+- Office `cswdo`: City Social Welfare Development Office (`CYPCC_SOCIALWELFARE.xlsx`, rows 3–38)
+  - [ ] `name_differs_from_docs`: the sheet reads 'City Social Welfare Development Office'; docs call it 'City Social Welfare and Development Office (CSWDO)'; kept as the sheet has it
 
 | Variant | Dimension | Value | Used by |
 |---|---|---|---|
@@ -52,6 +68,18 @@ How to read it:
 | `birth_status:marital` | birth_status | marital | LCRO-02 |
 | `birth_status:non_marital` | birth_status | non_marital | LCRO-01, LCRO-02 |
 | `foreign_parent:yes` | foreign_parent | yes | LCRO-02 |
+
+| Link | Kind | From | To | Status |
+|---|---|---|---|---|
+| link-01 | requirement_satisfied_by | requirement `business_permit-R16` | service `cho_sanitary_permit` | needs_review |
+| link-02 | requirement_satisfied_by | requirement `business_permit-R17` | service `occupational_permit` | needs_review |
+| link-03 | requirement_satisfied_by | requirement `occupational_permit-R05` | service `cho_medical_certificate` | needs_review |
+| link-04 | agency_is_office | agency “BPLO” | office `bplo` | needs_review |
+| link-05 | agency_is_office | agency “Business Permits and Licensing Office (BPLO)” | office `bplo` | needs_review |
+| link-06 | agency_is_office | agency “Business Permits & Licensing Office (main office)” | office `bplo` | needs_review |
+| link-07 | agency_is_office | agency “City Health Office (CHO)” | office `cho` | needs_review |
+| link-08 | agency_is_office | agency “City Health Office” | office `cho` | needs_review |
+| link-09 | agency_is_office | agency “Civil Registry Office” | office `lcro` | needs_review |
 
 ## BPLO-01: Business Permit
 
@@ -109,8 +137,19 @@ How to read it:
 | ☐ | 39 | F03 | S01 | Business Name Clearance | ₱5.50 | — |  |
 | ☐ | 39 | F04 | S01 | Signboard | ₱100.00 | — |  |
 
-### Review flags (24)
+### Cross-office links (suggestions)
 
+| ✓ | Link | Requirement | Points at | Status | ⚑ |
+|---|---|---|---|---|---|
+| ☐ | link-01 | R16 | service CHO-10 `cho_sanitary_permit` | needs_review | 1 |
+| ☐ | link-02 | R17 | service BPLO-02 `occupational_permit` | needs_review | 1 |
+| ☐ | link-05 | — | office `bplo` (agency “Business Permits and Licensing Office (BPLO)”) | needs_review | 1 |
+| ☐ | link-07 | — | office `cho` (agency “City Health Office (CHO)”) | needs_review | 1 |
+
+### Review flags (28)
+
+- [ ] row 11 · link-05 · `agency_name_matches_office`: the agency name is the BPLO office's name; pointing at the Office node
+- [ ] row 11 · link-07 · `agency_name_matches_office`: the agency name is the CHO office's name; pointing at the Office node
 - [ ] row 22 · requirement R04 · `merged_cell_text`: one cell holds 'Single Proprietor – Owner’s Cedula' and 'Corporation – Corporation Cedula'; kept as written, not split into two requirements
 - [ ] row 27 · requirement R09 · `where_to_secure_missing`: the charter gives no 'where to secure'; left null
 - [ ] row 28 · requirement R10 · `where_to_secure_missing`: the charter gives no 'where to secure'; left null
@@ -118,6 +157,8 @@ How to read it:
 - [ ] row 31 · requirement R13 · `condition_not_structured`: condition kept as text only
 - [ ] row 32 · requirement R14 · `heading_maybe_cooperative`: the sheet repeats the heading 'Corporation:' above the CDA (Cooperative Development Authority) certificate; docs/charter_data.md says it almost certainly means Cooperative. Not linked to any variant until the LGU confirms
 - [ ] row 32 · requirement R14 · `condition_not_structured`: condition kept as text only
+- [ ] row 34 · link-01 · `link_suggested`: BPLO-01 requirement 7 'Sanitary Permit to Operate' is secured at the City Health Office; CHO-10 'Issuance of Sanitary Permit' is the matching service (its who may avail is business owners seeking business permits). A person must confirm
+- [ ] row 35 · link-02 · `link_suggested`: BPLO-01 requirement 8 'Employee’s Occupational Permit (proof of payment only)' is secured at BPLO and matches BPLO-02; a link inside one office. A person must confirm, including what 'proof of payment only' means
 - [ ] row 40 · step 2 · `merged_cell_shared`: the fees cell is merged with step 1; fees are listed on that step
 - [ ] row 40 · step 2 · `role_not_given`: the charter gives names only; role left null
 - [ ] row 41 · step 3 · `charter_note`: fees cell note: ALL FEES MUST BE SETTLED AT THE CTO
@@ -177,8 +218,22 @@ How to read it:
 | ☐ | 66 | F04 | S01 | Occupational Tax | ₱120.00 | (company) → `taxpayer:company` |  |
 | ☐ | 66 | F05 | S01 | Occupational Tax | ₱215.00 | (individual) → `taxpayer:individual` |  |
 
-### Review flags (6)
+### Cross-office links (suggestions)
 
+| ✓ | Link | Requirement | Points at | Status | ⚑ |
+|---|---|---|---|---|---|
+| ☐ | link-03 | R05 | service CHO-15 `cho_medical_certificate` | needs_review | 1 |
+| ☐ | link-06 | — | office `bplo` (agency “Business Permits & Licensing Office (main office)”) | needs_review | 2 |
+| ☐ | link-08 | — | office `cho` (agency “City Health Office”) | needs_review | 1 |
+| ☐ | link-02 | from `business_permit-R17` | service BPLO-02 `occupational_permit` | needs_review | 1 |
+
+### Review flags (11)
+
+- [ ] row 51 · link-02 · `link_suggested`: BPLO-01 requirement 8 'Employee’s Occupational Permit (proof of payment only)' is secured at BPLO and matches BPLO-02; a link inside one office. A person must confirm, including what 'proof of payment only' means
+- [ ] row 51 · link-06 · `agency_name_matches_office`: the agency name is the BPLO office's name; pointing at the Office node
+- [ ] row 51 · link-06 · `agency_qualified`: the agency reads '(main office)'; taken as the BPLO office
+- [ ] row 51 · link-08 · `agency_name_matches_office`: the agency name is the CHO office's name; pointing at the Office node
+- [ ] row 63 · link-03 · `link_suggested`: BPLO-02 requirement 5 'Medical Certificate' is secured at the City Health Office; CHO-15 'Issuance of Medial Certificates for employment' charges P30.00 and the BPLO-02 fee list has 'Medical Health P30.00'. Whether they are the same service is for the LGU to say
 - [ ] row 66 · step 1 · `charter_note`: fees cell note: ALL FEES MUST BE SETTLED AT THE CTO
 - [ ] row 67 · step 2 · `merged_cell_shared`: the fees cell is merged with step 1; fees are listed on that step
 - [ ] row 70 · step 5 · `role_not_given`: the charter gives names only; role left null
@@ -218,6 +273,10 @@ How to read it:
 |---|---|---|---|---|---|---|---|
 | ☐ | 106 | F01 | S01 | — — fixed | ₱200.00 | — | 1 |
 | ☐ | 106 | F02 | S01 | garbage fee | ₱50.00 | — |  |
+
+### Cross-office links (suggestions)
+
+_None._
 
 ### Review flags (8)
 
@@ -267,6 +326,10 @@ How to read it:
 | ☐ | 126 | F05 | S02 | 4C | ₱6,000.00 | 4C → `cockfight_category:4C` |  |
 | ☐ | 126 | F06 | S02 | 5C | ₱7,500.00 | 5C → `cockfight_category:5C` |  |
 
+### Cross-office links (suggestions)
+
+_None._
+
 ### Review flags (6)
 
 - [ ] row 125 · step 1 · `role_not_given`: the charter gives names only; role left null
@@ -305,6 +368,10 @@ How to read it:
 
 _No fee rows._ See the stated total fee above.
 
+### Cross-office links (suggestions)
+
+_None._
+
 ### Review flags (3)
 
 - [ ] row 149 · service · `who_may_avail_blank`: 'who may avail' is blank in the sheet; left null
@@ -342,6 +409,10 @@ _No fee rows._ See the stated total fee above.
 ### Fees
 
 _No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
 
 ### Review flags (9)
 
@@ -411,8 +482,15 @@ _No fee rows._ See the stated total fee above.
 
 _No fee rows._ See the stated total fee above.
 
-### Review flags (23)
+### Cross-office links (suggestions)
 
+| ✓ | Link | Requirement | Points at | Status | ⚑ |
+|---|---|---|---|---|---|
+| ☐ | link-09 | — | office `lcro` (agency “Civil Registry Office”) | needs_review | 1 |
+
+### Review flags (24)
+
+- [ ] row 42 · link-09 · `agency_name_matches_office`: the agency name is the LCRO office's name; pointing at the Office node
 - [ ] row 42 · service · `name_from_title`: name taken from the section title; the name cell reads 'REGISTRATION OF BIRTH CERTIFICATE (DELAYED)'
 - [ ] row 50 · requirement R01 · `min_required_unclear`: text says 'or any 2 documents that state ...'; it is not clear whether 'any 2' applies to the three named documents. Kept as one requirement, min_required null
 - [ ] row 51 · requirement R02 · `where_to_secure_normalized`: the charter reads 'Philippine Statistic’s Authority / LCR Calbayog thru BREQS'; spelling/case unified with the same agency in another service so both share one Agency: 'Philippine Statistics Authority / LCR Calbayog thru BREQS'
@@ -468,6 +546,10 @@ _No fee rows._ See the stated total fee above.
 
 _No fee rows._ See the stated total fee above.
 
+### Cross-office links (suggestions)
+
+_None._
+
 ### Review flags (5)
 
 - [ ] row 106 · service · `name_from_title`: name taken from the section title; the name cell reads 'REGISTRATION OF MARRIAGE CERTIFICATE (TIMELY)'
@@ -508,6 +590,10 @@ _No fee rows._ See the stated total fee above.
 ### Fees
 
 _No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
 
 ### Review flags (12)
 
@@ -558,8 +644,15 @@ _No fee rows._ See the stated total fee above.
 | ☐ | 223 | F02 | S03 | — | ₱20.00 | — | 1 |
 | ☐ | 225 | F03 | S05 | — | ₱40.00 | — | 1 |
 
-### Review flags (8)
+### Cross-office links (suggestions)
 
+| ✓ | Link | Requirement | Points at | Status | ⚑ |
+|---|---|---|---|---|---|
+| ☐ | link-09 | — | office `lcro` (agency “Civil Registry Office”) | needs_review | 1 |
+
+### Review flags (9)
+
+- [ ] row 210 · link-09 · `agency_name_matches_office`: the agency name is the LCRO office's name; pointing at the Office node
 - [ ] row 210 · service · `name_from_title`: name taken from the section title; the name cell reads 'ISSUANCE OF CERTIFIED TRANSCRIPTION OF COLB, COD, COM, LI AND OTHER CERTIFICATIONS ISSUED BY CCR'
 - [ ] row 221 · step 1 · `role_partial`: the cell has a name and a role title; only the role title is kept
 - [ ] row 221 · step 1 · `suspected_copy_paste`: the citizen step says 'Personally request for electronic endorsement', which is LCRO-08's step
@@ -621,6 +714,10 @@ _No fee rows._ See the stated total fee above.
 | ☐ | 270 | F11 | S06 | Voluntary Renunciation of Citizenship | ₱500.00 | Fees required under local tax code: Voluntary Renunciation of Citizenship (text only) | 2 |
 | ☐ | 270 | F12 | S06 | Emancipation of Minor | ₱200.00 | Fees required under local tax code: Emancipation of Minor (text only) | 2 |
 | ☐ | 270 | F13 | S06 | Presumptive Death | ₱500.00 | Fees required under local tax code: Presumptive Death (text only) | 2 |
+
+### Cross-office links (suggestions)
+
+_None._
 
 ### Review flags (36)
 
@@ -697,6 +794,10 @@ _No fee rows._ See the stated total fee above.
 |---|---|---|---|---|---|---|---|
 | ☐ | 319 | F01 | S02 | — | ₱540.00 | — | 1 |
 
+### Cross-office links (suggestions)
+
+_None._
+
 ### Review flags (6)
 
 - [ ] row 304 · service · `name_from_title`: name taken from the section title; the name cell reads 'REGISTRATION OF LEGAL INSTRUMENT - AFFIDAVIT TO USE SURNAME OF THE FATHER (AUSF)'
@@ -739,6 +840,10 @@ _No fee rows._ See the stated total fee above.
 |---|---|---|---|---|---|---|---|
 | ☐ | 339 | F01 | S02 | — | ₱300.00 | — | 1 |
 
+### Cross-office links (suggestions)
+
+_None._
+
 ### Review flags (5)
 
 - [ ] row 327 · service · `name_from_title`: name taken from the section title; the name cell reads 'REGISTRATION OF LEGAL INSTRUMENT - OTHER THAN LEGITIMATION AND AUSF'
@@ -746,3 +851,492 @@ _No fee rows._ See the stated total fee above.
 - [ ] row 344 · step 7 · `role_not_given`: the charter gives names only; role left null
 - [ ] row 344 · step 7 · `charter_note`: fees cell note: option for private courier
 - [ ] row 344 · step 7 · `psa_destination_differs`: the PSA mailing destination differs between services (Catbalogan LCRO-08; Tacloban LCRO-10/12/13/14; Manila LCRO-11/15/16); confirm
+
+## CSWDO-01: Referrals
+
+- id `cswdo_referrals` · City Social Welfare Development Office · COMPLEX · Government of Citizen
+- Source: `CYPCC_SOCIALWELFARE.xlsx`, sheet `CSWDO`, rows 3–38 (total row 38) · needs_review
+- Who may avail: General Public
+- Stated total fee: —
+- Stated total time: 1 week, 1 hour, 40 minutes
+- Description: This includes referrals to government hospitals and other charitable institutions for the<br>necessary intervention/asssitance not within the scope of CSWDO services.
+
+### Requirements
+
+| ✓ | Row | Id | Requirement | Where to secure | Applies when | ⚑ |
+|---|---|---|---|---|---|---|
+| ☐ | 13 | R01 | Brgy Certification as to residence | Brgy Hall | — |  |
+| ☐ | 14 | R02 | Certification from Assessor's Office that client does not own real property | City Assessor's Office | — | 1 |
+| ☐ | 16 | R03 | Certification from BPLO that the client has no existing business | BPLO | — | 1 |
+| ☐ | 18 | R04 | Medical Abstract | — | — | 1 |
+| ☐ | 19 | R05 | Death Certificate | — | — | 1 |
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 21 | S01 | — | Present required document | Intake interview necessary information regarding the client and family are adduced | 30 min | Personel in charge / Emergency Welfare Program implementer | role title | — | 1 |
+| ☐ | 24 | S02 | — | Clients referred to LTO for transportation assisstance / PCSO for financial (Medical) assistance / Missionaries of Charity for temporary placement / SOS for long term residential care | Preparation of Social Case Study Report / Certificate of Indigency | 1 wk | Personel in charge / Emergency Welfare Program implementer | role title | — | 3 |
+| ☐ | 32 | S03 | — | Receive the needed documents | Release of needed documents (SCSR / Certificate of Indigency / Referral Letter) | 10 min | Personel in charge / Emergency Welfare Program implementer | role title | — | 1 |
+| ☐ | 35 | S04 | — | — | Monitoring | 1 h | Personel in charge / Emergency Welfare Program implementer | role title | — | 2 |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+| ✓ | Link | Requirement | Points at | Status | ⚑ |
+|---|---|---|---|---|---|
+| ☐ | link-04 | R03 | office `bplo` (agency “BPLO”) | needs_review | 2 |
+
+### Review flags (16)
+
+- [ ] row 3 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+- [ ] row 3 · service · `classification_to_confirm`: classified Complex (row 9); confirm with the LGU, since SIMPLE and COMPLEX services have different RA 11032 caps
+- [ ] row 3 · service · `typos_kept`: the transaction type reads 'Government of Citizen', the description has 'asssitance' and step 2 has 'assisstance'; kept as written
+- [ ] row 14 · requirement R02 · `requirement_fragment_glued`: row 15 continues requirement 2 (row 14); the wrapped text was joined into this requirement
+- [ ] row 16 · link-04 · `link_suggested`: CSWDO-01 requirement 3 asks BPLO for a certification that the client has no existing business; the agency 'BPLO' is the BPLO office
+- [ ] row 16 · link-04 · `no_bplo_service_issues_this`: none of the BPLO services issues this certification (docs/charter_data.md cross-office links); raise with the LGU
+- [ ] row 16 · requirement R03 · `requirement_fragment_glued`: row 17 continues requirement 3 (row 16); the wrapped text was joined into this requirement
+- [ ] row 18 · requirement R04 · `where_to_secure_missing`: the charter gives no 'where to secure'; left null
+- [ ] row 19 · requirement R05 · `where_to_secure_missing`: the charter gives no 'where to secure'; left null
+- [ ] row 21 · step 1 · `orphan_row_glued`: rows 22-23 had no fee or time; their text was appended to this step (the sheet wraps text over rows)
+- [ ] row 24 · step 2 · `day_type_unknown`: '1 week' does not say calendar or working days (day_type left unknown)
+- [ ] row 24 · step 2 · `orphan_row_glued`: rows 25-31 had no fee or time; their text was appended to this step (the sheet wraps text over rows)
+- [ ] row 24 · step 2 · `referral_alternatives_unclear`: four referral destinations (LTO, PCSO, Missionaries of Charity, SOS) are in one cell; the sheet does not say whether they are alternatives or a sequence, or what decides which one applies. Kept exactly as written; ask the LGU
+- [ ] row 32 · step 3 · `orphan_row_glued`: rows 33-34 had no fee or time; their text was appended to this step (the sheet wraps text over rows)
+- [ ] row 35 · step 4 · `orphan_row_glued`: rows 36-37 had no fee or time; their text was appended to this step (the sheet wraps text over rows)
+- [ ] row 35 · step 4 · `recurring_monitoring`: the charter says '1 hour (Once a month)': a monthly follow-up. It is counted once in the stated total (30 + 10 + 60 minutes); unclear whether monitoring is part of the service time or a recurring follow-up
+
+## CHO-01: Routine Immunization
+
+- id `cho_routine_immunization` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 2–13 (total row 13) · needs_review
+- Who may avail: Vaccination against TB, hepatitis, tetanus, deptheria, measles, flu and pneumonia
+- Stated total fee: —
+- Stated total time: 32 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 10 | S01 | — | Receiving | • Client is taken in, mother baby book prepared and old record retrieved<br>• Client details entered in recording logbook<br>• Client weighed and vital signs taken and recorded in baby booklet | 10 min | Personnel incharge | role title | — |  |
+| ☐ | 11 | S02 | — | Immunization | • Client is assessed<br>• Physical assessment done, condition of the baby checked<br>• Health history taken<br>• Vaccinated<br>• Health education and counselling conducted<br>• Supplements provided<br>• Set for the next appointment | 20 min | Nurse incharge | role title | — |  |
+| ☐ | 12 | S03 | — | Log in the dispensary | Supplies are logged in the dispensary | 2 min | Person incharge | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (2)
+
+- [ ] row 2 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 2 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+
+## CHO-02: Pre-Natal Consultation
+
+- id `cho_prenatal_consultation` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 15–26 (total row 26) · needs_review
+- Who may avail: Pregnant
+- Stated total fee: —
+- Stated total time: 27 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 23 | S01 | — | Receiving | • Client is taken in, mother baby book prepared and old record retrieved<br>• Client details entered in recording logbook | 5 min | Personnel incharge | role title | — |  |
+| ☐ | 24 | S02 | — | Client consultation | • Client is assessed, vital signs taken<br>• Physical assessment done, condition of the baby checked<br>• Health history taken<br>• Referral issued for diagnostic examination or for further management or in higher center if needed<br>• Health education, birth planning and counselling conducted<br>• Supplements provided<br>• Set for the next appointment | 20 min | Nurse incharge | role title | — |  |
+| ☐ | 25 | S03 | — | Log in the dispensary | Supplies are logged in the dispensary | 2 min | Person incharge | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (2)
+
+- [ ] row 15 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 15 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+
+## CHO-03: Family Planning
+
+- id `cho_family_planning` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 28–38 (total row 38) · needs_review
+- Who may avail: This service caters to women of reproductive age who wishes to plan
+- Stated total fee: —
+- Stated total time: 25 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 36 | S01 | — | Receiving | • Client is taken in, old record retrieved and intake form prepared<br>• Client details entered in recording logbook | 5 min | Personnel incharge | role title | — |  |
+| ☐ | 37 | S02 | — | Client consultation | • Client is assessed<br>• Health history taken<br>• Health education and counselling conducted<br>• Family planning commodity given, if implant and ligation is preferred by client, schedule of procedure will be arranged<br>• Set for next appointment | 20 min | Personnel incharge | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (2)
+
+- [ ] row 28 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 28 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+
+## CHO-07: Pharmacy Services
+
+- id `cho_pharmacy_services` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 79–91 (total row 91) · needs_review
+- Who may avail: This service caters to customers prescribed with medicine after consultation
+- Stated total fee: —
+- Stated total time: 9 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 88 | S01 | — | Receiving | • Client is taken in, prescription received<br>• Prescription given to pharmacist | 2 min | Assistant | role title | — |  |
+| ☐ | 89 | S02 | — | Medicine prepared and dispensed | • Medicine are retrieved from the shelf<br>• Instruction written in the wrappings if prescription is kept in the pharmacy<br>• Medicines is given to the client with proper instruction for administration | 5 min | Pharmacist | role title | — |  |
+| ☐ | 90 | S03 | — | Log in the dispensary | Logged in the dispensary and client asked to sign in the dispensary | 2 min | Assistant | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (2)
+
+- [ ] row 79 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 79 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+
+## CHO-08: Issuance of Death Certificate
+
+- id `cho_death_certificate` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 93–104 (total row 104) · needs_review
+- Who may avail: This service caters to families of the deceased whose death occurred outside of a medical facility.
+- Stated total fee: —
+- Stated total time: 20 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 101 | S01 | — | Receiving | Client is taken in, death certificate issued by the LCR is received Referred to the MOD | 5 min | Personnel incharge | role title | — | 1 |
+| ☐ | 102 | S02 | — | Assessment of cause of death | • Client is interviewed as to the circumstances leading to the death of the deceased<br>• Once determined, probable causes of death are entered into the death certificate and signed by the MOD | 10 min | Personnel incharge | role title | — |  |
+| ☐ | 103 | S03 | — | Releasing of death certificate | Certificate released after proper recording and signature of family member obtained to prove receipt Copy is filed | 5 min | Personnel incharge | role title | — | 1 |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (5)
+
+- [ ] row 93 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 93 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+- [ ] row 93 · service · `upstream_service_not_linked`: step 1 starts from a death certificate 'issued by the LCR' (LCRO death registration, LCRO-06 or LCRO-07); the link is in step text, not in a checklist, so it is not modelled
+- [ ] row 101 · step 1 · `two_actions_one_line`: the agency action (row 101) holds two actions on one line, separated by spaces and not bullets; not split
+- [ ] row 103 · step 3 · `two_actions_one_line`: the agency action (row 103) holds two actions on one line, separated by spaces and not bullets; not split
+
+## CHO-09: Issuance of permit to transfer cadaver
+
+- id `cho_cadaver_transfer_permit` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 106–117 (total row 117) · needs_review
+- Who may avail: This service caters to owners of business establishments seeking business permits and license.
+- Stated total fee: —
+- Stated total time: 20 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 114 | S01 | — | Receiving | Client is taken in, information taken as to cadaver concerned | 5 min | Personnel incharge | role title | — |  |
+| ☐ | 115 | S02 | — | Assessment | • Client is interviewed as to purpose of transfer, cause of death and destination<br>• Once determined to be compliant to the sanitation code, permit is prepared | 10 min | Personnel incharge | role title | — |  |
+| ☐ | 116 | S03 | — | Releasing of permit to transfer | • Permit released after proper recording<br>• Copy is filed | 5 min | Personnel incharge | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (3)
+
+- [ ] row 106 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 106 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+- [ ] row 106 · service · `who_may_avail_suspected_copy_paste`: 'who may avail' is the Sanitary Permit text (business owners seeking business permits), which does not fit a cadaver transfer permit; kept as written
+
+## CHO-10: Issuance of Sanitary Permit
+
+- id `cho_sanitary_permit` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 119–130 (total row 130) · needs_review
+- Who may avail: This service caters to owners of business establishments seeking business permits and license.
+- Stated total fee: —
+- Stated total time: —
+- Description: —
+
+### Requirements
+
+| ✓ | Row | Id | Requirement | Where to secure | Applies when | ⚑ |
+|---|---|---|---|---|---|---|
+| ☐ | 125 | R01 | Application Form | — | — | 1 |
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 127 | S01 | — | Receiving | • Client is taken in, information<br>• Application form is accepted and checked<br>• Requirements are given and client is billed | 5 min | Personnel incharge | role title | — | 1 |
+| ☐ | 128 | S02 | — | Inspection | • Client is scheduled for inspection<br>• Establishment visited and inspected<br>• Inspection result discussed and instructions for compliance to standards given | 3 days | Personnel incharge | role title | — | 1 |
+| ☐ | 129 | S03 | — | Releasing of Sanitary Permit | Permit released after compliance of minimal requirements | 5 min | Personnel incharge | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+| ✓ | Link | Requirement | Points at | Status | ⚑ |
+|---|---|---|---|---|---|
+| ☐ | link-01 | from `business_permit-R16` | service CHO-10 `cho_sanitary_permit` | needs_review | 1 |
+
+### Review flags (6)
+
+- [ ] row 119 · link-01 · `link_suggested`: BPLO-01 requirement 7 'Sanitary Permit to Operate' is secured at the City Health Office; CHO-10 'Issuance of Sanitary Permit' is the matching service (its who may avail is business owners seeking business permits). A person must confirm
+- [ ] row 119 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+- [ ] row 119 · service · `total_time_conflict`: the TOTAL row states '20 min' (row 130) but the steps add up to 3 days + 10 minutes (step 2, inspection, is '3 days'). The stated total is not stored (total_time_text is null) and must not be used to answer 'how long'; use the step times, and ask the LGU
+- [ ] row 125 · requirement R01 · `where_to_secure_na`: the sheet says N/A for 'where to secure'; left null
+- [ ] row 127 · step 1 · `billed_no_fee_stated`: the agency action says the client is billed, but the fee cell says 'None' and no fee is stated in the sheet
+- [ ] row 128 · step 2 · `day_type_unknown`: '3 days' does not say calendar or working days (day_type left unknown)
+
+## CHO-11: Dental Services
+
+- id `cho_dental_services` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 132–141 (total row 141) · needs_review
+- Who may avail: This service caters to the clients needing dental examination and treatment services.
+- Stated total fee: —
+- Stated total time: 40 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 140 | S01 | — | Receiving and vital signs taking | • Client is taken in, client intake forms are filled-in and vital sign taken<br>• Client history is taken<br>• Dental cavity prepared<br>• Extraction done<br>• Medicine prescription given<br>• Health education and instruction for proper medication given | 40 min | Dentist | names + role title | — | 1 |
+
+### Fees
+
+| ✓ | Row | Id | Step | Fee | Amount | Applies when | ⚑ |
+|---|---|---|---|---|---|---|---|
+| ☐ | 140 | F01 | S01 | — — no currency sign in source | ₱250.00 | — | 2 |
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (5)
+
+- [ ] row 132 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 132 · service · `fee_not_in_stated_total`: step 1 shows a fee of '250' but the TOTAL row states no fee, so the fee cannot be validated
+- [ ] row 140 · fee F01 · `fee_label_null`: the fee cell has no label; see the agency action of step 1
+- [ ] row 140 · fee F01 · `fee_no_currency_sign`: '250' has no peso sign in the sheet; read as an amount. The unit (per visit, per tooth, ...) is not stated
+- [ ] row 140 · step 1 · `person_cell_has_heading`: the person cell reads 'Person responsible / Dentist' (the column heading pasted before the role); only the role 'Dentist' is kept
+
+## CHO-12: The Out-Patient/Animal Bite Center services
+
+- id `cho_animal_bite_center` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 143–155 (total row 155) · needs_review
+- Who may avail: clients bitten by animals suspected of having rabies
+- Stated total fee: —
+- Stated total time: 30 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 151 | S01 | — | Receiving | Client is taken in, records retrieved and vital signs and complaints are recorded in the individual treatment record | 5 min | Nurse on duty | role title | — |  |
+| ☐ | 152 | S02 | — | Consultation with physician | • Physical examination, medical history, history of present illness taken<br>• Request for diagnostic examination given<br>• Diagnostic is given and health education provided<br>• Medicine prescription given | 10 min | Physician on duty | role title | — |  |
+| ☐ | 153 | S03 | — | Treatment/Vacci nation | Wounds are treated, vaccines inoculated, vaccination cards prepared and instructions given | 5 min | Nurse on duty | role title | — |  |
+| ☐ | 154 | S04 | — | Dispensing of Medicine | • Medicines prescribed are retrieved and given to the client with instructions on proper administration<br>• Medicines given are recorded in the dispensary and client asked to signed | 10 min | Nurse on duty | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (2)
+
+- [ ] row 143 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 143 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+
+## CHO-13: Post-Mortem examination
+
+- id `cho_post_mortem_examination` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 157–168 (total row 168) · needs_review
+- Who may avail: This service caters to the clients needing certification of injuries sustained and possible causes of death which is suspected to be caused by criminal offenses as requested by the Philippine National Police.
+- Stated total fee: —
+- Stated total time: 40 min
+- Description: —
+
+### Requirements
+
+| ✓ | Row | Id | Requirement | Where to secure | Applies when | ⚑ |
+|---|---|---|---|---|---|---|
+| ☐ | 163 | R01 | Request to conduct a Post-Mortem Examination | Philippine National Police | — |  |
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 165 | S01 | — | Receiving and assignment of medical examiner | • Request is received and recorded<br>• Medical examiner in-charge is called and briefed on the case | 5 min | Personnel incharge | role title | — |  |
+| ☐ | 166 | S02 | — | Post-mortem examination | • Medical examiner goes to the funeral parlor to examine the cadaver<br>• Report is made and signed | 30 min | Personnel incharge | role title | — |  |
+| ☐ | 167 | S03 | — | Releasing and recording | • Report is recorded, copies retained and released with client signing in the release logbook<br>• Copies files | 5 min | Personnel incharge | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (1)
+
+- [ ] row 157 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+
+## CHO-14: Medico-Legal Consultation
+
+- id `cho_medico_legal_consultation` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 170–182 (total row 182) · needs_review
+- Who may avail: This service caters to the clients needing certification of injuries sustained and possible causes of death which is suspected to be caused by criminal offenses as requested by the Philippine National Police.
+- Stated total fee: —
+- Stated total time: 30 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 178 | S01 | — | Receiving and vital signs taking | • Clients name is takes, forms are filled-in and vital signs taken<br>• Request is taken and recorded | 5 min | Personnel incharge | role title | — |  |
+| ☐ | 179 | S02 | — | Consultation with physician | • Physical examination, medical history taken<br>• Physical condition/status determined<br><br>Report made and signed. | 20 min | Physician | role title | — | 1 |
+| ☐ | 181 | S03 | — | Releasing and recording | Report is recorded, copies retained and released with client signing in the release logbook<br>Copies files | 5 min | Person incharge | role title | — |  |
+
+### Fees
+
+_No fee rows._ See the stated total fee above.
+
+### Cross-office links (suggestions)
+
+_None._
+
+### Review flags (3)
+
+- [ ] row 170 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 170 · service · `total_fee_not_stated`: the TOTAL row states no fee (step fee cells say 'None')
+- [ ] row 179 · step 2 · `orphan_row_glued`: row 180 ('Report made and signed.') has no step label, fee, time or person; it was appended to this step as its last list item and may instead be a separate step without a time
+
+## CHO-15: Issuance of Medial Certificates for employment
+
+- id `cho_medical_certificate` · City Health Office · SIMPLE · Government to Citizen
+- Source: `CYPCC_HEALTH.xlsx`, sheet `HEALTH`, rows 184–195 (total row 195) · needs_review
+- Who may avail: This service caters to the clients needing certification of physical condition usually for legal, employment and benefits claim purposes.
+- Stated total fee: ₱30.00
+- Stated total time: 20 min
+- Description: —
+
+### Requirements
+
+_None in the charter._
+
+### Steps
+
+| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell | Other agency | ⚑ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ☐ | 192 | S01 | — | Receiving and vital signs taking | • Clients name is taken, forms are filled-in and vital signs<br>taken<br>• Purpose for certification is taken<br>• Billing is given to the patient for payment at the treasurer’s<br>office<br>• Request for diagnostic exams required given | 5 min | Nurse on duty | role title | — | 1 |
+| ☐ | 193 | S02 | — | Consultation with physician | • Physical examination, medical history taken<br>• Physical condition/status determined<br>• Certificate signed. | 10 min | Physician | role title | — |  |
+| ☐ | 194 | S03 | — | Releasing and recording | Certificate information is recorded, copies retained and released with client signing in the release logbook | 5 min | Person incharge | role title | — |  |
+
+### Fees
+
+| ✓ | Row | Id | Step | Fee | Amount | Applies when | ⚑ |
+|---|---|---|---|---|---|---|---|
+| ☐ | 192 | F01 | S01 | — | ₱30.00 | — | 1 |
+
+### Cross-office links (suggestions)
+
+| ✓ | Link | Requirement | Points at | Status | ⚑ |
+|---|---|---|---|---|---|
+| ☐ | link-03 | from `occupational_permit-R05` | service CHO-15 `cho_medical_certificate` | needs_review | 1 |
+
+### Review flags (5)
+
+- [ ] row 184 · link-03 · `link_suggested`: BPLO-02 requirement 5 'Medical Certificate' is secured at the City Health Office; CHO-15 'Issuance of Medial Certificates for employment' charges P30.00 and the BPLO-02 fee list has 'Medical Health P30.00'. Whether they are the same service is for the LGU to say
+- [ ] row 184 · service · `no_requirements_listed`: the checklist says N/A; no requirement rows
+- [ ] row 184 · service · `typos_kept`: the name reads 'Medial' (Medical); kept as written
+- [ ] row 192 · fee F01 · `fee_label_null`: the fee cell has no label; see the agency action of step 1
+- [ ] row 192 · step 1 · `payment_at_treasurer_no_step`: the agency action says billing is given for payment at the treasurer’s office; the sheet has no separate payment step. external_agency is left null because the step is otherwise the City Health Office’s own

@@ -14,8 +14,9 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+from citizengraph.graph.ids import clean_name
 from citizengraph.graph.loader import DEFAULT_SEED_DIR, load_seed
-from citizengraph.graph.models import Duration, Fee, Requirement, Seed, Service, Step
+from citizengraph.graph.models import Duration, Fee, Link, Requirement, Seed, Service, Step
 
 REVIEW_PATH = Path(__file__).resolve().parents[3] / "docs" / "seed_review.md"
 
@@ -37,7 +38,7 @@ def _duration(d: Duration, shared_from: str | None) -> str:
         return "not stated"
     if d.status == "unparsed":
         return f"unparsed: {d.raw}"
-    unit = {"minute": "min", "hour": "h", "day": "days"}[d.unit or "minute"]
+    unit = {"minute": "min", "hour": "h", "day": "days", "week": "wk"}[d.unit or "minute"]
     span = _num(d.value_min or 0)
     if d.value_max != d.value_min:
         span += f"–{_num(d.value_max or 0)}"
@@ -85,8 +86,10 @@ def _service_section(seed: Seed, svc: Service) -> list[str]:
         f"## {svc.charter_ref}: {svc.name}",
         "",
         f"- id `{svc.id}` · {office.name} · {svc.classification} · {svc.transaction_type or '—'}",
-        (f"- Source: `{svc.source.file}`, sheet `{svc.source.sheet}`, {_rows(lo, hi)}"
-        f" (total row {svc.total_source_row}) · {svc.review_status}"),
+        (
+            f"- Source: `{svc.source.file}`, sheet `{svc.source.sheet}`, {_rows(lo, hi)}"
+            f" (total row {svc.total_source_row}) · {svc.review_status}"
+        ),
         f"- Who may avail: {_cell(svc.who_may_avail)}",
         f"- Stated total fee: {_cell(svc.total_fee_text)}",
         f"- Stated total time: {_cell(svc.total_time_text)}",
@@ -113,8 +116,10 @@ def _service_section(seed: Seed, svc: Service) -> list[str]:
         lines.append("_None in the charter._")
     lines += ["", "### Steps", ""]
     lines += [
-        ("| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell "
-        "| Other agency | ⚑ |"),
+        (
+            "| ✓ | Row | Id | Label | Citizen step | Agency action | Time | Role | Person cell "
+            "| Other agency | ⚑ |"
+        ),
         "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for s in steps:
@@ -144,15 +149,59 @@ def _service_section(seed: Seed, svc: Service) -> list[str]:
             )
     else:
         lines.append("_No fee rows._ See the stated total fee above.")
+    req_ids = {r.id: r for r in reqs}
+    agencies = {clean_name(r.secured_at or "") for r in reqs}
+    own_links = [
+        x
+        for x in seed.links
+        if x.requirement_id in req_ids
+        or (x.kind == "agency_is_office" and clean_name(x.agency or "") in agencies)
+    ]
+    incoming = [x for x in seed.links if x.service_id == svc.id and x not in own_links]
+    my_links = own_links + incoming
+    lines += ["", "### Cross-office links (suggestions)", ""]
+    if my_links:
+        lines += [
+            "| ✓ | Link | Requirement | Points at | Status | ⚑ |",
+            "|---|---|---|---|---|---|",
+        ]
+        for x in my_links:
+            lines.append(_link_row(seed, x, x in incoming))
+    else:
+        lines.append("_None._")
     items: list[tuple[int, str, list]] = [(svc.source.rows[0], "service", svc.flags)]
     items += [(r.source_row, f"requirement {r.id.rsplit('-', 1)[-1]}", r.flags) for r in reqs]
     items += [(s.source_row, f"step {s.order}", s.flags) for s in steps]
     items += [(f.source_row, f"fee {f.id.rsplit('-', 1)[-1]}", f.flags) for f in fees]
+    for x in my_links:
+        row = (
+            req_ids[x.requirement_id].source_row
+            if x.requirement_id in req_ids
+            else svc.source.rows[0]
+        )
+        items.append((row, x.id, x.flags))
     flag_lines = _flag_lines(items)
     lines += ["", f"### Review flags ({len(flag_lines)})", ""]
     lines += flag_lines or ["_None._"]
     lines.append("")
     return lines
+
+
+def _link_row(seed: Seed, link: Link, incoming: bool) -> str:
+    if link.kind == "requirement_satisfied_by":
+        target = next(s for s in seed.services if s.id == link.service_id)
+        points = f"service {target.charter_ref} `{target.id}`"
+        rid = link.requirement_id or ""
+    else:
+        target = next(o for o in seed.offices if o.id == link.office_id)
+        points = f"office `{target.id}` (agency “{link.agency}”)"
+        rid = link.requirement_id or "—"
+    label = rid if incoming or rid == "—" else rid.rsplit("-", 1)[-1]
+    if incoming:
+        label = f"from `{rid}`"
+    return (
+        f"| ☐ | {link.id} | {label} | {points} | {link.review_status} | {len(link.flags) or ''} |"
+    )
 
 
 def _requirement_row(r: Requirement, depth: int) -> str:
@@ -174,36 +223,51 @@ def _requirement_row(r: Requirement, depth: int) -> str:
 
 def render_review(seed: Seed) -> str:
     n_flags = sum(
-        len(x.flags)
-        for x in [*seed.services, *seed.requirements, *seed.steps, *seed.fees]
+        len(x.flags) for x in [*seed.services, *seed.requirements, *seed.steps, *seed.fees]
     )
     lines = [
         "# Seed review checklist",
         "",
-        ("Generated by `python -m citizengraph.graph.review` from `graph/seed/*.yaml`; do not "
-        "edit by hand (a test checks it is in sync). Review each service side by side with the "
-        "spreadsheet named in its source line: the **Row** column is the spreadsheet row. "
-        "Every record is `needs_review`; the tick boxes are for a working copy, and the durable "
-        "record of a check is `review_status: reviewed` in the seed (then regenerate this file)."),
+        (
+            "Generated by `python -m citizengraph.graph.review` from `graph/seed/*.yaml`; do not "
+            "edit by hand (a test checks it is in sync). Review each service side by side with the "
+            "spreadsheet named in its source line: the **Row** column is the spreadsheet row. "
+            "Every record is `needs_review`; the tick boxes are for a working copy, and the durable "
+            "record of a check is `review_status: reviewed` in the seed (then regenerate this file)."
+        ),
         "",
         "How to read it:",
         "",
-        ("- **Applies when** shows the charter's own wording; `→ dimension:value` marks the "
-        "structured variant links; *text only* means no variant could be linked without guessing."),
-        ("- **Time** keeps the parsed range; day-based times have `day_type: unknown` "
-        "(calendar vs working days is not stated). *shared with N* means a merged spreadsheet "
-        "cell: the value sits on step N and is counted once."),
-        ("- **Role** is set only when the charter gives a role title. **Person cell** says what "
-        "the sheet had (blank, names only, role title, names + role title); names are never "
-        "printed here or shown to citizens."),
-        ("- **Other agency** marks a step that belongs to another agency (Core 2 must not blame "
-        "the LGU for it)."),
-        ("- **⚑** counts review flags; each one is listed under the service's *Review flags* "
-        "with a tick box."),
+        (
+            "- **Applies when** shows the charter's own wording; `→ dimension:value` marks the "
+            "structured variant links; *text only* means no variant could be linked without guessing."
+        ),
+        (
+            "- **Time** keeps the parsed range; day-based times have `day_type: unknown` "
+            "(calendar vs working days is not stated). *shared with N* means a merged spreadsheet "
+            "cell: the value sits on step N and is counted once."
+        ),
+        (
+            "- **Role** is set only when the charter gives a role title. **Person cell** says what "
+            "the sheet had (blank, names only, role title, names + role title); names are never "
+            "printed here or shown to citizens."
+        ),
+        (
+            "- **Other agency** marks a step that belongs to another agency (Core 2 must not blame "
+            "the LGU for it)."
+        ),
+        (
+            "- **⚑** counts review flags; each one is listed under the service's *Review flags* "
+            "with a tick box."
+        ),
         "",
-        (f"{len(seed.services)} services · {len(seed.requirements)} requirements · "
-        f"{len(seed.steps)} steps · {len(seed.fees)} fees · {len(seed.variants)} variants · "
-        f"{n_flags} review flags. Services left out of the seed: see `docs/seed_status.md`."),
+        (
+            f"{len(seed.offices)} offices · {len(seed.services)} services · "
+            f"{len(seed.requirements)} requirements · "
+            f"{len(seed.steps)} steps · {len(seed.fees)} fees · {len(seed.variants)} variants · "
+            f"{len(seed.links)} cross-office links · "
+            f"{n_flags} review flags. Services left out of the seed: see `docs/seed_status.md`."
+        ),
         "",
         "| Service | Id | Requirements | Steps | Fees | Flags |",
         "|---|---|---|---|---|---|",
@@ -222,7 +286,7 @@ def render_review(seed: Seed) -> str:
             f"| [{svc.charter_ref}](#{_anchor(svc)}) {svc.name} | `{svc.id}` "
             f"| {n_req} | {n_step} | {n_fee} | {nf} |"
         )
-    lines += ["", "## Offices and variants", ""]
+    lines += ["", "## Offices, variants and cross-office links", ""]
     for o in seed.offices:
         srcs = ", ".join(f"{_rows(*s.rows)}" for s in o.sources)
         lines.append(f"- Office `{o.id}`: {o.name} (`{o.sources[0].file}`, {srcs})")
@@ -238,6 +302,16 @@ def render_review(seed: Seed) -> str:
         lines.append(
             f"| `{v.id}` | {v.dimension} | {v.value} | {', '.join(sorted(used[v.id])) or '—'} |"
         )
+    lines += ["", "| Link | Kind | From | To | Status |", "|---|---|---|---|---|"]
+    for x in seed.links:
+        src = x.requirement_id or (f"agency “{x.agency}”")
+        if x.kind == "requirement_satisfied_by":
+            dst = f"service `{x.service_id}`"
+            src = f"requirement `{x.requirement_id}`"
+        else:
+            dst = f"office `{x.office_id}`"
+            src = f"agency “{x.agency}”"
+        lines.append(f"| {x.id} | {x.kind} | {src} | {dst} | {x.review_status} |")
     lines.append("")
     for svc in seed.services:
         lines += _service_section(seed, svc)

@@ -306,3 +306,322 @@ services:
   - code: name_from_title
     message: name taken from the section title; the name cell reads 'REGISTRATION OF LEGAL INSTRUMENT
       - OTHER THAN LEGITIMATION AND AUSF'
+- id: cswdo_referrals
+  office_id: cswdo
+  charter_ref: CSWDO-01
+  name: Referrals
+  classification: COMPLEX
+  transaction_type: Government of Citizen
+  who_may_avail: General Public
+  total_fee_text: null
+  total_time_text: 1 week, 1 hour, 40 minutes
+  description: |-
+    This includes referrals to government hospitals and other charitable institutions for the
+    necessary intervention/asssitance not within the scope of CSWDO services.
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  total_source_row: 38
+  flags:
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+  - code: classification_to_confirm
+    message: classified Complex (row 9); confirm with the LGU, since SIMPLE and COMPLEX services have
+      different RA 11032 caps
+  - code: typos_kept
+    message: the transaction type reads 'Government of Citizen', the description has 'asssitance' and
+      step 2 has 'assisstance'; kept as written
+- id: cho_routine_immunization
+  office_id: cho
+  charter_ref: CHO-01
+  name: Routine Immunization
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: Vaccination against TB, hepatitis, tetanus, deptheria, measles, flu and pneumonia
+  total_fee_text: null
+  total_time_text: 32 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 2
+    - 13
+  total_source_row: 13
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+- id: cho_prenatal_consultation
+  office_id: cho
+  charter_ref: CHO-02
+  name: Pre-Natal Consultation
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: Pregnant
+  total_fee_text: null
+  total_time_text: 27 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 15
+    - 26
+  total_source_row: 26
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+- id: cho_family_planning
+  office_id: cho
+  charter_ref: CHO-03
+  name: Family Planning
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to women of reproductive age who wishes to plan
+  total_fee_text: null
+  total_time_text: 25 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 28
+    - 38
+  total_source_row: 38
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+- id: cho_pharmacy_services
+  office_id: cho
+  charter_ref: CHO-07
+  name: Pharmacy Services
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to customers prescribed with medicine after consultation
+  total_fee_text: null
+  total_time_text: 9 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 79
+    - 91
+  total_source_row: 91
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+- id: cho_death_certificate
+  office_id: cho
+  charter_ref: CHO-08
+  name: Issuance of Death Certificate
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to families of the deceased whose death occurred outside of a medical
+    facility.
+  total_fee_text: null
+  total_time_text: 20 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 93
+    - 104
+  total_source_row: 104
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+  - code: upstream_service_not_linked
+    message: step 1 starts from a death certificate 'issued by the LCR' (LCRO death registration, LCRO-06
+      or LCRO-07); the link is in step text, not in a checklist, so it is not modelled
+- id: cho_cadaver_transfer_permit
+  office_id: cho
+  charter_ref: CHO-09
+  name: Issuance of permit to transfer cadaver
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to owners of business establishments seeking business permits and
+    license.
+  total_fee_text: null
+  total_time_text: 20 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 106
+    - 117
+  total_source_row: 117
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+  - code: who_may_avail_suspected_copy_paste
+    message: '''who may avail'' is the Sanitary Permit text (business owners seeking business permits),
+      which does not fit a cadaver transfer permit; kept as written'
+- id: cho_sanitary_permit
+  office_id: cho
+  charter_ref: CHO-10
+  name: Issuance of Sanitary Permit
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to owners of business establishments seeking business permits and
+    license.
+  total_fee_text: null
+  total_time_text: null
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 119
+    - 130
+  total_source_row: 130
+  flags:
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+  - code: total_time_conflict
+    message: the TOTAL row states '20 min' (row 130) but the steps add up to 3 days + 10 minutes (step
+      2, inspection, is '3 days'). The stated total is not stored (total_time_text is null) and must not
+      be used to answer 'how long'; use the step times, and ask the LGU
+- id: cho_dental_services
+  office_id: cho
+  charter_ref: CHO-11
+  name: Dental Services
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to the clients needing dental examination and treatment services.
+  total_fee_text: null
+  total_time_text: 40 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 132
+    - 141
+  total_source_row: 141
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: fee_not_in_stated_total
+    message: step 1 shows a fee of '250' but the TOTAL row states no fee, so the fee cannot be validated
+- id: cho_animal_bite_center
+  office_id: cho
+  charter_ref: CHO-12
+  name: The Out-Patient/Animal Bite Center services
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: clients bitten by animals suspected of having rabies
+  total_fee_text: null
+  total_time_text: 30 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 143
+    - 155
+  total_source_row: 155
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+- id: cho_post_mortem_examination
+  office_id: cho
+  charter_ref: CHO-13
+  name: Post-Mortem examination
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to the clients needing certification of injuries sustained and possible
+    causes of death which is suspected to be caused by criminal offenses as requested by the Philippine
+    National Police.
+  total_fee_text: null
+  total_time_text: 40 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 157
+    - 168
+  total_source_row: 168
+  flags:
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+- id: cho_medico_legal_consultation
+  office_id: cho
+  charter_ref: CHO-14
+  name: Medico-Legal Consultation
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to the clients needing certification of injuries sustained and possible
+    causes of death which is suspected to be caused by criminal offenses as requested by the Philippine
+    National Police.
+  total_fee_text: null
+  total_time_text: 30 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 170
+    - 182
+  total_source_row: 182
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: total_fee_not_stated
+    message: the TOTAL row states no fee (step fee cells say 'None')
+- id: cho_medical_certificate
+  office_id: cho
+  charter_ref: CHO-15
+  name: Issuance of Medial Certificates for employment
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: This service caters to the clients needing certification of physical condition usually
+    for legal, employment and benefits claim purposes.
+  total_fee_text: ₱30.00
+  total_time_text: 20 min
+  description: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 184
+    - 195
+  total_source_row: 195
+  flags:
+  - code: no_requirements_listed
+    message: the checklist says N/A; no requirement rows
+  - code: typos_kept
+    message: the name reads 'Medial' (Medical); kept as written

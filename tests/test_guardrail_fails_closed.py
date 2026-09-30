@@ -832,8 +832,13 @@ def test_default_schema_matches_specs_section_1():
         "NEXT",
         "PERFORMED_BY",
         "HAS_FEE",
+        "CHARGES",
+        "SATISFIED_BY",
+        "IS_OFFICE",
         "KNOWN_AS",
     }
+    # Deliberately unchanged in session 3b: the loader stores review_status, condition_structured
+    # and other bookkeeping properties, but Core 1 may not read them (docs/specs.md section 4).
     assert OFFICIAL_SCHEMA.properties == {
         "id",
         "name",
