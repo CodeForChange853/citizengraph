@@ -1,6 +1,257 @@
 # Training notes: Core 1 (Text-to-Cypher)
 
-placeholder
+Session 5 (branch `session5-training-data`). Code: `src/citizengraph/core1/` (`slots.py`,
+`templates.py`, `prompt.py`), `training/`, tests `tests/test_core1_*.py` and
+`tests/test_training_*.py`. The generated overview with counts is `training/DATASET_CARD.md`;
+a reviewable sample is `training/sample/`.
+
+Rules this work follows: no LLM or API wrote any example (templates, rules and noise only);
+`eval/heldout/` was never read (a test watches the generator's file access and checks that no
+code spells the folder); examples hold questions and Cypher only, no charter answer text; only
+the 26 curated services are used (not the 14 drafts); the guardrail was not loosened.
+
+## 1. What is where
+
+| Piece | File | Role |
+|---|---|---|
+| Slots | `core1/slots.py` | `Slots(service_id, intent, variants, phrase, language)`, the shared vocabulary; `known_variants()` reads `graph/seed/variants.yaml` |
+| Templates | `core1/templates.py` | ONE source of canonical read-only Cypher: gold completion, fallback, templates-only baseline |
+| Prompt | `core1/prompt.py` | `build_prompt(slots, schema_slice)`: the model input, same format in training and inference |
+| Phrases | `training/phrasebook.yaml` | question templates (EN / FIL / Taglish), service and variant wording |
+| Noise | `training/noise.py` | typos, dropped vowels, doubled letters, c/k, ph/f, SMS, casing at 0 / 10 / 30 % |
+| Generator | `training/generate_dataset.py` | `python -m training.generate_dataset --seed 0` |
+| Training | `training/qlora_kaggle.py` | QLoRA notebook cells for a free Kaggle GPU (**untested on a GPU**) |
+| Scoring | `training/eval_generate.py` | guardrail-valid rate and exact match against gold |
+| Pins | `training/requirements-train.txt` | training-only dependencies (never in `pyproject.toml`) |
+
+## 2. Query shapes (`core1/templates.py`)
+
+The shape is chosen from the citizen's wording; the intent stays one of the seven.
+
+| Intent | Shapes | Variant filter |
+|---|---|---|
+| requirements | `list`, `count` (leaf requirements, `group = false`) | yes |
+| fees | `list`, `per_step` (Step-[:CHARGES]->Fee) | yes |
+| steps | `list`, `count` | no (steps carry no variant links) |
+| processing_time | `list` (stated total plus one row per step) | no |
+| where_to_secure | `list` (requirement + Agency), `go_first` (cross-office: `SATISFIED_BY` to the Service and its Office, and `SECURED_AT` to the Agency and `IS_OFFICE`) | yes |
+| who_may_avail | `list` | no |
+| office | `list` | no |
+
+`status` is not a Core 1 intent (Core 2); `select_template` raises `NotCore1Intent`. With variants
+in the slots, an intent that has no filtered template uses the plain one (the model learns this:
+the gold depends on the slots, not on whether the phrase mentions a variant). 11 plain and 6
+filtered templates: `TEMPLATES[(intent, shape, filtered)]`.
+
+### Parameter contract
+
+Ids are never in the query text, so the model never reproduces them.
+
+* `$sid`: `Service.id`, e.g. `"business_permit"`. Every template uses it.
+* `$variant_ids`: list of `Variant.id` strings `dimension:value` (as in `graph/seed/variants.yaml`),
+  e.g. `["business_type:corporation", "applicant_type:new"]`. Only the filtered templates use it
+  (at least one id). `Slots.variant_ids` builds it, sorted. `build_query(slots, shape)` returns
+  the text and the parameter dict.
+
+### The variant filter
+
+A record is kept unless it links a variant in a dimension the citizen gave (some id of
+`$variant_ids` has that dimension) and none of its links in that dimension was asked for. Same
+meaning as `InMemoryGraph.requirements/fees`: values in one dimension are alternatives, different
+dimensions all must hold, an unknown dimension filters nothing, unlinked records are always kept
+(so text-only conditions come back with their `condition_text`). It is a `NOT EXISTS { ... }` with
+two nested `EXISTS { MATCH ... WHERE ... }`.
+
+### Guardrail and query-shape decisions
+
+Every template passes `validate_cypher` with the default config (a test enforces it). No shape
+was over-rejected, so nothing was changed in the guardrail. Choices made because of its rules:
+
+* every node has a label and every relationship a type; the bare `(r)` is used only after
+  `(r:Requirement)` earlier in scope;
+* the `EXISTS {}` bodies use `MATCH ... WHERE` with property comparisons only; a bare
+  `WHERE x:Label` inside a subquery is avoided (the guardrail over-rejects it);
+* `go_first` filters its optional matches with `WITH r, d, o1, a, o2 WHERE ...`; a `WHERE` right
+  after `OPTIONAL MATCH` would only filter the optional part;
+* row limits: `LIMIT 50` for lists (the configured maximum; a test checks that every seed service
+  fits), `LIMIT 1` for counts, who-may-avail and office;
+* no `UNION`, `CALL`, parameters in `LIMIT`, `properties()` or subscripts.
+
+Limits of the templates, for the composer and Core 1 code to respect:
+
+* counts count leaf requirements (`group = false`). Groups such as "any two of" (`min_required`)
+  and conditions the seed could not structure make the number an upper bound: say so.
+* `fees` returns rows only. No total is summed in Cypher (exact sums are a plain-code tool), and
+  the stated `total_fee_text` is not returned; `processing_time` does return `total_time_text`
+  (null for CHO-10, whose stated total conflicts with its steps: answer from step times).
+* `per_step` returns only fees that have a `CHARGES` link (every current fee has one).
+* `go_first` needs the cross-office links, which the loader writes only when reviewed (or with
+  `--include-suggested-links`); on a database without them it returns nothing.
+
+### The schema is read at runtime
+
+The templates' RETURN columns, the prompt's schema slice and the generator all take the allowed
+labels, relationship types and properties from `guardrail/schema.py` at runtime: a property that
+disappears from the allow-list disappears from the queries and prompts. A property that is ADDED
+needs one edit: say which label owns it in `NODE_PROPERTIES` (`core1/templates.py`; a test fails
+with that instruction). Then add it to a template's column list if Core 1 should return it, and
+regenerate the dataset (the card shows the schema fingerprint, so a change is visible).
+
+## 3. Prompt (`core1/prompt.py`)
+
+System message: a six-line fixed instruction plus a schema slice that lists only the labels,
+properties and relationships the intent's templates use (read from the template text with the
+guardrail tokenizer). User message: `service`, `intent`, `variants` (or `none`), `language` and
+`request` as one JSON-quoted line, so text inside the phrase cannot fake a slot. There are no
+few-shot examples (the model is fine-tuned on this exact format; examples would only spend
+context). The phrase is cut at `gateway.max_chars` (500) and further if the prompt would pass the
+ceiling.
+
+Token budget: `prompt.max_prompt_tokens` (1,000) in `config/limits.yaml` is a ceiling.
+`estimate_tokens` is `ceil(characters / 3)`, never below one per word: no tokenizer or model file
+needed, conservative (Llama-3 averages about 4 characters per token in English and about 3 in
+Filipino text and Cypher). Measured on the dataset: maximum 345, mean 239 (a test requires under
+half the ceiling).
+
+## 4. Dataset design
+
+One example = (service x intent/shape x variant combination) x language x noise level.
+
+* **Cells.** Every curated service x every shape x every combination of the variant values its
+  requirements and fees link (one value or none per dimension; 457 cells). List shapes for every
+  service; derived shapes only where data exists: `count` for services with a leaf requirement,
+  `per_step` for services with a step-linked fee, `go_first` for services whose requirements have
+  a `SATISFIED_BY` link or an agency that is one of the offices.
+* **Phrases.** `phrasebook.yaml`: 174 families of paraphrases (6 per (intent, list shape,
+  language), 4 per derived shape), service names (colloquial names plus the official name from
+  `services.yaml`, 15 % of the time), variant wording attached with frames such as "base (variant)"
+  (85 % of the time a variant combination is also said in the phrase; otherwise it reaches the
+  model only through the slots). `graph/seed/aliases.yaml` is used when that file exists (see
+  limits). Language labels: `en`; `fil` (predominantly Filipino; nativized loanwords such as
+  "permit" or "requirements" are fine); `mixed` (Taglish).
+* **Noise.** 0, 10 and 30 percent of words perturbed (one random operation each: keyboard-adjacent
+  typo, dropped vowel(s), doubled letter, c/k swap, ph/f swap, SMS spelling), plus a casing change
+  for the whole message with the same probability. Words with digits and ids are left alone.
+* **Gold.** The canonical template for the shape the wording asks for, ids as parameters.
+* **Size.** Seed 0: 6,987 train, 1,077 validation, 1,130 test_synthetic; generated in about 3 s.
+* **Determinism.** All randomness comes from `random.Random` seeded with a string of the example's
+  coordinates; same seed, same bytes (a test compares files byte for byte; `\n` newlines on every
+  platform).
+* **Output.** `training/out/<split>.jsonl` in chat format `{"messages": [system, user, assistant]}`
+  and a parallel `<split>.meta.jsonl` (same line order: id, shape, noise, family, clean phrase,
+  parameters). `training/out/` is gitignored; `training/sample/` (63 examples) and
+  `training/DATASET_CARD.md` are committed and regenerated with the same command.
+
+### Splits
+
+By phrase-template family: in every (intent, shape, language) group one family is in
+`test_synthetic`, one in `validation`, the rest in `train`; no family appears in two splits and no
+prompt is identical across splits (tests). In addition, some variant combinations (about a third
+of the non-empty combinations of services that have at least three) are withheld from train and
+appear only in validation and test; the card lists them. Because those cells are always kept,
+validation and test contain more variant-bearing examples (about 70 %) than train (about 40 %).
+
+## 5. Known limits
+
+* Filipino and Taglish wording is unreviewed. Waray is out of scope.
+* Phrases are short single questions: no multi-request messages, no buried requests, no gibberish,
+  no out-of-scope or mutation requests (the front end handles those before the model).
+* The wording-to-shape mapping (list vs count vs per_step vs go_first) is what the model must learn;
+  it is decided only by our own phrase families, so real citizens will phrase things differently.
+  This is what `eval/heldout` will measure; it is not used here.
+* Service names in phrases do not change the gold (the query never contains a name or id); they are
+  there so the model ignores them.
+* The alias file format was not fixed when this was written; `load_aliases` accepts a list or an
+  `aliases:` list of records with `text`, `lang` (en|fil) and the service id under `service_id`,
+  `target_id`, `target` or `for`, and ignores anything else. When that file appears, the dataset,
+  sample and card change: regenerate and re-check the format.
+* The sample and card are generated files: regenerate (`python -m training.generate_dataset`) after
+  a change to the seed, the schema, the templates or the phrasebook.
+* Noise is character-level English/Tagalog-ish; no real misspelling data was used (none may be).
+
+## 6. Verification done
+
+* Unit tests (no GPU, model, network or Neo4j): templates pass the guardrail; parameters are exactly
+  `$sid` / `$variant_ids`; the filter's logic restated in Python agrees with `InMemoryGraph` on
+  every combination of every dimension for every service; prompts under budget; the full dataset's
+  gold passes the guardrail; determinism; splits; no answer text or held-out inquiry inside examples.
+* **Real Neo4j (once, here).** `tests/test_core1_templates_integration.py` (marked `integration`)
+  passed 9 of 9 against an embedded Neo4j 5.26.12 Community started from the Maven Central jars,
+  with the seed loaded through `graph/load.py` (suggested links included): every template
+  `EXPLAIN`s, and every template's rows equal the in-memory helpers for every service and every
+  variant combination. A naive variant filter made three of the tests fail, so they do detect
+  differences. Not run against the Docker image or a server install; rerun on your machine (below).
+* Not verified: anything on a GPU (`qlora_kaggle.py`, `eval_generate.py` against a real model).
+
+Side finding (not changed, outside this session's paths): running the existing
+`tests/test_graph_load_integration.py` against the same embedded Neo4j gave 4 passed and 1 failed:
+`test_no_staff_name_is_stored_anywhere` fails with `CypherTypeError ... toString() ... LongArray`
+because the test calls `toString` on a list property (`source_rows`); the loader itself wrote and
+reloaded the seed fine.
+
+### Reproducing the real-Neo4j run
+
+```bash
+# once: fetch the embedded Neo4j jars (needs Maven and Java 17+)
+mvn -q dependency:copy-dependencies -DoutputDirectory=lib   # pom: org.neo4j:neo4j:5.26.12
+# a 20-line Serve.java starts DatabaseManagementServiceBuilder with BoltConnector.enabled=true,
+# listen_address 127.0.0.1:7687 and GraphDatabaseSettings.auth_enabled=false, on an EMPTY folder
+NEO4J_TEST_URI=bolt://127.0.0.1:7687 NEO4J_TEST_USER=neo4j NEO4J_TEST_PASSWORD=x \
+  pytest -m integration tests/test_core1_templates_integration.py
+```
+
+With the Docker image: `docker compose up -d`, then the same command with your password. The
+database must be empty (the test loads the seed, with the suggested links, and only reads).
+
+## 7. Kaggle run instructions
+
+Read the header of `training/qlora_kaggle.py` first: it lists what the first run must check.
+
+1. Locally: `python -m training.generate_dataset --seed 0`; upload `training/out/train.jsonl` and
+   `validation.jsonl` (only those two) as a Kaggle Dataset. Never upload `eval/heldout/`.
+2. New Kaggle notebook: Accelerator **GPU T4** (a P100 is below Unsloth's minimum compute
+   capability; the notebook stops on it), Internet **on**, attach the dataset, add the repo (or
+   paste `training/requirements-train.txt` and `training/qlora_kaggle.py`).
+3. Model: the default is Unsloth's public 4-bit mirror of Llama-3-8B-Instruct. The original
+   `meta-llama/Meta-Llama-3-8B-Instruct` is gated: accept the licence on the model page, add
+   `HF_TOKEN` to Kaggle Secrets and change `MODEL_NAME`. Licence review for thesis use is an open
+   question (CLAUDE.md, open question 5).
+4. Run the cells in order. fp16 only (no bf16 on T4/P100). LoRA r=16 on all seven linear
+   projections, training on the assistant answer only, checkpoints and validation loss every 100
+   steps into `/kaggle/working/checkpoints`, adapter into `core1-lora/`.
+5. Cell 7 (masking check) must show only the Cypher and `<|eot_id|>`. Cell 10 prints exact match
+   and guardrail-valid rate on 100 validation examples.
+6. Merge (16-bit, into `/tmp`) and GGUF Q4_K_M are separate cells; the GGUF cell needs a 16 GB
+   temporary file (the `/kaggle/working` limit is about 20 GB): if it runs out of disk, download
+   `core1-lora/` and convert elsewhere.
+7. Score offline: `python -m training.eval_generate --data training/out/test_synthetic.jsonl
+   --meta training/out/test_synthetic.meta.jsonl --endpoint http://localhost:8080/v1` (llama.cpp
+   server or Ollama), or `--outputs outputs.jsonl`.
+8. Benchmarks target CPU/integrated graphics with 16 GB RAM: report the exact hardware there.
+
+The pins in `requirements-train.txt` follow the constraints declared by `unsloth==2026.9.12`
+(trl <= 0.24.0, transformers <= 5.5.0, datasets < 4.4, peft >= 0.18) and were only checked with
+`pip install --dry-run` (they resolve together). torch, xformers and triton are deliberately not
+pinned: Kaggle's image carries a matching set.
+
+## 8. Suggested decisions-log entry (CLAUDE.md was not edited, as instructed)
+
+> **Session 5, Core 1 slots, templates, prompt and training data (branch `session5-training-data`).**
+> `core1/templates.py` is the single source of canonical read-only Cypher (gold, fallback,
+> templates-only baseline); ids are parameters (`$sid`, `$variant_ids`); the variant filter equals
+> `InMemoryGraph` semantics and was checked against a real embedded Neo4j 5.26. Shapes: list, count,
+> per_step, go_first; steps, times, offices and who-may-avail have no filtered template. The schema is
+> read from `guardrail/schema.py` at runtime. `core1/prompt.py` fixes the model input (no few-shot);
+> `training/generate_dataset.py` builds 9.2k examples (seed 0) from our own templates, split by
+> phrase family with withheld variant combinations. The QLoRA script and `eval_generate` model path
+> are untested on a GPU. Filipino wording awaits native review (list in `docs/training_notes.md`).
+
+## 9. Filipino and Taglish strings needing native review (NEEDS-NATIVE-REVIEW)
+
+Every string below is unverified Filipino or Taglish and must be reviewed by a native speaker
+before any data trained on it is relied on (CLAUDE.md rule 8). This list is generated; the test
+suite fails if it is out of date (`python -m training.generate_dataset --write-review-list
+docs/training_notes.md` refreshes it).
 
 <!-- BEGIN REVIEW LIST (generated: python -m training.generate_dataset --write-review-list) -->
 

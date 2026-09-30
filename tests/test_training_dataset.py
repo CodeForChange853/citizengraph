@@ -92,6 +92,22 @@ def test_phrases_carry_no_numbers_or_charter_words_of_their_own(book):
                 assert not re.search(r"\d", tpl), tpl
 
 
+def test_no_wording_belongs_to_two_intents_or_shapes(book):
+    owner: dict[str, tuple[str, str]] = {}
+    for (intent, shape, _), fams in book.families.items():
+        for fam in fams:
+            for template in fam.templates:
+                key = " ".join(template.casefold().split())
+                assert owner.setdefault(key, (intent, shape)) == (intent, shape), template
+
+
+def test_no_phrase_has_conflicting_labels_in_the_dataset(ds):
+    labels: dict[tuple[str, str], set[tuple[str, str]]] = defaultdict(set)
+    for e in everything(ds):
+        labels[(e.clean_phrase.casefold(), e.slots.language)].add((e.slots.intent, e.shape))
+    assert not [k for k, v in labels.items() if len(v) > 1]
+
+
 # ---- coverage ---------------------------------------------------------------------------------
 
 
