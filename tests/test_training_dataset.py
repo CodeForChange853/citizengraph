@@ -71,9 +71,12 @@ def test_a_broken_phrasebook_is_reported(book, graph):
         variants=book.variants,
         variant_frames=book.variant_frames,
         variant_joiners=book.variant_joiners,
-        families={**book.families, ("office", "list", "en"): (
-            G.Family("office.list.en.1", "office", "list", "en", ("no placeholder here",)),
-        )},
+        families={
+            **book.families,
+            ("office", "list", "en"): (
+                G.Family("office.list.en.1", "office", "list", "en", ("no placeholder here",)),
+            ),
+        },
     )
     problems = "; ".join(G.check_phrasebook(broken, graph))
     assert "business_permit" in problems
@@ -225,8 +228,11 @@ def test_withheld_variant_combinations_never_reach_train(ds):
     )
     held = [e for s in ("validation", "test_synthetic") for e in ds.examples[s] if e.combo_withheld]
     assert held
-    assert all(e.combo_withheld for e in everything(ds) if (
-        e.slots.service_id, tuple(sorted(e.slots.variants.items()))) in withheld)
+    assert all(
+        e.combo_withheld
+        for e in everything(ds)
+        if (e.slots.service_id, tuple(sorted(e.slots.variants.items()))) in withheld
+    )
 
 
 def test_train_is_the_bulk_and_evaluation_splits_are_not_tiny(ds):
@@ -292,7 +298,8 @@ def test_no_example_contains_charter_answer_text(ds, graph, book):
     for forms in book.variants.values():
         allowed.update(_norm(n) for n in forms["en"] + forms["fil"])
     answers = {
-        a for a in _answer_strings(graph)
+        a
+        for a in _answer_strings(graph)
         if len(a) >= 12 and not any(a.strip(" :.,()-") in ok for ok in allowed)
     }
     assert len(answers) > 100  # the check has something to look for
@@ -335,7 +342,10 @@ def test_the_generator_never_touches_the_held_out_folder(monkeypatch):
     G.build_dataset(seed=3)
     assert touched == []
     # and no code in training/ or core1/ even spells the folder (docstrings and comments may)
-    for path in [*(ROOT / "training").glob("*.py"), *(ROOT / "src/citizengraph/core1").glob("*.py")]:
+    for path in [
+        *(ROOT / "training").glob("*.py"),
+        *(ROOT / "src/citizengraph/core1").glob("*.py"),
+    ]:
         tree = ast.parse(path.read_text(encoding="utf-8"))
         docstrings = {
             id(node.body[0].value)
@@ -411,14 +421,14 @@ def test_the_phrasebook_marks_filipino_for_review():
 
 def test_write_dataset_and_docs(ds, tmp_path):
     written = G.write_dataset(ds, tmp_path / "out")
-    assert {p.name for p in written} == {
-        f"{s}{m}.jsonl" for s in SPLITS for m in ("", ".meta")
-    }
+    assert {p.name for p in written} == {f"{s}{m}.jsonl" for s in SPLITS for m in ("", ".meta")}
     import json
 
     for split in SPLITS:
-        rows = [json.loads(x) for x in (tmp_path / "out" / f"{split}.jsonl").read_text(
-            encoding="utf-8").splitlines()]
+        rows = [
+            json.loads(x)
+            for x in (tmp_path / "out" / f"{split}.jsonl").read_text(encoding="utf-8").splitlines()
+        ]
         assert len(rows) == len(ds.examples[split])
         assert all(list(r) == ["messages"] for r in rows)
         assert all(validate_cypher(r["messages"][2]["content"]).ok for r in rows[:300])
@@ -453,8 +463,15 @@ def test_the_committed_sample_is_valid_chat_data():
 
 def test_the_dataset_card_reports_counts(ds):
     card = G.dataset_card(ds)
-    for needle in ("By intent", "By language", "By noise level", "train", "validation",
-                   "test_synthetic", str(len(ds.examples["train"]))):
+    for needle in (
+        "By intent",
+        "By language",
+        "By noise level",
+        "train",
+        "validation",
+        "test_synthetic",
+        str(len(ds.examples["train"])),
+    ):
         assert needle in card
     by_intent = defaultdict(int)
     for e in everything(ds):

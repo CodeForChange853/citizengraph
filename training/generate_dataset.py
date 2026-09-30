@@ -49,7 +49,7 @@ from citizengraph.core1.prompt import (
     build_prompt,
     schema_slice,
 )
-from citizengraph.core1.slots import LANGUAGES, Slots, check_variants
+from citizengraph.core1.slots import LANGUAGES, Slots
 from citizengraph.graph import InMemoryGraph
 from citizengraph.guardrail.schema import OFFICIAL_SCHEMA
 from training.noise import NOISE_LEVELS, SMS_FIL, add_noise
@@ -105,7 +105,9 @@ def load_phrasebook(path: Path = PHRASEBOOK_PATH) -> Phrasebook:
                     for i, g in enumerate(groups, start=1)
                 )
     book = Phrasebook(
-        service_names={k: {lg: tuple(v) for lg, v in d.items()} for k, d in raw["service_names"].items()},
+        service_names={
+            k: {lg: tuple(v) for lg, v in d.items()} for k, d in raw["service_names"].items()
+        },
         variants={k: {lg: tuple(v) for lg, v in d.items()} for k, d in raw["variants"].items()},
         variant_frames={k: tuple(v) for k, v in raw["variant_frames"].items()},
         variant_joiners={k: tuple(v) for k, v in raw["variant_joiners"].items()},
@@ -172,15 +174,16 @@ def review_strings(book: Phrasebook) -> list[str]:
         out += [f"variant frame [{lang}]: {f}" for f in book.variant_frames[lang]]
         out += [f"variant joiner [{lang}]: {j!r}" for j in book.variant_joiners[lang]]
     for key in sorted(book.families):
-        intent, shape, lang = key
-        if lang in ("fil", "mixed"):
+        if key[2] in ("fil", "mixed"):
             for fam in book.families[key]:
                 out += [f"family {fam.id}: {t}" for t in fam.templates]
     out += [f"sms spelling: {k} -> {v}" for k, v in sorted(SMS_FIL.items())]
     return out
 
 
-def load_aliases(graph: InMemoryGraph, path: Path = ALIASES_PATH) -> dict[str, dict[str, list[str]]]:
+def load_aliases(
+    graph: InMemoryGraph, path: Path = ALIASES_PATH
+) -> dict[str, dict[str, list[str]]]:
     """Service aliases from ``graph/seed/aliases.yaml`` when that file exists.
 
     Another session owns that file and its format was not fixed when this was written, so the
@@ -281,9 +284,7 @@ def assign_splits(book: Phrasebook, seed: int) -> dict[str, str]:
     test_synthetic, one to validation and the rest to train."""
     out: dict[str, str] = {}
     for fams in book.families.values():
-        ordered = sorted(
-            fams, key=lambda f: hashlib.sha256(f"{seed}|{f.id}".encode()).hexdigest()
-        )
+        ordered = sorted(fams, key=lambda f: hashlib.sha256(f"{seed}|{f.id}".encode()).hexdigest())
         out[ordered[0].id] = "test_synthetic"
         out[ordered[1].id] = "validation"
         for fam in ordered[2:]:
@@ -409,15 +410,24 @@ class Dataset:
 
 def schema_fingerprint() -> str:
     text = json.dumps(
-        [sorted(OFFICIAL_SCHEMA.labels), sorted(OFFICIAL_SCHEMA.relationship_types),
-         sorted(OFFICIAL_SCHEMA.properties)]
+        [
+            sorted(OFFICIAL_SCHEMA.labels),
+            sorted(OFFICIAL_SCHEMA.relationship_types),
+            sorted(OFFICIAL_SCHEMA.properties),
+        ]
     )
     return hashlib.sha256(text.encode()).hexdigest()[:12]
 
 
 def _dedupe_key(slots: Slots, shape: str) -> tuple:
-    return (slots.service_id, slots.intent, shape, tuple(sorted(slots.variants.items())),
-            slots.language, " ".join(slots.phrase.casefold().split()))
+    return (
+        slots.service_id,
+        slots.intent,
+        shape,
+        tuple(sorted(slots.variants.items())),
+        slots.language,
+        " ".join(slots.phrase.casefold().split()),
+    )
 
 
 def build_dataset(
@@ -450,7 +460,8 @@ def build_dataset(
                     continue
             for language in LANGUAGES:
                 families = [
-                    f for f in book.families[(cell.intent, cell.shape, language)]
+                    f
+                    for f in book.families[(cell.intent, cell.shape, language)]
                     if family_split[f.id] == split
                 ]
                 for level in NOISE_LEVELS:
@@ -480,7 +491,11 @@ def build_dataset(
                                 slots=slots,
                                 shape=cell.shape,
                                 template_key="/".join(
-                                    (template.intent, template.shape, str(template.filtered).lower())
+                                    (
+                                        template.intent,
+                                        template.shape,
+                                        str(template.filtered).lower(),
+                                    )
                                 ),
                                 noise=level,
                                 family=family.id,
@@ -553,8 +568,14 @@ def pick_sample(ds: Dataset, size: int = SAMPLE_SIZE) -> list[Example]:
     keys = sorted({(e.slots.intent, e.shape) for e in everything})
     for intent, shape in keys:
         for language in LANGUAGES:
-            take([e for e in ds.examples["train"] if (e.slots.intent, e.shape, e.slots.language)
-                  == (intent, shape, language)], 1)
+            take(
+                [
+                    e
+                    for e in ds.examples["train"]
+                    if (e.slots.intent, e.shape, e.slots.language) == (intent, shape, language)
+                ],
+                1,
+            )
     for split in ("validation", "test_synthetic"):
         for intent, shape in keys:
             take([e for e in ds.examples[split] if (e.slots.intent, e.shape) == (intent, shape)], 1)
@@ -565,12 +586,21 @@ def pick_sample(ds: Dataset, size: int = SAMPLE_SIZE) -> list[Example]:
 
 
 def _table(title: str, rows: dict[str, dict[str, int]], columns: list[str]) -> list[str]:
-    lines = [f"### {title}", "", "| | " + " | ".join(columns) + " | total |",
-             "|---|" + "---:|" * (len(columns) + 1)]
+    lines = [
+        f"### {title}",
+        "",
+        "| | " + " | ".join(columns) + " | total |",
+        "|---|" + "---:|" * (len(columns) + 1),
+    ]
     for name, counts in rows.items():
         cells = [str(counts.get(c, 0)) for c in columns]
         lines.append(f"| {name} | " + " | ".join(cells) + f" | {sum(counts.values())} |")
     return [*lines, ""]
+
+
+def _p(*parts: str) -> str:
+    """One paragraph written as several source strings."""
+    return "".join(parts)
 
 
 def dataset_card(ds: Dataset) -> str:
@@ -583,26 +613,46 @@ def dataset_card(ds: Dataset) -> str:
             out.setdefault(str(key(e)), Counter())[e.split] += 1
         return {k: dict(v) for k, v in sorted(out.items())}
 
+    def kind(e: Example) -> str:
+        return "filtered" if e.template_key.endswith("true") else "plain"
+
+    def variant_use(e: Example) -> str:
+        return "with variants" if e.slots.variants else "no variants"
+
+    fam_counts = {s: sum(1 for v in ds.family_split.values() if v == s) for s in SPLITS}
+    tokens = [e.tokens for e in every]
+    alias_note = "" if ds.aliases_used else " (file absent or no readable records)"
+    withheld_lines = [
+        f"- `{sid}`: " + "; ".join(", ".join(f"{d}={v}" for d, v in c.items()) for c in combos)
+        for sid, combos in sorted(ds.withheld.items())
+    ]
     lines = [
         "# Dataset card: Core 1 synthetic Text-to-Cypher data",
         "",
-        "Generated by `python -m training.generate_dataset` (do not edit by hand; regenerate). "
-        "Everything comes from our own templates, rules and noise injection: no LLM or API wrote "
-        "an example, the held-out inquiries were never read, and examples hold only questions and Cypher "
-        "(no answer text from the charters).",
+        _p(
+            "Generated by `python -m training.generate_dataset` (do not edit by hand; ",
+            "regenerate). Everything comes from our own templates, rules and noise injection: ",
+            "no LLM or API wrote an example, the held-out inquiries were never read, and ",
+            "examples hold only questions and Cypher (no answer text from the charters).",
+        ),
         "",
         "## Settings",
         "",
-        f"- seed: {ds.seed}; train rounds: {ds.train_rounds}; "
-        f"validation/test share of ordinary cells: {ds.eval_fraction}",
+        _p(
+            f"- seed: {ds.seed}; train rounds: {ds.train_rounds}; ",
+            f"validation/test share of ordinary cells: {ds.eval_fraction}",
+        ),
         f"- cells (service x intent/shape x variant combination): {ds.cells}",
-        f"- guardrail schema fingerprint: `{ds.schema_fingerprint}` "
-        "(labels, relationship types and properties read at runtime)",
-        f"- alias records used from `graph/seed/aliases.yaml`: {ds.aliases_used}"
-        + (" (file absent or no readable records)" if not ds.aliases_used else ""),
+        _p(
+            f"- guardrail schema fingerprint: `{ds.schema_fingerprint}` ",
+            "(labels, relationship types and properties read at runtime)",
+        ),
+        f"- alias records used from `graph/seed/aliases.yaml`: {ds.aliases_used}{alias_note}",
         f"- noise levels (percent of words): {', '.join(str(n) for n in NOISE_LEVELS)}",
-        f"- prompt budget: estimated tokens max {max(e.tokens for e in every)}, "
-        f"mean {sum(e.tokens for e in every) / len(every):.0f} (ceiling {MAX_PROMPT_TOKENS})",
+        _p(
+            f"- prompt budget: estimated tokens max {max(tokens)}, ",
+            f"mean {sum(tokens) / len(tokens):.0f} (ceiling {MAX_PROMPT_TOKENS})",
+        ),
         "",
         "## Counts",
         "",
@@ -612,52 +662,65 @@ def dataset_card(ds: Dataset) -> str:
         f"| **all** | **{len(every)}** |",
         "",
     ]
-    lines += _table("By intent", counts(lambda e: e.slots.intent), list(SPLITS))
-    lines += _table("By shape (query template)", counts(lambda e: f"{e.slots.intent}/{e.shape}"),
-                    list(SPLITS))
-    lines += _table("By language", counts(lambda e: e.slots.language), list(SPLITS))
-    lines += _table("By noise level", counts(lambda e: e.noise), list(SPLITS))
-    lines += _table("By variant use", counts(lambda e: "with variants" if e.slots.variants
-                                             else "no variants"), list(SPLITS))
-    lines += _table("By gold query kind", counts(lambda e: "filtered" if e.template_key.endswith("true")
-                                                 else "plain"), list(SPLITS))
-    fam_counts = {s: sum(1 for v in ds.family_split.values() if v == s) for s in SPLITS}
+    columns = list(SPLITS)
+    lines += _table("By intent", counts(lambda e: e.slots.intent), columns)
+    lines += _table(
+        "By shape (query template)", counts(lambda e: f"{e.slots.intent}/{e.shape}"), columns
+    )
+    lines += _table("By language", counts(lambda e: e.slots.language), columns)
+    lines += _table("By noise level", counts(lambda e: e.noise), columns)
+    lines += _table("By variant use", counts(variant_use), columns)
+    lines += _table("By gold query kind", counts(kind), columns)
     lines += [
         "## Splits",
         "",
-        "Split by phrase-template family (paraphrases of one wording stay together): "
-        + ", ".join(f"{s}: {n} families" for s, n in fam_counts.items())
-        + ". In each (intent, shape, language) group one family is in test_synthetic, one in "
-        "validation and the rest in train. No family is in two splits, and no example prompt "
-        "is identical across splits.",
+        _p(
+            "Split by phrase-template family (paraphrases of one wording stay together): ",
+            ", ".join(f"{s}: {n} families" for s, n in fam_counts.items()),
+            ". In each (intent, shape, language) group one family is in test_synthetic, one in ",
+            "validation and the rest in train. No family is in two splits, and no example ",
+            "prompt is identical across splits.",
+        ),
         "",
         "Variant combinations withheld from train (present only in validation and test):",
         "",
-        *[f"- `{sid}`: " + "; ".join(", ".join(f"{d}={v}" for d, v in c.items()) for c in combos)
-          for sid, combos in sorted(ds.withheld.items())],
+        *withheld_lines,
         "",
-        f"Examples whose combination is withheld: "
-        f"{sum(1 for e in every if e.combo_withheld)} (validation/test only).",
+        _p(
+            "Examples whose combination is withheld: ",
+            f"{sum(1 for e in every if e.combo_withheld)} (validation/test only).",
+        ),
         "",
         "## What is in an example",
         "",
-        "`{\"messages\": [system, user, assistant]}`: the system message is the fixed instruction "
-        "plus the schema slice of the intent, the user message lists service, intent, variants, "
-        "language and the noisy phrase, and the assistant message is the canonical Cypher with "
-        "`$sid` / `$variant_ids` (never literal ids). A parallel `<split>.meta.jsonl` (same line "
-        "order) holds id, shape, noise level, family, clean phrase and query parameters.",
+        _p(
+            '`{"messages": [system, user, assistant]}`: the system message is the fixed ',
+            "instruction plus the schema slice of the intent, the user message lists service, ",
+            "intent, variants, language and the noisy phrase, and the assistant message is the ",
+            "canonical Cypher with `$sid` / `$variant_ids` (never literal ids). A parallel ",
+            "`<split>.meta.jsonl` (same line order) holds id, shape, noise level, family, ",
+            "clean phrase and query parameters.",
+        ),
         "",
         "## Known limits",
         "",
-        "- Filipino and Taglish wording is unreviewed (NEEDS-NATIVE-REVIEW); the list is in "
-        "`docs/training_notes.md`.",
-        "- The shape (list, count, per_step, go_first) must be inferred from the wording alone; "
-        "the variant filter depends on whether variants are given, and steps, times, offices and "
-        "who-may-avail ignore variants (no variant links in the graph).",
-        "- Service names are colloquial names plus the official names; aliases from "
-        "`graph/seed/aliases.yaml` are used when that file exists.",
-        "- Phrases are short single questions: no multi-request messages, no gibberish, no "
-        "out-of-scope or mutation requests (those are handled before the model).",
+        _p(
+            "- Filipino and Taglish wording is unreviewed (NEEDS-NATIVE-REVIEW); the list is in ",
+            "`docs/training_notes.md`.",
+        ),
+        _p(
+            "- The shape (list, count, per_step, go_first) must be inferred from the wording ",
+            "alone; the variant filter depends on whether variants are given, and steps, times, ",
+            "offices and who-may-avail ignore variants (no variant links in the graph).",
+        ),
+        _p(
+            "- Service names are colloquial names plus the official names; aliases from ",
+            "`graph/seed/aliases.yaml` are used when that file exists.",
+        ),
+        _p(
+            "- Phrases are short single questions: no multi-request messages, no gibberish, no ",
+            "out-of-scope or mutation requests (those are handled before the model).",
+        ),
         "",
     ]
     return "\n".join(lines)
@@ -701,15 +764,23 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT, help="where the JSONL files go")
-    ap.add_argument("--docs-dir", type=Path, default=TRAINING_DIR,
-                    help="where sample/ and DATASET_CARD.md go")
+    ap.add_argument(
+        "--docs-dir", type=Path, default=TRAINING_DIR, help="where sample/ and DATASET_CARD.md go"
+    )
     ap.add_argument("--no-docs", action="store_true", help="do not write the sample and the card")
     ap.add_argument("--train-rounds", type=int, default=2)
     ap.add_argument("--eval-fraction", type=float, default=0.15)
-    ap.add_argument("--list-review", action="store_true",
-                    help="print the Filipino strings that need native review and exit")
-    ap.add_argument("--write-review-list", type=Path, metavar="NOTES_MD",
-                    help="refresh the generated review list inside the notes file and exit")
+    ap.add_argument(
+        "--list-review",
+        action="store_true",
+        help="print the Filipino strings that need native review and exit",
+    )
+    ap.add_argument(
+        "--write-review-list",
+        type=Path,
+        metavar="NOTES_MD",
+        help="refresh the generated review list inside the notes file and exit",
+    )
     args = ap.parse_args(argv)
 
     if args.list_review or args.write_review_list:

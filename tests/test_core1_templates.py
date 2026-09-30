@@ -150,7 +150,9 @@ def test_select_uses_the_filtered_template_only_when_variants_are_given_and_supp
 
 
 def test_build_query_returns_the_documented_parameters():
-    q = T.build_query(slots("requirements", {"business_type": "corporation", "applicant_type": "new"}))
+    q = T.build_query(
+        slots("requirements", {"business_type": "corporation", "applicant_type": "new"})
+    )
     assert q.params == {
         "sid": "business_permit",
         "variant_ids": ["applicant_type:new", "business_type:corporation"],
@@ -244,7 +246,9 @@ def test_the_filter_logic_agrees_with_the_in_memory_graph_on_every_combination()
                 (requirements, graph.requirements(svc.id, combo)),
                 (fees, graph.fees(svc.id, combo)),
             ):
-                got = {x.id for x in records if cypher_filter_keeps(x.variant_ids, asked, catalogue)}
+                got = {
+                    x.id for x in records if cypher_filter_keeps(x.variant_ids, asked, catalogue)
+                }
                 assert got == {x.id for x in want}, (svc.id, combo)
             checked += 1
     assert checked > 1000

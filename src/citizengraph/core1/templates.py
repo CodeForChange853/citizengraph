@@ -212,13 +212,17 @@ def build_templates(schema: Schema = OFFICIAL_SCHEMA) -> dict[tuple[str, str, bo
 
         fee = f"{service}-[:HAS_FEE]->(f:Fee)"
         fee_cols = _return(
-            schema, "f", ("id", "label", "amount_min", "amount_max", "unit", "note", "condition_text")
+            schema,
+            "f",
+            ("id", "label", "amount_min", "amount_max", "unit", "note", "condition_text"),
         )
         add(
             "fees",
             "list",
             filtered,
-            _query(fee, _where(filtered, "f"), "RETURN " + ", ".join(fee_cols), "ORDER BY f.id", limit),
+            _query(
+                fee, _where(filtered, "f"), "RETURN " + ", ".join(fee_cols), "ORDER BY f.id", limit
+            ),
         )
         per_step_cols = _return(schema, "st", ("id", "order", "citizen_action")) + fee_cols
         add(
@@ -277,11 +281,18 @@ def build_templates(schema: Schema = OFFICIAL_SCHEMA) -> dict[tuple[str, str, bo
     step_cols = _return(
         schema, "st", ("id", "order", "citizen_action", "agency_action", "external_agency")
     )
-    add("steps", "list", False, _query(steps, "RETURN " + ", ".join(step_cols), "ORDER BY st.order", limit))
+    add(
+        "steps",
+        "list",
+        False,
+        _query(steps, "RETURN " + ", ".join(step_cols), "ORDER BY st.order", limit),
+    )
     add("steps", "count", False, _query(steps, "RETURN count(st) AS n", "LIMIT 1"))
 
     time_cols = _return(schema, "s", ("total_time_text",)) + _return(
-        schema, "st", ("id", "order", "dur_min", "dur_max", "dur_unit", "day_type", "external_agency")
+        schema,
+        "st",
+        ("id", "order", "dur_min", "dur_max", "dur_unit", "day_type", "external_agency"),
     )
     add(
         "processing_time",

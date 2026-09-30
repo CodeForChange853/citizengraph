@@ -97,10 +97,7 @@ def schema_slice(intent: str, schema: Schema = OFFICIAL_SCHEMA) -> SchemaSlice:
     relationships = tuple(
         (src, rel, dst)
         for src, rel, dst in RELATIONSHIPS
-        if rel in used_rels
-        and rel in schema.relationship_types
-        and src in labels
-        and dst in labels
+        if rel in used_rels and rel in schema.relationship_types and src in labels and dst in labels
     )
     return SchemaSlice(labels, relationships)
 
