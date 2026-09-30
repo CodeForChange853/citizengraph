@@ -1,0 +1,34 @@
+# Core 2 (SLA agent) settings. ALL Core 2 config lives here. Holidays and suspensions come from
+# config/calendar.yaml and the statutory caps from config/sla.yaml; neither is edited by Core 2.
+core2:
+  # --- agent loop -------------------------------------------------------------------------
+  max_steps: 8              # hard step cap; on the cap the agent returns a safe fallback
+  invalid_json_retries: 1   # extra model call for one unparseable reply, then safe fallback
+  invalid_args_retries: 2   # error observations (bad arguments, unknown tool) per run
+  max_observation_chars: 900
+  # Prompt size cap in characters, a PROXY for the 2,048-token context (docs/specs.md). JSON runs
+  # at roughly 3 to 3.5 characters per token (an estimate, not measured): measure with the real
+  # tokenizer before trusting it. Over the cap the agent stops with the safe fallback.
+  max_prompt_chars: 6500
+  max_tokens: 200           # per model reply
+  trajectory_log: data/simulated/core2_trajectories.jsonl
+  # --- tools ------------------------------------------------------------------------------
+  row_limit: 10             # max rows any list-type tool returns
+  alert_store: data/simulated/core2_alerts.jsonl   # separate from Neo4j; never the charter graph
+  # --- SLA policy (tunable design choices, NOT charter facts and NOT law) ------------------
+  # Over the charter step time by up to this factor counts as a minor delay (no alert).
+  minor_delay_ratio: 1.5
+  # Weekend day numbers (Monday = 0). Everything else is a working day unless a holiday or
+  # declared suspension is supplied by the calendar.
+  weekend_days: [5, 6]
+  # Explicit day types for day-based charter durations. The charter leaves them "unknown"
+  # (docs/charter_data.md) and nothing is guessed: with no entry here (and none from a
+  # scenario) a day-based step time is "cannot_determine". Keys are step ids or service ids;
+  # values are "working" or "calendar".
+  day_type_overrides: {}
+  # Steps that are legally required posting periods (waiting, not processing). Read from the
+  # charter: LCRO-02 step 1.4 "Posting of Birth Certificate". How the statutory cap treats a
+  # posting period is an open question (docs/charter_data.md section 5), so the statutory check
+  # is not applied once a posting step has started.
+  posting_step_ids:
+    - birth_registration_delayed-S04
