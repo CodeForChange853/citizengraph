@@ -132,7 +132,8 @@ VALID = [
     ),
     "MATCH (r:Requirement)-[:PART_OF]->(p:Requirement) RETURN r.id, p.id, r.parent_id LIMIT 50",
     "MATCH (s:Service)-[:KNOWN_AS]->(al:Alias) WHERE al.lang = 'fil' RETURN al.text, al.lang LIMIT 10",
-    "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x) RETURN x LIMIT 10",
+    # was `->(x)`; an unlabeled node is now rejected (tests/test_guardrail_patterns.py)
+    "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x:Requirement|Fee) RETURN x LIMIT 10",
     (
         "MATCH (s:Service)-[:REQUIRES]->(r:Requirement)-[:SECURED_AT]->(a:Agency) "
         "RETURN a.name, count(r) AS n ORDER BY n DESC SKIP 5 LIMIT 10"
@@ -885,12 +886,15 @@ def limits_file(tmp_path, monkeypatch):
     path = tmp_path / "limits.yaml"
     monkeypatch.setattr(validator, "LIMITS_PATH", path)
     validator._load_max_limit.cache_clear()
+    validator._load_max_chars.cache_clear()
     yield path
     validator._load_max_limit.cache_clear()
+    validator._load_max_chars.cache_clear()
 
 
 def test_config_value_is_read_from_yaml(limits_file):
-    limits_file.write_text("core1:\n  cypher_limit_max: 7\n")
+    # cypher_max_chars is required too (missing means fail closed), so the file carries it
+    limits_file.write_text("core1:\n  cypher_limit_max: 7\n  cypher_max_chars: 2000\n")
     assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 7").ok is True
     assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 8").ok is False
 
@@ -921,8 +925,9 @@ def test_unreadable_or_invalid_config_fails_closed(limits_file, content):
 
 
 def test_explicit_max_limit_does_not_need_config(limits_file):
-    # config file is absent here, but an explicit max means it is never consulted
-    assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 5", max_limit=10).ok is True
+    # config file is absent here, but explicit maxima mean it is never consulted
+    result = validate_cypher("MATCH (s:Service) RETURN s LIMIT 5", max_limit=10, max_chars=2000)
+    assert result.ok is True
 
 
 # --------------------------------------------------------------------------- lexer unit tests
