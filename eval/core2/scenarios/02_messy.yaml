@@ -1,0 +1,420 @@
+# Messy scenarios: several facts interact. Written AFTER the baseline rules were frozen
+# (docs/core2_notes.md section 2). Some exercise a documented baseline simplification, some are
+# combinations the baseline handles fine; both are kept on purpose. `gold` is hand-written from
+# the injected facts. Scenarios with `check_truth: false` deliberately differ from the simulator's
+# single-situation truth because a second fact changes the answer.
+
+- id: M01_absent_signatory_suspension_missing_timestamp
+  title: Absent signatory + declared suspension day + an earlier step lost a timestamp
+  category: messy
+  seed: 201
+  as_of: "2026-03-04T14:00"
+  max_steps: 12
+  notes: The combination named in docs/specs.md section 3. The bad timestamp is in an earlier step, so the current step can still be measured.
+  apps:
+    - {id: A1, ref: CG-SIM-0201, citizen: CIT-0201, service: business_permit, situation: over_charter, at_step: 8, inject: [role_unavailable, missing_earlier, extra_suspension]}
+  task: {kind: status, ref: CG-SIM-0201}
+  gold:
+    applications:
+      A1:
+        status: delayed
+        alerts: [citizen_delay_notice, department_head_escalation, missing_data_flag]
+        reasons: [over_charter_step_time, role_unavailable, missing_timestamp_earlier_step]
+  required_tools: [get_applications, get_workflow_state, get_step_sla, get_role_availability, draft_alert]
+
+- id: M02_earlier_timestamp_lost_current_on_time
+  title: An earlier step lost a timestamp; the current step is on time
+  category: messy
+  seed: 202
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0202, citizen: CIT-0202, service: business_permit, situation: on_time, at_step: 8, inject: [missing_earlier]}
+  task: {kind: status, ref: CG-SIM-0202}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: [missing_data_flag], reasons: [missing_timestamp_earlier_step]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M03_earlier_timestamp_lost_statutory_overdue
+  title: An earlier step lost a timestamp and the statutory cap is exceeded
+  category: messy
+  seed: 203
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  apps:
+    - {id: A1, ref: CG-SIM-0203, citizen: CIT-0203, service: business_permit, situation: overdue_statutory, at_step: 8, inject: [missing_earlier]}
+  task: {kind: status, ref: CG-SIM-0203}
+  gold:
+    applications:
+      A1:
+        status: overdue_statutory
+        alerts: [citizen_delay_notice, department_head_escalation, missing_data_flag]
+        reasons: [statutory_cap_exceeded, missing_timestamp_earlier_step]
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M04_completed_with_lost_timestamp
+  title: A finished application whose record lost a timestamp
+  category: messy
+  seed: 204
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0204, citizen: CIT-0204, service: occupational_permit, situation: completed, inject: [missing_earlier]}
+  task: {kind: status, ref: CG-SIM-0204}
+  gold:
+    applications:
+      A1: {status: completed, alerts: [missing_data_flag]}
+  required_tools: [get_applications, get_workflow_state, draft_alert]
+
+- id: M05_external_wait_beside_a_posting_period
+  title: One citizen, two applications - one in a posting period, one waiting at the Treasurer
+  category: messy
+  seed: 205
+  as_of: "2026-03-04T14:00"
+  max_steps: 16
+  apps:
+    - id: A1
+      ref: CG-SIM-0205
+      citizen: CIT-0205
+      service: birth_registration_delayed
+      submitted: "2026-03-02T09:00"
+      stamps:
+        - ["2026-03-02T09:00", "2026-03-02T09:05"]
+        - ["2026-03-02T09:05", "2026-03-02T09:15"]
+        - ["2026-03-02T09:15", "2026-03-02T09:20"]
+        - ["2026-03-02T09:20", null]
+    - {id: A2, ref: CG-SIM-0215, citizen: CIT-0205, service: occupational_permit, situation: external_over, at_step: 3}
+  task: {kind: status, ref: CIT-0205}
+  gold:
+    applications:
+      A1: {status: waiting_posting, alerts: [], reasons: [posting_period]}
+      A2: {status: external_waiting, alerts: [external_wait_notice], reasons: [external_agency]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M06_posting_period_over
+  title: Posting period is over (day type given as calendar days) and nobody moved the application
+  category: messy
+  seed: 206
+  as_of: "2026-03-04T14:00"
+  max_steps: 12
+  notes: Scenario sets the day type explicitly, so the 10-day posting can be compared. Once the posting time is over, the waiting is the office's.
+  day_types: {birth_registration_delayed-S04: calendar}
+  apps:
+    - id: A1
+      ref: CG-SIM-0206
+      citizen: CIT-0206
+      service: birth_registration_delayed
+      submitted: "2026-02-16T08:55"
+      stamps:
+        - ["2026-02-16T08:55", "2026-02-16T09:00"]
+        - ["2026-02-16T09:00", "2026-02-16T09:10"]
+        - ["2026-02-16T09:10", "2026-02-16T09:15"]
+        - ["2026-02-16T09:15", null]
+  task: {kind: status, ref: CG-SIM-0206}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice], reasons: [over_charter_step_time]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M07_suspension_pauses_a_day_based_step
+  title: 3-day inspection (working days given) with two declared suspension days
+  category: messy
+  seed: 207
+  as_of: "2026-03-06T10:00"
+  calendar: {suspensions: ["2026-03-03", "2026-03-04"]}
+  day_types: {cho_sanitary_permit: working}
+  apps:
+    - id: A1
+      ref: CG-SIM-0207
+      citizen: CIT-0207
+      service: cho_sanitary_permit
+      submitted: "2026-03-02T08:00"
+      stamps:
+        - ["2026-03-02T08:00", "2026-03-02T08:05"]
+        - ["2026-03-02T08:05", null]
+  task: {kind: status, ref: CG-SIM-0207}
+  gold:
+    applications:
+      A1: {status: paused_by_suspension, alerts: [], reasons: [suspension_days_excluded]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: M08_suspension_does_not_rescue
+  title: Statutory overdue even after a declared suspension day is excluded
+  category: messy
+  seed: 208
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0208, citizen: CIT-0208, service: business_permit, situation: overdue_statutory, at_step: 8, inject: [extra_suspension]}
+  task: {kind: status, ref: CG-SIM-0208}
+  gold:
+    applications:
+      A1:
+        status: overdue_statutory
+        alerts: [citizen_delay_notice, department_head_escalation]
+        reasons: [statutory_cap_exceeded]
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M09_suspension_today_holds_alerts
+  title: Delayed application, but today is itself a declared suspension day
+  category: messy
+  seed: 209
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  check_truth: false
+  notes: The office is closed today by declaration; alerts are held instead of drafted (reference rule R7).
+  calendar: {suspensions: ["2026-03-04"]}
+  apps:
+    - {id: A1, ref: CG-SIM-0209, citizen: CIT-0209, service: business_permit, situation: over_charter, at_step: 8}
+  task: {kind: status, ref: CG-SIM-0209}
+  gold:
+    applications:
+      A1: {status: paused_by_suspension, alerts: [], reasons: [suspension_today]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, check_work_suspension]
+
+- id: M10_four_applications_one_citizen
+  title: One citizen with four applications in four different situations
+  category: messy
+  seed: 210
+  as_of: "2026-03-04T14:00"
+  max_steps: 30
+  apps:
+    - {id: A1, ref: CG-SIM-0210, citizen: CIT-0210, service: business_permit, situation: on_time, at_step: 8}
+    - {id: A2, ref: CG-SIM-0211, citizen: CIT-0210, service: cho_dental_services, situation: over_charter, at_step: 1}
+    - {id: A3, ref: CG-SIM-0212, citizen: CIT-0210, service: occupational_permit, situation: external_over, at_step: 3}
+    - {id: A4, ref: CG-SIM-0213, citizen: CIT-0210, service: occupational_permit, situation: completed}
+  task: {kind: status, ref: CIT-0210}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+      A2: {status: delayed, alerts: [citizen_delay_notice]}
+      A3: {status: external_waiting, alerts: [external_wait_notice]}
+      A4: {status: completed, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M11_absent_role_but_on_time
+  title: The signatory is absent, but the step is still inside its time
+  category: messy
+  seed: 211
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0214, citizen: CIT-0211, service: business_permit, situation: on_time, at_step: 8, inject: [role_unavailable]}
+  task: {kind: status, ref: CG-SIM-0214}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: M12_statutory_overdue_and_absent_role
+  title: Statutory overdue while the signatory is absent (one escalation, not two)
+  category: messy
+  seed: 212
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0215, citizen: CIT-0212, service: business_permit, situation: overdue_statutory, at_step: 8, inject: [role_unavailable]}
+  task: {kind: status, ref: CG-SIM-0215}
+  gold:
+    applications:
+      A1: {status: overdue_statutory, alerts: [citizen_delay_notice, department_head_escalation]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M13_delayed_step_without_a_role_title
+  title: Delayed step for which the charter names no role
+  category: messy
+  seed: 213
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  apps:
+    - {id: A1, ref: CG-SIM-0216, citizen: CIT-0213, service: business_permit, situation: over_charter, at_step: 2}
+  task: {kind: status, ref: CG-SIM-0216}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice], reasons: [over_charter_step_time]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M14_external_wait_and_lost_timestamp
+  title: Waiting at the Treasurer, and an earlier step lost a timestamp
+  category: messy
+  seed: 214
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0217, citizen: CIT-0214, service: occupational_permit, situation: external_waiting, at_step: 3, inject: [missing_earlier]}
+  task: {kind: status, ref: CG-SIM-0217}
+  gold:
+    applications:
+      A1: {status: external_waiting, alerts: [missing_data_flag], reasons: [external_agency, missing_timestamp_earlier_step]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M15_external_days_not_counted_against_the_lgu
+  title: Four working days since receipt, all spent at the Treasurer
+  category: messy
+  seed: 215
+  as_of: "2026-03-06T09:07"
+  notes: Without removing the external days the statutory count would be 4 (over the configured 3).
+  apps:
+    - id: A1
+      ref: CG-SIM-0218
+      citizen: CIT-0215
+      service: business_permit
+      submitted: "2026-03-02T09:00"
+      stamps:
+        - ["2026-03-02T09:00", "2026-03-02T09:02"]
+        - ["2026-03-02T09:02", "2026-03-02T09:04"]
+        - ["2026-03-02T09:04", "2026-03-02T09:09"]
+        - ["2026-03-02T09:09", "2026-03-02T09:15"]
+        - ["2026-03-02T09:15", "2026-03-06T09:00"]
+        - ["2026-03-06T09:00", "2026-03-06T09:05"]
+        - ["2026-03-06T09:05", null]
+  task: {kind: status, ref: CG-SIM-0218}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: M16_holiday_keeps_the_count_at_the_cap
+  title: A declared (fixture) holiday keeps the working-day count at exactly the cap
+  category: messy
+  seed: 216
+  as_of: "2026-03-06T09:03"
+  calendar: {holidays: ["2026-03-03"]}
+  apps:
+    - id: A1
+      ref: CG-SIM-0219
+      citizen: CIT-0216
+      service: business_permit
+      submitted: "2026-03-02T09:00"
+      stamps:
+        - ["2026-03-02T09:00", "2026-03-02T09:02"]
+        - ["2026-03-02T09:02", "2026-03-06T09:00"]
+        - ["2026-03-06T09:00", null]
+  task: {kind: status, ref: CG-SIM-0219}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: M17_exactly_at_the_cap_is_not_over
+  title: Three working days since receipt against a cap of three
+  category: messy
+  seed: 217
+  as_of: "2026-03-05T09:03"
+  apps:
+    - id: A1
+      ref: CG-SIM-0220
+      citizen: CIT-0217
+      service: business_permit
+      submitted: "2026-03-02T09:00"
+      stamps:
+        - ["2026-03-02T09:00", "2026-03-02T09:02"]
+        - ["2026-03-02T09:02", "2026-03-05T09:00"]
+        - ["2026-03-05T09:00", null]
+  task: {kind: status, ref: CG-SIM-0220}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: M18_minor_delay_and_lost_timestamp
+  title: A small delay inside the tolerance, and an earlier step lost a timestamp
+  category: messy
+  seed: 218
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0221, citizen: CIT-0218, service: business_permit, situation: minor_delay, at_step: 8, inject: [missing_earlier]}
+  task: {kind: status, ref: CG-SIM-0221}
+  gold:
+    applications:
+      A1: {status: minor_delay, alerts: [missing_data_flag], reasons: [missing_timestamp_earlier_step]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M19_unknown_day_type_but_statutory_overdue
+  title: Week-long CSWDO step cannot be compared, yet 12 working days have passed since receipt
+  category: messy
+  seed: 219
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  notes: CSWDO-01 is classified Complex (cap 7 in config/sla.yaml, unverified).
+  apps:
+    - id: A1
+      ref: CG-SIM-0222
+      citizen: CIT-0219
+      service: cswdo_referrals
+      submitted: "2026-02-16T09:00"
+      stamps:
+        - ["2026-02-16T09:00", "2026-02-16T09:20"]
+        - ["2026-02-16T09:20", null]
+  task: {kind: status, ref: CG-SIM-0222}
+  gold:
+    applications:
+      A1:
+        status: overdue_statutory
+        alerts: [citizen_delay_notice, department_head_escalation]
+        reasons: [statutory_cap_exceeded]
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M20_posting_period_and_lost_timestamp
+  title: In a posting period, and an earlier step lost its start time
+  category: messy
+  seed: 220
+  as_of: "2026-03-04T14:00"
+  apps:
+    - id: A1
+      ref: CG-SIM-0223
+      citizen: CIT-0220
+      service: birth_registration_delayed
+      submitted: "2026-03-02T08:55"
+      stamps:
+        - ["2026-03-02T08:55", "2026-03-02T09:00"]
+        - [null, "2026-03-02T09:10"]
+        - ["2026-03-02T09:10", "2026-03-02T09:15"]
+        - ["2026-03-02T09:15", null]
+  task: {kind: status, ref: CG-SIM-0223}
+  gold:
+    applications:
+      A1: {status: waiting_posting, alerts: [missing_data_flag], reasons: [posting_period, missing_timestamp_earlier_step]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: M21_a_different_role_is_absent
+  title: Delayed at the BPLO Chief's step; the City Civil Registrar is the one who is absent
+  category: messy
+  seed: 221
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  absences: {"City Civil Registrar": ["2026-03-04"]}
+  apps:
+    - {id: A1, ref: CG-SIM-0224, citizen: CIT-0221, service: business_permit, situation: over_charter, at_step: 8}
+  task: {kind: status, ref: CG-SIM-0224}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice], reasons: [over_charter_step_time]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, get_role_availability, draft_alert]
+
+- id: M23_suspension_today_and_statutory_overdue
+  title: Statutory overdue, but today is a declared suspension day
+  category: messy
+  seed: 223
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  check_truth: false
+  calendar: {suspensions: ["2026-03-04"]}
+  apps:
+    - {id: A1, ref: CG-SIM-0225, citizen: CIT-0223, service: business_permit, situation: overdue_statutory, at_step: 8}
+  task: {kind: status, ref: CG-SIM-0225}
+  gold:
+    applications:
+      A1: {status: paused_by_suspension, alerts: [], reasons: [suspension_today]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, check_work_suspension]
+
+- id: M24_two_delayed_applications_share_an_absent_role
+  title: Two applications of one citizen wait for the same absent BPLO Chief
+  category: messy
+  seed: 224
+  as_of: "2026-03-04T14:00"
+  max_steps: 30
+  apps:
+    - {id: A1, ref: CG-SIM-0226, citizen: CIT-0224, service: business_permit, situation: over_charter, at_step: 8, inject: [role_unavailable]}
+    - {id: A2, ref: CG-SIM-0227, citizen: CIT-0224, service: product_promotion_peddlers, situation: over_charter, at_step: 4}
+  task: {kind: status, ref: CIT-0224}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice, department_head_escalation], reasons: [role_unavailable]}
+      A2: {status: delayed, alerts: [citizen_delay_notice, department_head_escalation], reasons: [role_unavailable]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, get_role_availability, draft_alert]

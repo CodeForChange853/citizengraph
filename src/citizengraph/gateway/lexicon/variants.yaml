@@ -1,0 +1,73 @@
+# Cue phrases for the variants in graph/seed/variants.yaml. A cue only counts when the linked
+# service actually has that dimension (its requirements or fees link to it). Phrases are matched
+# on normalized tokens. Two different values of one dimension in the same request cancel out
+# (the gateway then leaves the dimension unset and says so in `reasons`).
+# Filipino phrases are DRAFT. NEEDS-NATIVE-REVIEW (every `fil` list below)
+
+cues:
+  applicant_type:
+    new:
+      en: ["new business", "new application", "new applicant", "first time", "brand new", "newly", "starting a business", "just starting", "new"]
+      fil: ["bagong negosyo", "bagong aplikasyon", "unang beses", "unang pagkakataon", "bago pa lang", bago, bagong]
+  business_type:
+    single_proprietor:
+      en: ["single proprietor", "single proprietorship", "sole proprietor", "sole proprietorship", "sole owner", "individual owner", "single owner", "single"]
+      fil: ["sariling negosyo", "single proprietor"]
+    corporation:
+      en: [corporation, corporate, incorporated, inc, corp]
+      fil: [korporasyon]
+    association:
+      en: [association, associations, assoc]
+      fil: [asosasyon, samahan]
+  taxpayer:
+    company:
+      en: [company, companies, firm, corporate, employer]
+      fil: [kumpanya, kompanya]
+    individual:
+      en: [individual, personal, myself, "self employed", "self-employed", worker, employee]
+      fil: [indibidwal, sarili, "sa sarili", empleyado]
+  cockfight_category:
+    MD:
+      en: [md, "mayor's derby", "mayors derby"]
+      fil: []
+    Derby:
+      en: [derby]
+      fil: []
+    2C:
+      en: [2c, "2 cock", "two cock", "2 cockers"]
+      fil: []
+    3C:
+      en: [3c, "3 cock", "three cock"]
+      fil: []
+    4C:
+      en: [4c, "4 cock", "four cock"]
+      fil: []
+    5C:
+      en: [5c, "5 cock", "five cock"]
+      fil: []
+  birth_status:
+    marital:
+      en: ["marital child", "married parents", "parents are married", "parents married", "legitimate", "born to married parents", "marital"]
+      fil: ["kasal ang magulang", "mag asawa ang magulang", "kasal ang mga magulang"]
+    non_marital:
+      en: [illegitimate, "non marital", nonmarital, "unmarried parents", "parents are not married", "parents not married", "not married parents", "born out of wedlock", "out of wedlock", "unwed parents", "unwed mother", "single mother", "ra 9255"]
+      fil: ["hindi kasal ang magulang", "hindi kasal ang mga magulang", "anak sa labas", "hindi kasal"]
+  foreign_parent:
+    "yes":
+      en: ["foreign parent", "foreigner parent", "parent is a foreigner", "parent is foreign", "a parent is a foreigner", "one parent is a foreigner", "one parent is foreign", "father is a foreigner", "mother is a foreigner", "father is foreign", "mother is foreign", "foreign father", "foreign mother", "foreign national", foreigner, foreign, "not filipino", "non filipino", "alien"]
+      fil: [dayuhan, banyaga, "hindi pilipino", "dayuhang magulang", "dayuhan ang tatay", "dayuhan ang nanay", "banyaga ang tatay", "banyaga ang nanay"]
+
+# Things citizens say that the graph has no variant for. Never turned into a variant; the gateway
+# only adds a reason (`variant_unavailable:<dimension>=<value>`) when the service has that dimension.
+unsupported:
+  applicant_type:
+    renewal:
+      en: [renewal, renew, renewing, renewed, "renew my", "renewal of"]
+      fil: [renew, irenew, "pag renew", "pagre renew", "magrenew", "mag renew", "i renew", "pagbabago ng permit", "muling pagkuha"]
+  business_type:
+    cooperative:
+      en: [cooperative, cooperatives, coop, "co op"]
+      fil: [kooperatiba]
+    partnership:
+      en: [partnership, partnerships]
+      fil: []

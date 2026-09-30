@@ -1,0 +1,284 @@
+# Easy scenarios: one application, one situation. A straightforward if-else agent should get
+# these right. Dates are a TEST FIXTURE (2026-03-02 is a Monday); nothing here is a real holiday.
+# `gold` is written by hand from the situation that was injected, not produced by any agent.
+
+- id: E01_on_time_business_permit
+  title: Business permit at step 8, well inside the charter time
+  category: easy
+  seed: 101
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0101, citizen: CIT-0101, service: business_permit, situation: on_time, at_step: 8}
+  task: {kind: status, ref: CG-SIM-0101}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E02_on_time_occupational_permit
+  title: Occupational permit at step 4, inside the charter time
+  category: easy
+  seed: 102
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0102, citizen: CIT-0102, service: occupational_permit, situation: on_time, at_step: 4}
+  task: {kind: status, ref: CG-SIM-0102}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E03_minor_delay_dental
+  title: Dental service a little over its 40-minute charter time (within tolerance)
+  category: easy
+  seed: 103
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0103, citizen: CIT-0103, service: cho_dental_services, situation: minor_delay, at_step: 1}
+  task: {kind: status, ref: CG-SIM-0103}
+  gold:
+    applications:
+      A1: {status: minor_delay, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E04_delayed_signatory_present
+  title: Business permit signing step far over its time, the BPLO Chief is present
+  category: easy
+  seed: 104
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  apps:
+    - {id: A1, ref: CG-SIM-0104, citizen: CIT-0104, service: business_permit, situation: over_charter, at_step: 8}
+  task: {kind: status, ref: CG-SIM-0104}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice], reasons: [over_charter_step_time]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, get_role_availability, draft_alert]
+
+- id: E05_delayed_signatory_absent
+  title: Same delay, but the BPLO Chief is marked absent today
+  category: easy
+  seed: 105
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  apps:
+    - {id: A1, ref: CG-SIM-0105, citizen: CIT-0105, service: business_permit, situation: over_charter, at_step: 8, inject: [role_unavailable]}
+  task: {kind: status, ref: CG-SIM-0105}
+  gold:
+    applications:
+      A1:
+        status: delayed
+        alerts: [citizen_delay_notice, department_head_escalation]
+        reasons: [over_charter_step_time, role_unavailable]
+  required_tools: [get_applications, get_workflow_state, get_step_sla, get_role_availability, draft_alert]
+
+- id: E06_overdue_statutory
+  title: Current step is fine, but the working days since receipt exceed the configured cap
+  category: easy
+  seed: 106
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0106, citizen: CIT-0106, service: business_permit, situation: overdue_statutory, at_step: 8}
+  task: {kind: status, ref: CG-SIM-0106}
+  gold:
+    applications:
+      A1:
+        status: overdue_statutory
+        alerts: [citizen_delay_notice, department_head_escalation]
+        reasons: [statutory_cap_exceeded]
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: E07_missing_current_timestamp
+  title: The current step has no start time
+  category: easy
+  seed: 107
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0107, citizen: CIT-0107, service: business_permit, situation: on_time, at_step: 4, inject: [missing_current]}
+  task: {kind: status, ref: CG-SIM-0107}
+  gold:
+    applications:
+      A1: {status: cannot_determine, alerts: [missing_data_flag], reasons: [missing_timestamp]}
+  required_tools: [get_applications, get_workflow_state, draft_alert]
+
+- id: E08_external_wait_no_stated_time
+  title: Waiting at the City Treasurer's payment step, which has no charter time
+  category: easy
+  seed: 108
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0108, citizen: CIT-0108, service: business_permit, situation: external_waiting, at_step: 5}
+  task: {kind: status, ref: CG-SIM-0108}
+  gold:
+    applications:
+      A1: {status: external_waiting, alerts: [], reasons: [external_agency]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E09_external_wait_over_stated_time
+  title: Waiting at the Treasurer's step (charter 2 minutes) for far longer
+  category: easy
+  seed: 109
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0109, citizen: CIT-0109, service: occupational_permit, situation: external_over, at_step: 3}
+  task: {kind: status, ref: CG-SIM-0109}
+  gold:
+    applications:
+      A1: {status: external_waiting, alerts: [external_wait_notice], reasons: [external_agency]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, draft_alert]
+
+- id: E10_day_type_unknown
+  title: CSWDO referral step of "1 week" with no calendar or working day type
+  category: easy
+  seed: 110
+  as_of: "2026-03-04T14:00"
+  notes: The charter does not say whether a week is calendar or working days; nothing is guessed.
+  apps:
+    - id: A1
+      ref: CG-SIM-0110
+      citizen: CIT-0110
+      service: cswdo_referrals
+      submitted: "2026-03-02T09:00"
+      stamps:
+        - ["2026-03-02T09:00", "2026-03-02T09:20"]
+        - ["2026-03-02T09:20", null]
+  task: {kind: status, ref: CG-SIM-0110}
+  gold:
+    applications:
+      A1: {status: cannot_determine, alerts: [], reasons: [day_type_unknown]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E11_completed
+  title: Every step of the application is finished
+  category: easy
+  seed: 111
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0111, citizen: CIT-0111, service: occupational_permit, situation: completed}
+  task: {kind: status, ref: CG-SIM-0111}
+  gold:
+    applications:
+      A1: {status: completed, alerts: []}
+  required_tools: [get_applications, get_workflow_state]
+
+- id: E12_no_such_application
+  title: The reference matches nothing
+  category: easy
+  seed: 112
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0112, citizen: CIT-0112, service: business_permit, situation: on_time, at_step: 8}
+  task: {kind: status, ref: CG-SIM-9999}
+  gold:
+    applications: {}
+    reasons: [no_application_found]
+  required_tools: [get_applications]
+  allowed_tools: [get_applications]
+
+- id: E13_posting_period_unknown_day_type
+  title: Delayed birth registration inside its 10-day posting period
+  category: easy
+  seed: 113
+  as_of: "2026-03-04T14:00"
+  notes: Waiting on the posting period is not LGU delay (behavior_spec row 15). Day type unknown.
+  apps:
+    - id: A1
+      ref: CG-SIM-0113
+      citizen: CIT-0113
+      service: birth_registration_delayed
+      submitted: "2026-03-02T09:00"
+      stamps:
+        - ["2026-03-02T09:00", "2026-03-02T09:05"]
+        - ["2026-03-02T09:05", "2026-03-02T09:15"]
+        - ["2026-03-02T09:15", "2026-03-02T09:20"]
+        - ["2026-03-02T09:20", null]
+  task: {kind: status, ref: CG-SIM-0113}
+  gold:
+    applications:
+      A1: {status: waiting_posting, alerts: [], reasons: [posting_period]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E16_charter_time_not_stated
+  title: Last business-permit step has no charter time
+  category: easy
+  seed: 116
+  as_of: "2026-03-04T14:00"
+  apps:
+    - id: A1
+      ref: CG-SIM-0116
+      citizen: CIT-0116
+      service: business_permit
+      submitted: "2026-03-04T13:00"
+      stamps:
+        - ["2026-03-04T13:00", "2026-03-04T13:02"]
+        - ["2026-03-04T13:02", "2026-03-04T13:04"]
+        - ["2026-03-04T13:04", "2026-03-04T13:09"]
+        - ["2026-03-04T13:09", "2026-03-04T13:15"]
+        - ["2026-03-04T13:15", "2026-03-04T13:35"]
+        - ["2026-03-04T13:35", "2026-03-04T13:40"]
+        - ["2026-03-04T13:40", "2026-03-04T13:45"]
+        - ["2026-03-04T13:45", "2026-03-04T13:48"]
+        - ["2026-03-04T13:48", "2026-03-04T13:50"]
+        - ["2026-03-04T13:50", null]
+  task: {kind: status, ref: CG-SIM-0116}
+  gold:
+    applications:
+      A1: {status: cannot_determine, alerts: [], reasons: [charter_time_not_stated]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E17_on_time_civil_registry
+  title: Timely birth registration at step 3, on time
+  category: easy
+  seed: 117
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0117, citizen: CIT-0117, service: birth_registration_timely, situation: on_time, at_step: 3}
+  task: {kind: status, ref: CG-SIM-0117}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E18_on_time_health
+  title: Medical certificate at step 2, on time
+  category: easy
+  seed: 118
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0118, citizen: CIT-0118, service: cho_medical_certificate, situation: on_time, at_step: 2}
+  task: {kind: status, ref: CG-SIM-0118}
+  gold:
+    applications:
+      A1: {status: on_track, alerts: []}
+  required_tools: [get_applications, get_workflow_state, get_step_sla]
+
+- id: E19_delayed_civil_registry
+  title: Court-order registration, Registration Officer step over its time
+  category: easy
+  seed: 119
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  apps:
+    - {id: A1, ref: CG-SIM-0119, citizen: CIT-0119, service: court_order_registration, situation: over_charter, at_step: 7}
+  task: {kind: status, ref: CG-SIM-0119}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice], reasons: [over_charter_step_time]}
+  required_tools: [get_applications, get_workflow_state, get_step_sla, get_role_availability, draft_alert]
+
+- id: E20_registrar_absent
+  title: Timely birth registration waits for the City Civil Registrar, who is absent
+  category: easy
+  seed: 120
+  as_of: "2026-03-04T14:00"
+  max_steps: 10
+  apps:
+    - {id: A1, ref: CG-SIM-0120, citizen: CIT-0120, service: birth_registration_timely, situation: over_charter, at_step: 4, inject: [role_unavailable]}
+  task: {kind: status, ref: CG-SIM-0120}
+  gold:
+    applications:
+      A1:
+        status: delayed
+        alerts: [citizen_delay_notice, department_head_escalation]
+        reasons: [over_charter_step_time, role_unavailable]
+  required_tools: [get_applications, get_workflow_state, get_step_sla, get_role_availability, draft_alert]

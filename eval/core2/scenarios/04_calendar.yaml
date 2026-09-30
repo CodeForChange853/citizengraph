@@ -1,0 +1,77 @@
+# Calendar questions: exact working-day arithmetic. Holidays and suspensions are TEST FIXTURES.
+
+- id: C01_working_days_plain_week
+  title: Monday to Friday, no holidays
+  category: calendar
+  seed: 401
+  as_of: "2026-03-04T14:00"
+  task: {kind: working_days, start: "2026-03-02", end: "2026-03-06"}
+  gold: {answer: {working_days: 4}}
+  required_tools: [working_days_elapsed]
+
+- id: C02_working_days_over_a_weekend
+  title: Monday to next Monday
+  category: calendar
+  seed: 402
+  as_of: "2026-03-04T14:00"
+  task: {kind: working_days, start: "2026-03-02", end: "2026-03-09"}
+  gold: {answer: {working_days: 5}}
+  required_tools: [working_days_elapsed]
+
+- id: C03_working_days_with_a_holiday
+  title: Monday to Friday with a fixture holiday on Wednesday
+  category: calendar
+  seed: 403
+  as_of: "2026-03-04T14:00"
+  calendar: {holidays: ["2026-03-04"]}
+  task: {kind: working_days, start: "2026-03-02", end: "2026-03-06"}
+  gold: {answer: {working_days: 3}}
+  required_tools: [working_days_elapsed]
+
+- id: C04_working_days_with_suspensions_and_a_holiday
+  title: Only Friday is left after two suspension days and a holiday
+  category: calendar
+  seed: 404
+  as_of: "2026-03-04T14:00"
+  calendar: {holidays: ["2026-03-05"], suspensions: ["2026-03-03", "2026-03-04"]}
+  task: {kind: working_days, start: "2026-03-02", end: "2026-03-06"}
+  gold: {answer: {working_days: 1}}
+  required_tools: [working_days_elapsed]
+
+- id: C05_working_days_same_day
+  title: Start and end on the same day
+  category: calendar
+  seed: 405
+  as_of: "2026-03-04T14:00"
+  task: {kind: working_days, start: "2026-03-03", end: "2026-03-03"}
+  gold: {answer: {working_days: 0}}
+  required_tools: [working_days_elapsed]
+
+- id: C06_declared_suspension
+  title: Is 5 March a declared suspension day? (yes, fixture)
+  category: calendar
+  seed: 406
+  as_of: "2026-03-04T14:00"
+  calendar: {suspensions: ["2026-03-05"]}
+  task: {kind: suspension_check, date: "2026-03-05"}
+  gold: {answer: {suspended: true}}
+  required_tools: [check_work_suspension]
+
+- id: C07_a_weekend_is_not_a_suspension
+  title: Saturday is not a declared work suspension
+  category: calendar
+  seed: 407
+  as_of: "2026-03-04T14:00"
+  task: {kind: suspension_check, date: "2026-03-07"}
+  gold: {answer: {suspended: false}}
+  required_tools: [check_work_suspension]
+
+- id: C08_a_holiday_is_not_a_suspension
+  title: A fixture holiday is not a declared work suspension
+  category: calendar
+  seed: 408
+  as_of: "2026-03-04T14:00"
+  calendar: {holidays: ["2026-03-04"]}
+  task: {kind: suspension_check, date: "2026-03-04"}
+  gold: {answer: {suspended: false}}
+  required_tools: [check_work_suspension]

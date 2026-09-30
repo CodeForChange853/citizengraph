@@ -1,7 +1,20 @@
 # Input and prompt limits. Tune with real data.
 gateway:
-  max_chars: 500            # hard cap on accepted message length
+  max_chars: 500            # over this: long-input path (whole text is scanned, then always echoed back for confirmation)
+  hard_max_chars: 2000      # over this: rejected politely, nothing is processed
   rate_limit_per_minute: 10 # per session
+  repeat_limit: 3           # the Nth identical message inside repeat_window_s is throttled
+  repeat_window_s: 300
+  gibberish_threshold: 0.75 # gibberish score (0..1) at or above this and no service found -> fallback
+  link_min_score: 0.80      # weakest alias match the linker accepts
+  ambiguity_margin: 0.04    # services scoring within this of the best one are ambiguous
+  echo_min_score: 0.90      # a match method scoring below this (phrase-level fuzzy) is echoed back
+  noisy_unknown_ratio: 0.6  # share of unknown words that makes a message "noisy" (echoed back)
+  noisy_min_tokens: 12      # ... but only for messages with at least this many words
+  max_phrase_chars: 160     # cleaned phrase handed to the model for one sub-request
+  max_sub_requests: 6       # more than this in one message are dropped (reason: sub_requests_truncated)
+  withheld_services: [death_registration_timely]     # service ids the LGU has not cleared for citizens (treated like in_graph: false)
+  default_intent: null      # null: a service named with no question is ASKED about; or an intent name to assume
 prompt:
   context_tokens: 2048
   max_prompt_tokens: 1000

@@ -1,0 +1,93 @@
+# Patterns for instruction-like, mutating or code-like text. A hit refuses the message before any
+# other stage runs. Regexes are matched (case-insensitive) against the folded text (NFKC,
+# lowercase, accents and invisible characters removed, apostrophes dropped) and again against the
+# same text with spaced-out letters joined ("d e l e t e" -> "delete").
+# Filipino entries are DRAFT. NEEDS-NATIVE-REVIEW (every `fil` pattern and Filipino verb below)
+
+injection:
+  en:
+    - '\b(?:ignore|disregard|forget|override|bypass|circumvent|disable|skip)\b(?:\W+\w+){0,5}?\W+(?:rules?|instructions?|guidelines?|polic(?:y|ies)|prompts?|restrictions?|guardrails?|filters?|safeguards?|programming|constraints?|limits?|safety)\b'
+    - '\b(?:stop|dont|do\s+not|never)\s+(?:following|follow|obey|obeying)\b(?:\W+\w+){0,3}?\W+(?:rules?|instructions?|guidelines?|polic(?:y|ies)|prompts?)\b'
+    - '\byou\s+are\s+now\b'
+    - '\byou\s*(?:are|re)\s+(?:free|unrestricted|dan|jailbroken|no\s+longer)\b'
+    - '\bpretend\s+(?:to\s+be|you|that)\b'
+    - '\bact\s+as\s+(?:if\b|root\b|admin\b|dan\b|an?\s+(?:admin|administrator|root|developer|unrestricted|hacker|different|evil|system))'
+    - '\bfrom\s+now\s+on\b(?:\W+\w+){0,6}?\W+(?:you|ignore|answer|act|respond|only)\b'
+    - '\b(?:jail\s*break(?:ing)?|dan\s+mode|developer\s+mode|god\s+mode|sudo\s+mode|admin\s+mode|debug\s+mode|maintenance\s+mode|do\s+anything\s+now)\b'
+    - '\b(?:system|hidden|initial|original|secret)\s+(?:prompt|instructions?|message)\b'
+    - '\b(?:reveal|show|print|repeat|display|leak|tell|expose)\b(?:\W+\w+){0,3}?\W+(?:your|the)\s+(?:prompt|instructions?|rules|system|configuration|config|password|api\s*key|secret|credentials?)\b'
+    - '\bnew\s+(?:instructions?|rules)\s*:'
+    - '\b(?:show|give|list|dump|export|print|display|reveal|send|fetch|get|extract|return)\b(?:\W+\w+){0,3}?\W+(?:all|every|whole|entire|complete|full)\b(?:\W+\w+){0,2}?\W+(?:data|records?|database|db|nodes?|graph|tables?|entries|schema|staff|employees?|names|users?|passwords?)\b'
+    - '\b(?:dump|export|exfiltrate)\b(?:\W+\w+){0,3}?\W+(?:database|db|graph|data|records?|schema|nodes?|table)\b'
+    - '\b(?:sql|cypher|prompt)\s+injection\b'
+    - '\b(?:hack|hacking|exploit|backdoor|sudo|privilege\s+escalation)\b'
+    - '\b(?:admin|administrator|root|superuser)\s+(?:access|password|credentials?|rights|privileges?|mode)\b'
+    - '\bwithout\s+(?:any\s+)?(?:restrictions?|limits?|filters?|rules)\b'
+    - '<\s*/?\s*(?:script|system|assistant|user)\b'
+    - '\[\s*/?\s*(?:inst|system)\s*\]'
+    - '(?:^|\s)#{2,}\s*(?:system|instruction)'
+    - '^\s*(?:system|assistant)\s*:'
+  fil:
+    - '\b(?:huwag|wag|di|hindi)\s+(?:mo(?:ng)?\s+)?(?:pansinin|sundin|pakinggan)\b(?:\W+\w+){0,4}?\W+(?:patakaran|utos|panuntunan|instruksyon|instructions?|rules?|bilin|alituntunin)\b'
+    - '\b(?:kalimutan|kalimutin|balewalain|isantabi|lampasan|suwayin|labagin)\b(?:\W+\w+){0,4}?\W+(?:patakaran|utos|panuntunan|instruksyon|instructions?|rules?|bilin|alituntunin)\b'
+    - '\b(?:ipakita|ibigay|ilista|ilabas|ipadala|kunin)\b(?:\W+\w+){0,3}?\W+(?:lahat|buong|kumpletong)\b(?:\W+\w+){0,2}?\W+(?:data|datos|record|rekord|database|talaan)\b'
+    - '\b(?:magpanggap|umarte\s+ka)\b'
+    - '\bikaw\s+na\s+ngayon\b'
+    - '\bmula\s+ngayon\b(?:\W+\w+){0,6}?\W+(?:ikaw|huwag|sagutin)\b'
+    - '\b(?:ibunyag|ilabas|sabihin)\b(?:\W+\w+){0,3}?\W+(?:prompt|instruksyon|password|sikreto)\b'
+
+mutation:
+  # One of these words is refused on its own (there is no citizen question that needs them).
+  strong:
+    en: [delete, deletes, deleting, deleted, erase, erasing, wipe, wiping, truncate, destroy, purge]
+    fil: [burahin, buburahin, burahing, wasakin, sirain]
+  # These are refused only when a target word follows within `window` words ("change of first name"
+  # is a real service, "change the fee" is not a citizen question).
+  weak:
+    en: [remove, drop, create, insert, update, change, edit, modify, alter, replace, overwrite, add, set, merge, rename, append]
+    fil: [tanggalin, alisin, baguhin, palitan, idagdag, dagdagan, gumawa]
+  targets: [
+    requirement, requirements, fee, fees, data, record, records, database, db, graph, node, nodes,
+    table, tables, entry, entries, row, rows, step, steps, everything, service, services, office,
+    offices, price, prices, amount, cost, rate, rates, charter, schema, index, constraint,
+    relationship, label, property, properties, user, users, account, accounts, password,
+    passwords, admin, staff, employee, employees, alias, aliases, datos, rekord, talaan, bayad,
+    presyo, halaga, hakbang, serbisyo, opisina, sistema, listahan, impormasyon,
+  ]
+  window: 4
+
+# Code-like text (Cypher, SQL, markup). Any hit refuses.
+code:
+  cypher:
+    - '\b(?:optional\s+)?match\s*\('
+    - '\b(?:merge|create)\s*\(\s*\w*\s*:\s*\w+'
+    - '\(\w*:[a-z_]\w*\s*[)\{|]'
+    - '-\s*\[\s*\w*\s*(?::\s*\w+)?\s*\]\s*-'
+    - '\]\s*->'
+    - '<\s*-\s*\['
+    - '\breturn\s+(?:\*|\w+\.\w+|distinct\b|count\s*\()'
+    - '\breturn\b[^.?!]*\blimit\s+\d+'
+    - '\bset\s+\w+\.\w+\s*='
+    - '\bdetach\b'
+    - '\bcall\s+(?:db|dbms|apoc|gds)\.'
+    - '\b(?:apoc|dbms|gds)\.\w+'
+    - '\bdb\.(?:labels|schema|index|constraints|property)\w*'
+    - '\bload\s+csv\b'
+    - '\bunwind\s+(?:\[|range\b)'
+    - '\bforeach\s*\('
+  sql:
+    - '\bselect\b[\w\s\*,\.]{0,60}\bfrom\b'
+    - '\bunion\s+(?:all\s+)?select\b'
+    - '\bdrop\s+(?:table|database|schema|constraint|index)\b'
+    - '\binsert\s+into\b'
+    - '\bdelete\s+from\b'
+    - '\bupdate\s+\w+\s+set\b'
+    - '\bor\s+1\s*=\s*1\b'
+    - ';\s*(?:drop|delete|match|create|select|insert|update|merge|call)\b'
+  markup:
+    - '/\*|\*/'
+    - '(?<!:)//'
+    - '\$\{'
+    - '\{\{'
+    - '\{\s*\w+\s*:\s*[''"\w]+\s*[,}]'
+    - '<\s*script'

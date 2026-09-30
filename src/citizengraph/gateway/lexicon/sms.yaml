@@ -1,0 +1,94 @@
+# Whole-token replacements applied after folding (lowercase, no apostrophes or hyphens, letter
+# runs of 3+ collapsed). A value may be several words. Keys must be single tokens, and a token
+# that is also a real word in EN or FIL is not listed (a wrong expansion is worse than none).
+
+# English SMS shortcuts
+sms_en:
+  pls: please
+  plz: please
+  pliz: please
+  thx: thanks
+  tnx: thanks
+  abt: about
+  b4: before
+  w: with
+  u: you
+  ur: your
+  r: are
+  wat: what
+  wut: what
+  hw: how
+  wen: when
+  wer: where
+  nid: need
+  ned: need
+  req: requirements
+  reqs: requirements
+  reqt: requirements
+  reqts: requirements
+  rqmts: requirements
+  rqrmnts: requirements
+  docs: documents
+  doc: document
+  cert: certificate
+  certs: certificates
+  info: information
+  fes: fees
+  appl: application
+  applic: application
+  reg: registration
+  regn: registration
+  prmt: permit
+  brgy: barangay
+  lic: license
+  lcns: license
+  hrs: hours
+  mins: minutes
+  bday: birthday
+  ofc: office
+
+# Taglish / Filipino shortcuts and spelling variants -> the spelling used in aliases.yaml
+# NEEDS-NATIVE-REVIEW (every entry below)
+sms_fil:
+  mgkano: magkano
+  mkano: magkano
+  magkno: magkano
+  magkanu: magkano
+  pano: paano
+  panu: paano
+  paanu: paano
+  asan: nasaan
+  nasan: nasaan
+  kelangan: kailangan
+  kylangan: kailangan
+  kaylangan: kailangan
+  kailngan: kailangan
+  pde: pwede
+  pwde: pwede
+  pwd: pwede
+  puede: puwede
+  pwedi: pwede
+  lng: lang
+  nmn: naman
+  nman: naman
+  dba: diba
+  ksi: kasi
+  poh: po
+  opoh: opo
+  oho: opo
+  hnd: hindi
+  hndi: hindi
+  gus2: gusto
+  gsto: gusto
+  sertifiko: sertipiko
+  sertifiket: sertipiko
+  sertipikeyt: sertipiko
+  sirtipiko: sertipiko
+  certipiko: sertipiko
+  rehistrasyon: rehistro
+  lisensiya: lisensya
+  lisensia: lisensya
+  lisencia: lisensya
+  lisensa: lisensya
+  bisnes: business
+  bisnis: business

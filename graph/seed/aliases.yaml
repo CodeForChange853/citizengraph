@@ -1,0 +1,1172 @@
+# Alias table for the gateway (src/citizengraph/gateway/). EN and Filipino names and everyday
+# phrases for every charter service (40) and the four offices. Editable by LGU staff without
+# retraining. The gateway matches citizen text against these, so one phrase listed under several
+# targets on purpose makes the gateway ASK which one is meant (for example "birth certificate").
+#
+# services: one row per charter service.
+#   id           graph service id when in_graph is true; the charter ref (e.g. BPLO-03) otherwise
+#   in_graph     true: curated in graph/seed. false: held back (docs/seed_status.md, "Excluded");
+#                the gateway answers "this service's information is not available yet, please ask
+#                <office>" instead of pretending
+#   name         charter name, only for services that are not in the graph (the graph has the rest)
+#   cues_en/fil  words that pick this service out of several that share a phrase (timely vs delayed)
+# aliases: one row per phrase.
+#   target       a service id (above) or an office id (bplo, lcro, cho, cswdo)
+#   lang         en | fil          (Waray is out of scope)
+#   kind         name | synonym | abbreviation | everyday  (match weight 1.00 / 0.97 / 0.95 / 0.93)
+#   needs_native_review  on every Filipino row: DRAFT until a native speaker reviews it
+# Text is matched after the gateway's normalizer (lowercase, no apostrophes or hyphens).
+# NEEDS-NATIVE-REVIEW (every row and cue with lang fil or under cues_fil)
+version: 1
+services:
+  - {id: "business_permit", charter_ref: "BPLO-01", office_id: "bplo", in_graph: true}
+  - {id: "occupational_permit", charter_ref: "BPLO-02", office_id: "bplo", in_graph: true}
+  - {id: "BPLO-03", charter_ref: "BPLO-03", office_id: "bplo", in_graph: false, name: "Special Mayor's Permit - Hanging of Streamers & Tarpaulins"}
+  - {id: "product_promotion_peddlers", charter_ref: "BPLO-04", office_id: "bplo", in_graph: true}
+  - {id: "cockfight_permit", charter_ref: "BPLO-05", office_id: "bplo", in_graph: true}
+  - {id: "BPLO-06", charter_ref: "BPLO-06", office_id: "bplo", in_graph: false, name: "Indigency Certification"}
+  - {id: "fishing_permit", charter_ref: "BPLO-07", office_id: "bplo", in_graph: true}
+  - {id: "birth_registration_timely", charter_ref: "LCRO-01", office_id: "lcro", in_graph: true, cues_en: ["timely", "on time", "newborn", "just born", "just gave birth"], cues_fil: ["nasa oras", "bagong panganak", "bagong silang"]}
+  - {id: "birth_registration_delayed", charter_ref: "LCRO-02", office_id: "lcro", in_graph: true, cues_en: ["delayed", "late", "belated", "overdue", "past due"], cues_fil: ["huli", "huling", "nahuli", "nahuling", "lampas na"]}
+  - {id: "LCRO-03", charter_ref: "LCRO-03", office_id: "lcro", in_graph: false, name: "Application for Marriage License"}
+  - {id: "marriage_registration_timely", charter_ref: "LCRO-04", office_id: "lcro", in_graph: true, cues_en: ["timely", "on time", "just married", "newly married"], cues_fil: ["nasa oras"]}
+  - {id: "LCRO-05", charter_ref: "LCRO-05", office_id: "lcro", in_graph: false, name: "Registration of Marriage Certificate (Delayed Registration)", cues_en: ["delayed", "late", "belated", "overdue", "past due"], cues_fil: ["huli", "huling", "nahuli", "nahuling", "lampas na"]}
+  - {id: "death_registration_timely", charter_ref: "LCRO-06", office_id: "lcro", in_graph: true, cues_en: ["timely", "on time", "just died", "recently died"], cues_fil: ["nasa oras"]}
+  - {id: "LCRO-07", charter_ref: "LCRO-07", office_id: "lcro", in_graph: false, name: "Registration of Death Certificate (Delayed Registration)", cues_en: ["delayed", "late", "belated", "overdue", "past due"], cues_fil: ["huli", "huling", "nahuli", "nahuling", "lampas na"]}
+  - {id: "LCRO-08", charter_ref: "LCRO-08", office_id: "lcro", in_graph: false, name: "Electronic Endorsement of Birth, Death, and Marriage Certificate to PSA"}
+  - {id: "certified_transcription", charter_ref: "LCRO-09", office_id: "lcro", in_graph: true}
+  - {id: "LCRO-10", charter_ref: "LCRO-10", office_id: "lcro", in_graph: false, name: "Filing of Supplemental Report"}
+  - {id: "court_order_registration", charter_ref: "LCRO-11", office_id: "lcro", in_graph: true}
+  - {id: "LCRO-12", charter_ref: "LCRO-12", office_id: "lcro", in_graph: false, name: "Registration of Legal Instruments - Legitimation"}
+  - {id: "ausf_registration", charter_ref: "LCRO-13", office_id: "lcro", in_graph: true}
+  - {id: "legal_instrument_other", charter_ref: "LCRO-14", office_id: "lcro", in_graph: true}
+  - {id: "LCRO-15", charter_ref: "LCRO-15", office_id: "lcro", in_graph: false, name: "Petition for Change of First Name or Correction of Clerical Error (RA 9048 / RA 10172)"}
+  - {id: "LCRO-16", charter_ref: "LCRO-16", office_id: "lcro", in_graph: false, name: "Facilitate Requests/Queries from Other City/Municipal CROs, PSA and Other Agencies"}
+  - {id: "LCRO-17", charter_ref: "LCRO-17", office_id: "lcro", in_graph: false, name: "BREQS Processing (Batch Request Entry Query System - PSA)"}
+  - {id: "cswdo_referrals", charter_ref: "CSWDO-01", office_id: "cswdo", in_graph: true}
+  - {id: "cho_routine_immunization", charter_ref: "CHO-01", office_id: "cho", in_graph: true}
+  - {id: "cho_prenatal_consultation", charter_ref: "CHO-02", office_id: "cho", in_graph: true}
+  - {id: "cho_family_planning", charter_ref: "CHO-03", office_id: "cho", in_graph: true}
+  - {id: "CHO-04", charter_ref: "CHO-04", office_id: "cho", in_graph: false, name: "TB/HPN/Filariasis/Schstosomiasis/Leprosy treatment"}
+  - {id: "CHO-05", charter_ref: "CHO-05", office_id: "cho", in_graph: false, name: "Nutrition Center Services"}
+  - {id: "CHO-06", charter_ref: "CHO-06", office_id: "cho", in_graph: false, name: "Laboratory Services"}
+  - {id: "cho_pharmacy_services", charter_ref: "CHO-07", office_id: "cho", in_graph: true}
+  - {id: "cho_death_certificate", charter_ref: "CHO-08", office_id: "cho", in_graph: true}
+  - {id: "cho_cadaver_transfer_permit", charter_ref: "CHO-09", office_id: "cho", in_graph: true}
+  - {id: "cho_sanitary_permit", charter_ref: "CHO-10", office_id: "cho", in_graph: true}
+  - {id: "cho_dental_services", charter_ref: "CHO-11", office_id: "cho", in_graph: true}
+  - {id: "cho_animal_bite_center", charter_ref: "CHO-12", office_id: "cho", in_graph: true}
+  - {id: "cho_post_mortem_examination", charter_ref: "CHO-13", office_id: "cho", in_graph: true}
+  - {id: "cho_medico_legal_consultation", charter_ref: "CHO-14", office_id: "cho", in_graph: true}
+  - {id: "cho_medical_certificate", charter_ref: "CHO-15", office_id: "cho", in_graph: true}
+aliases:
+  - {target: "business_permit", lang: "en", text: "business permit", kind: "name"}
+  - {target: "business_permit", lang: "en", text: "mayors permit", kind: "synonym"}
+  - {target: "business_permit", lang: "en", text: "business license", kind: "synonym"}
+  - {target: "business_permit", lang: "en", text: "business licence", kind: "synonym"}
+  - {target: "business_permit", lang: "en", text: "business permit and license", kind: "synonym"}
+  - {target: "business_permit", lang: "en", text: "permit to operate a business", kind: "synonym"}
+  - {target: "business_permit", lang: "en", text: "open a business", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "start a business", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "starting a business", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "new business", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "business renewal", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "renew my business", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "renew business", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "business registration", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "register my business", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "put up a business", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "business permit renewal", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "renewal of business permit", kind: "everyday"}
+  - {target: "business_permit", lang: "fil", text: "business permit", kind: "name", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "permit sa negosyo", kind: "name", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "lisensya sa negosyo", kind: "synonym", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "permiso sa negosyo", kind: "synonym", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "mayors permit", kind: "synonym", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "magbukas ng negosyo", kind: "everyday", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "magtayo ng negosyo", kind: "everyday", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "bagong negosyo", kind: "everyday", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "i renew ang negosyo", kind: "everyday", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "pag renew ng business permit", kind: "everyday", needs_native_review: true}
+  - {target: "business_permit", lang: "fil", text: "pagpaparehistro ng negosyo", kind: "everyday", needs_native_review: true}
+  - {target: "occupational_permit", lang: "en", text: "occupational permit", kind: "name"}
+  - {target: "occupational_permit", lang: "en", text: "work permit", kind: "synonym"}
+  - {target: "occupational_permit", lang: "en", text: "working permit", kind: "synonym"}
+  - {target: "occupational_permit", lang: "en", text: "employee permit", kind: "synonym"}
+  - {target: "occupational_permit", lang: "en", text: "permit to work", kind: "synonym"}
+  - {target: "occupational_permit", lang: "en", text: "job permit", kind: "synonym"}
+  - {target: "occupational_permit", lang: "en", text: "occupational tax", kind: "synonym"}
+  - {target: "occupational_permit", lang: "en", text: "permit for employees", kind: "everyday"}
+  - {target: "occupational_permit", lang: "en", text: "permit for my job", kind: "everyday"}
+  - {target: "occupational_permit", lang: "en", text: "permit for workers", kind: "everyday"}
+  - {target: "occupational_permit", lang: "en", text: "permit for a job", kind: "everyday"}
+  - {target: "occupational_permit", lang: "fil", text: "occupational permit", kind: "name", needs_native_review: true}
+  - {target: "occupational_permit", lang: "fil", text: "permit sa trabaho", kind: "name", needs_native_review: true}
+  - {target: "occupational_permit", lang: "fil", text: "permit para sa empleyado", kind: "synonym", needs_native_review: true}
+  - {target: "occupational_permit", lang: "fil", text: "permit para sa trabaho", kind: "synonym", needs_native_review: true}
+  - {target: "occupational_permit", lang: "fil", text: "permiso sa trabaho", kind: "synonym", needs_native_review: true}
+  - {target: "occupational_permit", lang: "fil", text: "permit ng empleyado", kind: "everyday", needs_native_review: true}
+  - {target: "occupational_permit", lang: "fil", text: "permit para makapagtrabaho", kind: "everyday", needs_native_review: true}
+  - {target: "BPLO-03", lang: "en", text: "special mayors permit", kind: "name"}
+  - {target: "BPLO-03", lang: "en", text: "special mayors permit hanging of streamers and tarpaulins", kind: "name"}
+  - {target: "BPLO-03", lang: "en", text: "streamer permit", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "tarpaulin permit", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "banner permit", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "permit for tarpaulin", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "permit for streamers", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "hanging of streamers", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "hanging of tarpaulins", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "streamers and tarpaulins", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "permit to hang a tarpaulin", kind: "synonym"}
+  - {target: "BPLO-03", lang: "en", text: "tarpaulin", kind: "everyday"}
+  - {target: "BPLO-03", lang: "en", text: "streamer", kind: "everyday"}
+  - {target: "BPLO-03", lang: "en", text: "streamers", kind: "everyday"}
+  - {target: "BPLO-03", lang: "en", text: "tarpaulins", kind: "everyday"}
+  - {target: "BPLO-03", lang: "en", text: "hang a banner", kind: "everyday"}
+  - {target: "BPLO-03", lang: "en", text: "put up a tarpaulin", kind: "everyday"}
+  - {target: "BPLO-03", lang: "fil", text: "special mayors permit", kind: "name", needs_native_review: true}
+  - {target: "BPLO-03", lang: "fil", text: "permit sa tarpaulin", kind: "synonym", needs_native_review: true}
+  - {target: "BPLO-03", lang: "fil", text: "permit sa streamer", kind: "synonym", needs_native_review: true}
+  - {target: "BPLO-03", lang: "fil", text: "permit para sa tarpaulin", kind: "synonym", needs_native_review: true}
+  - {target: "BPLO-03", lang: "fil", text: "permit sa pagsabit ng tarpaulin", kind: "synonym", needs_native_review: true}
+  - {target: "BPLO-03", lang: "fil", text: "magsabit ng tarpaulin", kind: "everyday", needs_native_review: true}
+  - {target: "BPLO-03", lang: "fil", text: "tarpaulin", kind: "everyday", needs_native_review: true}
+  - {target: "BPLO-03", lang: "fil", text: "streamer", kind: "everyday", needs_native_review: true}
+  - {target: "product_promotion_peddlers", lang: "en", text: "product promotion and peddlers", kind: "name"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "product promotion peddlers", kind: "name"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "product promotion", kind: "synonym"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "peddler permit", kind: "synonym"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "peddlers permit", kind: "synonym"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "peddling permit", kind: "synonym"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "peddlers", kind: "synonym"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "peddler", kind: "synonym"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "promotion permit", kind: "synonym"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "permit for promotion", kind: "synonym"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "sell products on the street", kind: "everyday"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "promote a product", kind: "everyday"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "promote my product", kind: "everyday"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "product promotion permit", kind: "everyday"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "peddle products", kind: "everyday"}
+  - {target: "product_promotion_peddlers", lang: "en", text: "sell door to door", kind: "everyday"}
+  - {target: "product_promotion_peddlers", lang: "fil", text: "product promotion at peddlers", kind: "name", needs_native_review: true}
+  - {target: "product_promotion_peddlers", lang: "fil", text: "permit sa peddler", kind: "synonym", needs_native_review: true}
+  - {target: "product_promotion_peddlers", lang: "fil", text: "permit para sa peddler", kind: "synonym", needs_native_review: true}
+  - {target: "product_promotion_peddlers", lang: "fil", text: "permit sa promosyon ng produkto", kind: "synonym", needs_native_review: true}
+  - {target: "product_promotion_peddlers", lang: "fil", text: "promosyon ng produkto", kind: "synonym", needs_native_review: true}
+  - {target: "product_promotion_peddlers", lang: "fil", text: "magtinda sa kalye", kind: "everyday", needs_native_review: true}
+  - {target: "product_promotion_peddlers", lang: "fil", text: "magbenta ng paninda", kind: "everyday", needs_native_review: true}
+  - {target: "product_promotion_peddlers", lang: "fil", text: "magpromote ng produkto", kind: "everyday", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "en", text: "cockfight permit", kind: "name"}
+  - {target: "cockfight_permit", lang: "en", text: "cockfighting permit", kind: "synonym"}
+  - {target: "cockfight_permit", lang: "en", text: "cockfight license", kind: "synonym"}
+  - {target: "cockfight_permit", lang: "en", text: "cockfighting license", kind: "synonym"}
+  - {target: "cockfight_permit", lang: "en", text: "derby permit", kind: "synonym"}
+  - {target: "cockfight_permit", lang: "en", text: "cockpit permit", kind: "synonym"}
+  - {target: "cockfight_permit", lang: "en", text: "sabong permit", kind: "synonym"}
+  - {target: "cockfight_permit", lang: "en", text: "cockfight", kind: "synonym"}
+  - {target: "cockfight_permit", lang: "en", text: "permit for cockfighting", kind: "everyday"}
+  - {target: "cockfight_permit", lang: "en", text: "permit to hold a cockfight", kind: "everyday"}
+  - {target: "cockfight_permit", lang: "en", text: "hold a derby", kind: "everyday"}
+  - {target: "cockfight_permit", lang: "en", text: "cockfighting", kind: "everyday"}
+  - {target: "cockfight_permit", lang: "fil", text: "permit sa sabong", kind: "name", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "fil", text: "lisensya sa sabong", kind: "synonym", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "fil", text: "permiso sa sabong", kind: "synonym", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "fil", text: "sabong permit", kind: "synonym", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "fil", text: "sabong", kind: "synonym", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "fil", text: "magsabong", kind: "everyday", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "fil", text: "permit para sa sabong", kind: "everyday", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "fil", text: "permit para sa derby", kind: "everyday", needs_native_review: true}
+  - {target: "BPLO-06", lang: "en", text: "indigency certification", kind: "name"}
+  - {target: "BPLO-06", lang: "en", text: "indigency certificate", kind: "synonym"}
+  - {target: "BPLO-06", lang: "en", text: "certificate of indigency", kind: "synonym"}
+  - {target: "BPLO-06", lang: "en", text: "indigency", kind: "synonym"}
+  - {target: "BPLO-06", lang: "en", text: "indigent certificate", kind: "synonym"}
+  - {target: "BPLO-06", lang: "en", text: "certificate of indigent", kind: "synonym"}
+  - {target: "BPLO-06", lang: "en", text: "proof of indigency", kind: "everyday"}
+  - {target: "BPLO-06", lang: "en", text: "certificate for the poor", kind: "everyday"}
+  - {target: "BPLO-06", lang: "en", text: "indigency cert", kind: "everyday"}
+  - {target: "BPLO-06", lang: "fil", text: "sertipikasyon ng indigency", kind: "name", needs_native_review: true}
+  - {target: "BPLO-06", lang: "fil", text: "sertipiko ng indigency", kind: "synonym", needs_native_review: true}
+  - {target: "BPLO-06", lang: "fil", text: "indigency certificate", kind: "synonym", needs_native_review: true}
+  - {target: "BPLO-06", lang: "fil", text: "indigency", kind: "synonym", needs_native_review: true}
+  - {target: "BPLO-06", lang: "fil", text: "sertipiko ng kahirapan", kind: "synonym", needs_native_review: true}
+  - {target: "BPLO-06", lang: "fil", text: "patunay ng kahirapan", kind: "everyday", needs_native_review: true}
+  - {target: "BPLO-06", lang: "fil", text: "sertipiko para sa mahihirap", kind: "everyday", needs_native_review: true}
+  - {target: "fishing_permit", lang: "en", text: "fishing permits", kind: "name"}
+  - {target: "fishing_permit", lang: "en", text: "fishing permit", kind: "name"}
+  - {target: "fishing_permit", lang: "en", text: "fishing license", kind: "synonym"}
+  - {target: "fishing_permit", lang: "en", text: "fishing licence", kind: "synonym"}
+  - {target: "fishing_permit", lang: "en", text: "fisherfolk permit", kind: "synonym"}
+  - {target: "fishing_permit", lang: "en", text: "permit to fish", kind: "synonym"}
+  - {target: "fishing_permit", lang: "en", text: "fishery permit", kind: "synonym"}
+  - {target: "fishing_permit", lang: "en", text: "fishing boat permit", kind: "synonym"}
+  - {target: "fishing_permit", lang: "en", text: "permit for fishing", kind: "everyday"}
+  - {target: "fishing_permit", lang: "en", text: "fishing", kind: "everyday"}
+  - {target: "fishing_permit", lang: "en", text: "fisherman permit", kind: "everyday"}
+  - {target: "fishing_permit", lang: "en", text: "permit for fishermen", kind: "everyday"}
+  - {target: "fishing_permit", lang: "fil", text: "permit sa pangingisda", kind: "name", needs_native_review: true}
+  - {target: "fishing_permit", lang: "fil", text: "lisensya sa pangingisda", kind: "synonym", needs_native_review: true}
+  - {target: "fishing_permit", lang: "fil", text: "permiso sa pangingisda", kind: "synonym", needs_native_review: true}
+  - {target: "fishing_permit", lang: "fil", text: "permit ng mangingisda", kind: "synonym", needs_native_review: true}
+  - {target: "fishing_permit", lang: "fil", text: "pangingisda", kind: "synonym", needs_native_review: true}
+  - {target: "fishing_permit", lang: "fil", text: "mangisda", kind: "everyday", needs_native_review: true}
+  - {target: "fishing_permit", lang: "fil", text: "permit para sa mangingisda", kind: "everyday", needs_native_review: true}
+  - {target: "fishing_permit", lang: "fil", text: "permit para mangisda", kind: "everyday", needs_native_review: true}
+  - {target: "business_permit", lang: "en", text: "permit", kind: "everyday"}
+  - {target: "business_permit", lang: "en", text: "permits", kind: "everyday"}
+  - {target: "business_permit", lang: "fil", text: "permiso", kind: "everyday", needs_native_review: true}
+  - {target: "occupational_permit", lang: "en", text: "permit", kind: "everyday"}
+  - {target: "occupational_permit", lang: "en", text: "permits", kind: "everyday"}
+  - {target: "occupational_permit", lang: "fil", text: "permiso", kind: "everyday", needs_native_review: true}
+  - {target: "BPLO-03", lang: "en", text: "permit", kind: "everyday"}
+  - {target: "BPLO-03", lang: "en", text: "permits", kind: "everyday"}
+  - {target: "BPLO-03", lang: "fil", text: "permiso", kind: "everyday", needs_native_review: true}
+  - {target: "cockfight_permit", lang: "en", text: "permit", kind: "everyday"}
+  - {target: "cockfight_permit", lang: "en", text: "permits", kind: "everyday"}
+  - {target: "cockfight_permit", lang: "fil", text: "permiso", kind: "everyday", needs_native_review: true}
+  - {target: "fishing_permit", lang: "en", text: "permit", kind: "everyday"}
+  - {target: "fishing_permit", lang: "en", text: "permits", kind: "everyday"}
+  - {target: "fishing_permit", lang: "fil", text: "permiso", kind: "everyday", needs_native_review: true}
+  - {target: "cho_sanitary_permit", lang: "en", text: "permit", kind: "everyday"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "permits", kind: "everyday"}
+  - {target: "cho_sanitary_permit", lang: "fil", text: "permiso", kind: "everyday", needs_native_review: true}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "permit", kind: "everyday"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "permits", kind: "everyday"}
+  - {target: "cho_cadaver_transfer_permit", lang: "fil", text: "permiso", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "en", text: "birth certificate", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "birth", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "birth certificate", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "birth", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "birth certificate", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "birth", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "fil", text: "birth certificate", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "kapanganakan", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "sertipiko ng kapanganakan", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "birth certificate", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "kapanganakan", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "sertipiko ng kapanganakan", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "birth certificate", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kapanganakan", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "sertipiko ng kapanganakan", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "en", text: "birth registration", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "registration of birth", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "register birth", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "register a birth", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "registration of birth certificate", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "birth certificate registration", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "birth registration", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "registration of birth", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "register birth", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "register a birth", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "registration of birth certificate", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "birth certificate registration", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "register my baby", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "register my child", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "register a baby", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "register a newborn", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "register my baby", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "register my child", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "register a baby", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "register a newborn", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "fil", text: "pagpaparehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "rehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "pagpapatala ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "pagpaparehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "rehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "pagpapatala ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "iparehistro ang anak", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "iparehistro ang sanggol", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "magparehistro ng bata", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "iparehistro ang anak", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "iparehistro ang sanggol", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "magparehistro ng bata", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "en", text: "registration of birth certificate timely registration", kind: "name"}
+  - {target: "birth_registration_timely", lang: "en", text: "timely birth registration", kind: "name"}
+  - {target: "birth_registration_timely", lang: "en", text: "timely registration of birth", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "on time birth registration", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "timely registration of birth certificate", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "timely birth certificate", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "newborn registration", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "register my newborn", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "my baby was born", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "baby was born", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "my child was born", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "newborn", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "my baby was just born", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "baby was born last week", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "fil", text: "ipinanganak ang anak ko", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "nanganak ako", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "pagpaparehistro ng sertipiko ng kapanganakan sa tamang oras", kind: "name", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "pagpaparehistro ng bagong silang na sanggol", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "rehistro ng bagong silang na sanggol", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "en", text: "registration of birth certificate delayed registration", kind: "name"}
+  - {target: "birth_registration_delayed", lang: "en", text: "delayed birth registration", kind: "name"}
+  - {target: "birth_registration_delayed", lang: "en", text: "late birth registration", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "late registration of birth", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "delayed registration of birth", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "delayed registration of birth certificate", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "late registration of birth certificate", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "delayed birth certificate", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "late birth certificate", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "belated birth registration", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "birth not registered", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "baby is not registered", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "child is not registered", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "not yet registered", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "unregistered birth", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "never registered my child", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "my baby is not registered yet", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "fil", text: "hindi pa nairehistro ang anak ko", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "hindi pa rehistrado ang anak ko", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "huling pagpaparehistro ng sertipiko ng kapanganakan", kind: "name", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "huling pagpaparehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "nahuling pagpaparehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "huling rehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "late registration ng birth certificate", kind: "synonym", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "en", text: "marriage certificate", kind: "everyday"}
+  - {target: "LCRO-05", lang: "en", text: "marriage certificate", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "marriage certificate", kind: "everyday"}
+  - {target: "marriage_registration_timely", lang: "fil", text: "sertipiko ng kasal", kind: "everyday", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "fil", text: "marriage certificate", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "sertipiko ng kasal", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "marriage certificate", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "sertipiko ng kasal", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "marriage certificate", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-03", lang: "en", text: "marriage", kind: "everyday"}
+  - {target: "marriage_registration_timely", lang: "en", text: "marriage", kind: "everyday"}
+  - {target: "LCRO-05", lang: "en", text: "marriage", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "marriage", kind: "everyday"}
+  - {target: "LCRO-03", lang: "fil", text: "kasal", kind: "everyday", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "fil", text: "kasal", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "kasal", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kasal", kind: "everyday", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "en", text: "marriage registration", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "en", text: "registration of marriage", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "en", text: "register marriage", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "en", text: "register a marriage", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "en", text: "registration of marriage certificate", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "en", text: "marriage certificate registration", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "marriage registration", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "registration of marriage", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "register marriage", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "register a marriage", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "registration of marriage certificate", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "marriage certificate registration", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "fil", text: "pagpaparehistro ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "fil", text: "rehistro ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "fil", text: "pagpapatala ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "pagpaparehistro ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "rehistro ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "pagpapatala ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "en", text: "register our marriage", kind: "everyday"}
+  - {target: "marriage_registration_timely", lang: "en", text: "register my marriage", kind: "everyday"}
+  - {target: "marriage_registration_timely", lang: "en", text: "register our wedding", kind: "everyday"}
+  - {target: "LCRO-05", lang: "en", text: "register our marriage", kind: "everyday"}
+  - {target: "LCRO-05", lang: "en", text: "register my marriage", kind: "everyday"}
+  - {target: "LCRO-05", lang: "en", text: "register our wedding", kind: "everyday"}
+  - {target: "marriage_registration_timely", lang: "fil", text: "iparehistro ang kasal", kind: "everyday", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "fil", text: "magparehistro ng kasal", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "iparehistro ang kasal", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "magparehistro ng kasal", kind: "everyday", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "en", text: "registration of marriage certificate timely registration", kind: "name"}
+  - {target: "marriage_registration_timely", lang: "en", text: "timely marriage registration", kind: "name"}
+  - {target: "marriage_registration_timely", lang: "en", text: "timely registration of marriage", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "en", text: "on time marriage registration", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "en", text: "timely marriage certificate", kind: "synonym"}
+  - {target: "marriage_registration_timely", lang: "fil", text: "pagpaparehistro ng sertipiko ng kasal sa tamang oras", kind: "name", needs_native_review: true}
+  - {target: "marriage_registration_timely", lang: "fil", text: "pagpaparehistro ng kasal na nasa oras", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-05", lang: "en", text: "registration of marriage certificate delayed registration", kind: "name"}
+  - {target: "LCRO-05", lang: "en", text: "delayed marriage registration", kind: "name"}
+  - {target: "LCRO-05", lang: "en", text: "late marriage registration", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "late registration of marriage", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "delayed registration of marriage", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "delayed marriage certificate", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "late marriage certificate", kind: "synonym"}
+  - {target: "LCRO-05", lang: "en", text: "belated marriage registration", kind: "synonym"}
+  - {target: "LCRO-05", lang: "fil", text: "huling pagpaparehistro ng sertipiko ng kasal", kind: "name", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "huling pagpaparehistro ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-05", lang: "fil", text: "nahuling pagpaparehistro ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-03", lang: "en", text: "application for marriage license", kind: "name"}
+  - {target: "LCRO-03", lang: "en", text: "marriage license application", kind: "name"}
+  - {target: "LCRO-03", lang: "en", text: "marriage license", kind: "synonym"}
+  - {target: "LCRO-03", lang: "en", text: "marriage licence", kind: "synonym"}
+  - {target: "LCRO-03", lang: "en", text: "apply for marriage license", kind: "synonym"}
+  - {target: "LCRO-03", lang: "en", text: "apply for a marriage license", kind: "synonym"}
+  - {target: "LCRO-03", lang: "en", text: "license to marry", kind: "synonym"}
+  - {target: "LCRO-03", lang: "en", text: "wedding license", kind: "synonym"}
+  - {target: "LCRO-03", lang: "en", text: "license for marriage", kind: "synonym"}
+  - {target: "LCRO-03", lang: "en", text: "marriage permit", kind: "synonym"}
+  - {target: "LCRO-03", lang: "en", text: "get married", kind: "everyday"}
+  - {target: "LCRO-03", lang: "en", text: "getting married", kind: "everyday"}
+  - {target: "LCRO-03", lang: "en", text: "we are getting married", kind: "everyday"}
+  - {target: "LCRO-03", lang: "en", text: "want to get married", kind: "everyday"}
+  - {target: "LCRO-03", lang: "en", text: "marry", kind: "everyday"}
+  - {target: "LCRO-03", lang: "fil", text: "aplikasyon para sa lisensya sa kasal", kind: "name", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "lisensya sa kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "lisensya ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "marriage license", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "mag apply ng lisensya sa kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "kumuha ng lisensya sa kasal", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "magpakasal", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "ikakasal", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "ikakasal na kami", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-03", lang: "fil", text: "gusto naming magpakasal", kind: "everyday", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "en", text: "death certificate", kind: "everyday"}
+  - {target: "death_registration_timely", lang: "en", text: "death", kind: "everyday"}
+  - {target: "LCRO-07", lang: "en", text: "death certificate", kind: "everyday"}
+  - {target: "LCRO-07", lang: "en", text: "death", kind: "everyday"}
+  - {target: "cho_death_certificate", lang: "en", text: "death certificate", kind: "everyday"}
+  - {target: "cho_death_certificate", lang: "en", text: "death", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "death certificate", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "death", kind: "everyday"}
+  - {target: "death_registration_timely", lang: "fil", text: "sertipiko ng kamatayan", kind: "everyday", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "fil", text: "kamatayan", kind: "everyday", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "fil", text: "death certificate", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "sertipiko ng kamatayan", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "kamatayan", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "death certificate", kind: "everyday", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "sertipiko ng kamatayan", kind: "everyday", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "kamatayan", kind: "everyday", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "death certificate", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "sertipiko ng kamatayan", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kamatayan", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "death certificate", kind: "everyday", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "en", text: "death registration", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "en", text: "registration of death", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "en", text: "register death", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "en", text: "register a death", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "en", text: "registration of death certificate", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "en", text: "death certificate registration", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "death registration", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "registration of death", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "register death", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "register a death", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "registration of death certificate", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "death certificate registration", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "fil", text: "pagpaparehistro ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "fil", text: "rehistro ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "fil", text: "pagpapatala ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "pagpaparehistro ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "rehistro ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "pagpapatala ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "en", text: "register a deceased", kind: "everyday"}
+  - {target: "death_registration_timely", lang: "en", text: "register a dead person", kind: "everyday"}
+  - {target: "death_registration_timely", lang: "en", text: "register my father's death", kind: "everyday"}
+  - {target: "death_registration_timely", lang: "en", text: "register my mothers death", kind: "everyday"}
+  - {target: "LCRO-07", lang: "en", text: "register a deceased", kind: "everyday"}
+  - {target: "LCRO-07", lang: "en", text: "register a dead person", kind: "everyday"}
+  - {target: "LCRO-07", lang: "en", text: "register my father's death", kind: "everyday"}
+  - {target: "LCRO-07", lang: "en", text: "register my mothers death", kind: "everyday"}
+  - {target: "death_registration_timely", lang: "fil", text: "iparehistro ang namatay", kind: "everyday", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "fil", text: "pagpaparehistro ng namatay", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "iparehistro ang namatay", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "pagpaparehistro ng namatay", kind: "everyday", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "en", text: "registration of death certificate timely registration", kind: "name"}
+  - {target: "death_registration_timely", lang: "en", text: "timely death registration", kind: "name"}
+  - {target: "death_registration_timely", lang: "en", text: "timely registration of death", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "en", text: "on time death registration", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "en", text: "timely death certificate", kind: "synonym"}
+  - {target: "death_registration_timely", lang: "fil", text: "pagpaparehistro ng sertipiko ng kamatayan sa tamang oras", kind: "name", needs_native_review: true}
+  - {target: "death_registration_timely", lang: "fil", text: "pagpaparehistro ng kamatayan na nasa oras", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-07", lang: "en", text: "registration of death certificate delayed registration", kind: "name"}
+  - {target: "LCRO-07", lang: "en", text: "delayed death registration", kind: "name"}
+  - {target: "LCRO-07", lang: "en", text: "late death registration", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "late registration of death", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "delayed registration of death", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "delayed death certificate", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "late death certificate", kind: "synonym"}
+  - {target: "LCRO-07", lang: "en", text: "belated death registration", kind: "synonym"}
+  - {target: "LCRO-07", lang: "fil", text: "huling pagpaparehistro ng sertipiko ng kamatayan", kind: "name", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "huling pagpaparehistro ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-07", lang: "fil", text: "nahuling pagpaparehistro ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-08", lang: "en", text: "electronic endorsement of birth death and marriage certificate to psa", kind: "name"}
+  - {target: "LCRO-08", lang: "en", text: "electronic endorsement to psa", kind: "name"}
+  - {target: "LCRO-08", lang: "en", text: "endorsement to psa", kind: "synonym"}
+  - {target: "LCRO-08", lang: "en", text: "endorse to psa", kind: "synonym"}
+  - {target: "LCRO-08", lang: "en", text: "psa endorsement", kind: "synonym"}
+  - {target: "LCRO-08", lang: "en", text: "endorsement of birth certificate to psa", kind: "synonym"}
+  - {target: "LCRO-08", lang: "en", text: "endorsement of marriage certificate to psa", kind: "synonym"}
+  - {target: "LCRO-08", lang: "en", text: "endorsement of death certificate to psa", kind: "synonym"}
+  - {target: "LCRO-08", lang: "en", text: "electronic endorsement", kind: "synonym"}
+  - {target: "LCRO-08", lang: "en", text: "send my certificate to psa", kind: "everyday"}
+  - {target: "LCRO-08", lang: "en", text: "transmit to psa", kind: "everyday"}
+  - {target: "LCRO-08", lang: "en", text: "forward to psa", kind: "everyday"}
+  - {target: "LCRO-08", lang: "en", text: "endorse my certificate", kind: "everyday"}
+  - {target: "LCRO-08", lang: "fil", text: "elektronikong endorsement sa psa", kind: "name", needs_native_review: true}
+  - {target: "LCRO-08", lang: "fil", text: "endorsement sa psa", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-08", lang: "fil", text: "ipadala sa psa", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-08", lang: "fil", text: "i endorse sa psa", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-08", lang: "fil", text: "ipasa sa psa", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-08", lang: "fil", text: "ipadala ang sertipiko sa psa", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "en", text: "certified transcription", kind: "name"}
+  - {target: "certified_transcription", lang: "en", text: "certified transcription of certificate of live birth death marriage", kind: "name"}
+  - {target: "certified_transcription", lang: "en", text: "certified copy", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "certified true copy", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "certified transcript", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "transcription of birth certificate", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "transcription of marriage certificate", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "transcription of death certificate", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "local civil registry copy", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "certified copy of birth certificate", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "certified copy of marriage certificate", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "certified copy of death certificate", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "certified copy of civil registry document", kind: "synonym"}
+  - {target: "certified_transcription", lang: "en", text: "copy of civil registry document", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "lcr copy", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "copy from the civil registry", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "city civil registry copy", kind: "everyday"}
+  - {target: "certified_transcription", lang: "fil", text: "sertipikadong transkripsyon", kind: "name", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "sertipikadong kopya", kind: "synonym", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "certified true copy", kind: "synonym", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kopya ng sertipiko ng kapanganakan", kind: "synonym", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kopya ng sertipiko ng kasal", kind: "synonym", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kopya ng sertipiko ng kamatayan", kind: "synonym", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kopya mula sa civil registry", kind: "synonym", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kopya ng birth certificate", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "fil", text: "kumuha ng kopya ng sertipiko", kind: "everyday", needs_native_review: true}
+  - {target: "certified_transcription", lang: "en", text: "copy of birth certificate", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "copy of marriage certificate", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "copy of death certificate", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "birth certificate copy", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "marriage certificate copy", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "death certificate copy", kind: "everyday"}
+  - {target: "certified_transcription", lang: "en", text: "copy of certificate", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "copy of birth certificate", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "copy of marriage certificate", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "copy of death certificate", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "birth certificate copy", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "marriage certificate copy", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "death certificate copy", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "copy of certificate", kind: "everyday"}
+  - {target: "court_order_registration", lang: "en", text: "registration of court order", kind: "name"}
+  - {target: "court_order_registration", lang: "en", text: "court order registration", kind: "synonym"}
+  - {target: "court_order_registration", lang: "en", text: "register court order", kind: "synonym"}
+  - {target: "court_order_registration", lang: "en", text: "register a court order", kind: "synonym"}
+  - {target: "court_order_registration", lang: "en", text: "court order", kind: "synonym"}
+  - {target: "court_order_registration", lang: "en", text: "court decree registration", kind: "synonym"}
+  - {target: "court_order_registration", lang: "en", text: "register court decree", kind: "synonym"}
+  - {target: "court_order_registration", lang: "en", text: "register a court decision", kind: "everyday"}
+  - {target: "court_order_registration", lang: "en", text: "court decision registration", kind: "everyday"}
+  - {target: "court_order_registration", lang: "en", text: "registration of court decree", kind: "everyday"}
+  - {target: "court_order_registration", lang: "fil", text: "pagpaparehistro ng utos ng korte", kind: "name", needs_native_review: true}
+  - {target: "court_order_registration", lang: "fil", text: "utos ng korte", kind: "synonym", needs_native_review: true}
+  - {target: "court_order_registration", lang: "fil", text: "rehistro ng court order", kind: "synonym", needs_native_review: true}
+  - {target: "court_order_registration", lang: "fil", text: "pagpaparehistro ng court order", kind: "synonym", needs_native_review: true}
+  - {target: "court_order_registration", lang: "fil", text: "iparehistro ang utos ng korte", kind: "everyday", needs_native_review: true}
+  - {target: "court_order_registration", lang: "fil", text: "magparehistro ng utos ng korte", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-10", lang: "en", text: "filing of supplemental report", kind: "name"}
+  - {target: "LCRO-10", lang: "en", text: "supplemental report", kind: "synonym"}
+  - {target: "LCRO-10", lang: "en", text: "file supplemental report", kind: "synonym"}
+  - {target: "LCRO-10", lang: "en", text: "file a supplemental report", kind: "synonym"}
+  - {target: "LCRO-10", lang: "en", text: "supplemental report filing", kind: "synonym"}
+  - {target: "LCRO-10", lang: "en", text: "supplemental", kind: "synonym"}
+  - {target: "LCRO-10", lang: "en", text: "add missing information to birth certificate", kind: "everyday"}
+  - {target: "LCRO-10", lang: "en", text: "complete missing entry in certificate", kind: "everyday"}
+  - {target: "LCRO-10", lang: "fil", text: "paghahain ng supplemental report", kind: "name", needs_native_review: true}
+  - {target: "LCRO-10", lang: "fil", text: "supplemental report", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-10", lang: "fil", text: "karagdagang ulat", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-10", lang: "fil", text: "maghain ng supplemental report", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-10", lang: "fil", text: "dagdag na impormasyon sa sertipiko", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-12", lang: "en", text: "registration of legal instruments legitimation", kind: "name"}
+  - {target: "LCRO-12", lang: "en", text: "registration of legitimation", kind: "name"}
+  - {target: "LCRO-12", lang: "en", text: "legitimation", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "legitimation of child", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "legitimate my child", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "legitimation registration", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "register legitimation", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "affidavit of legitimation", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "make my child legitimate", kind: "everyday"}
+  - {target: "LCRO-12", lang: "en", text: "legitimize my child", kind: "everyday"}
+  - {target: "LCRO-12", lang: "fil", text: "pagpaparehistro ng lehitimasyon", kind: "name", needs_native_review: true}
+  - {target: "LCRO-12", lang: "fil", text: "lehitimasyon", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-12", lang: "fil", text: "legitimation", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-12", lang: "fil", text: "rehistro ng lehitimasyon", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-12", lang: "fil", text: "gawing lehitimo ang anak", kind: "everyday", needs_native_review: true}
+  - {target: "ausf_registration", lang: "en", text: "registration of legal instrument affidavit to use surname of the father", kind: "name"}
+  - {target: "ausf_registration", lang: "en", text: "affidavit to use surname of the father", kind: "name"}
+  - {target: "ausf_registration", lang: "en", text: "ausf", kind: "abbreviation"}
+  - {target: "ausf_registration", lang: "en", text: "affidavit to use the surname of the father", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "use surname of the father", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "use the surname of the father", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "use father's surname", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "use my fathers surname", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "surname of the father", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "ausf registration", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "register ausf", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "child use father's surname", kind: "everyday"}
+  - {target: "ausf_registration", lang: "en", text: "put father's surname", kind: "everyday"}
+  - {target: "ausf_registration", lang: "en", text: "use the father's last name", kind: "everyday"}
+  - {target: "ausf_registration", lang: "en", text: "father's last name", kind: "everyday"}
+  - {target: "ausf_registration", lang: "fil", text: "affidavit sa paggamit ng apelyido ng ama", kind: "name", needs_native_review: true}
+  - {target: "ausf_registration", lang: "fil", text: "ausf", kind: "abbreviation", needs_native_review: true}
+  - {target: "ausf_registration", lang: "fil", text: "gamitin ang apelyido ng ama", kind: "synonym", needs_native_review: true}
+  - {target: "ausf_registration", lang: "fil", text: "apelyido ng ama", kind: "synonym", needs_native_review: true}
+  - {target: "ausf_registration", lang: "fil", text: "paggamit ng apelyido ng ama", kind: "synonym", needs_native_review: true}
+  - {target: "ausf_registration", lang: "fil", text: "gamitin ng bata ang apelyido ng tatay", kind: "everyday", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "en", text: "registration of legal instrument other than legitimation and ausf", kind: "name"}
+  - {target: "legal_instrument_other", lang: "en", text: "other legal instruments", kind: "name"}
+  - {target: "legal_instrument_other", lang: "en", text: "instrument other than legitimation and ausf", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "other legal instrument", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "register other legal instrument", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "affidavit of admission of paternity", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "admission of paternity", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "affidavit of paternity", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "register a legal document", kind: "everyday"}
+  - {target: "legal_instrument_other", lang: "en", text: "register an affidavit", kind: "everyday"}
+  - {target: "legal_instrument_other", lang: "en", text: "register my affidavit", kind: "everyday"}
+  - {target: "legal_instrument_other", lang: "en", text: "register a notarized document", kind: "everyday"}
+  - {target: "legal_instrument_other", lang: "fil", text: "magparehistro ng affidavit", kind: "everyday", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "iparehistro ang affidavit", kind: "everyday", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "pagpaparehistro ng legal instrument maliban sa lehitimasyon at ausf", kind: "name", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "ibang legal instrument", kind: "synonym", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "iba pang legal instrument", kind: "synonym", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "affidavit ng paternity", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-12", lang: "en", text: "legal instrument", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "legal instruments", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "registration of legal instrument", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "registration of legal instruments", kind: "synonym"}
+  - {target: "LCRO-12", lang: "en", text: "register legal instrument", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "legal instrument", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "legal instruments", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "registration of legal instrument", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "registration of legal instruments", kind: "synonym"}
+  - {target: "ausf_registration", lang: "en", text: "register legal instrument", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "legal instrument", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "legal instruments", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "registration of legal instrument", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "registration of legal instruments", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "register legal instrument", kind: "synonym"}
+  - {target: "LCRO-12", lang: "fil", text: "legal instrument", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-12", lang: "fil", text: "legal na instrumento", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-12", lang: "fil", text: "pagpaparehistro ng legal instrument", kind: "synonym", needs_native_review: true}
+  - {target: "ausf_registration", lang: "fil", text: "legal instrument", kind: "synonym", needs_native_review: true}
+  - {target: "ausf_registration", lang: "fil", text: "legal na instrumento", kind: "synonym", needs_native_review: true}
+  - {target: "ausf_registration", lang: "fil", text: "pagpaparehistro ng legal instrument", kind: "synonym", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "legal instrument", kind: "synonym", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "legal na instrumento", kind: "synonym", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "pagpaparehistro ng legal instrument", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-15", lang: "en", text: "petition for change of first name or correction of clerical error", kind: "name"}
+  - {target: "LCRO-15", lang: "en", text: "petition for change of first name", kind: "name"}
+  - {target: "LCRO-15", lang: "en", text: "petition for correction of clerical error", kind: "name"}
+  - {target: "LCRO-15", lang: "en", text: "ra 9048", kind: "abbreviation"}
+  - {target: "LCRO-15", lang: "en", text: "ra 10172", kind: "abbreviation"}
+  - {target: "LCRO-15", lang: "en", text: "republic act 9048", kind: "abbreviation"}
+  - {target: "LCRO-15", lang: "en", text: "republic act 10172", kind: "abbreviation"}
+  - {target: "LCRO-15", lang: "en", text: "change of first name", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "change first name", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "correction of clerical error", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "clerical error", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "correct clerical error", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "name correction", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "correction of name", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "change of name", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "change my name", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "change my first name", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "correct my name", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "correct the spelling of my name", kind: "synonym"}
+  - {target: "LCRO-15", lang: "en", text: "wrong spelling of name", kind: "everyday"}
+  - {target: "LCRO-15", lang: "en", text: "misspelled name", kind: "everyday"}
+  - {target: "LCRO-15", lang: "en", text: "typo in birth certificate", kind: "everyday"}
+  - {target: "LCRO-15", lang: "en", text: "wrong name in birth certificate", kind: "everyday"}
+  - {target: "LCRO-15", lang: "en", text: "error in birth certificate", kind: "everyday"}
+  - {target: "LCRO-15", lang: "en", text: "correct typo in birth certificate", kind: "everyday"}
+  - {target: "LCRO-15", lang: "en", text: "mistake in my birth certificate", kind: "everyday"}
+  - {target: "LCRO-15", lang: "en", text: "wrong entry in certificate", kind: "everyday"}
+  - {target: "LCRO-15", lang: "fil", text: "petisyon para sa pagpapalit ng pangalan o pagwawasto ng pagkakamali", kind: "name", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "ra 9048", kind: "abbreviation", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "ra 10172", kind: "abbreviation", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "pagpapalit ng pangalan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "pagbabago ng pangalan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "pagtatama ng pangalan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "pagwawasto ng pangalan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "pagwawasto ng pagkakamali sa pangalan", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "maling spelling ng pangalan", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "mali ang pangalan sa birth certificate", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "mali sa sertipiko ng kapanganakan", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-15", lang: "fil", text: "palitan ang pangalan sa birth certificate", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-16", lang: "en", text: "facilitate requests and queries from other cros psa and agencies", kind: "name"}
+  - {target: "LCRO-16", lang: "en", text: "facilitate requests", kind: "name"}
+  - {target: "LCRO-16", lang: "en", text: "facilitate queries", kind: "synonym"}
+  - {target: "LCRO-16", lang: "en", text: "request from another civil registry", kind: "synonym"}
+  - {target: "LCRO-16", lang: "en", text: "requests from other civil registry", kind: "synonym"}
+  - {target: "LCRO-16", lang: "en", text: "queries from other cro", kind: "synonym"}
+  - {target: "LCRO-16", lang: "en", text: "request from other cro", kind: "synonym"}
+  - {target: "LCRO-16", lang: "en", text: "request from psa", kind: "synonym"}
+  - {target: "LCRO-16", lang: "en", text: "civil registry query", kind: "synonym"}
+  - {target: "LCRO-16", lang: "en", text: "civil registry requests from agencies", kind: "synonym"}
+  - {target: "LCRO-16", lang: "en", text: "agency request to civil registry", kind: "everyday"}
+  - {target: "LCRO-16", lang: "en", text: "request from another city civil registry", kind: "everyday"}
+  - {target: "LCRO-16", lang: "fil", text: "pagproseso ng kahilingan mula sa ibang cro psa at ahensya", kind: "name", needs_native_review: true}
+  - {target: "LCRO-16", lang: "fil", text: "kahilingan mula sa ibang civil registry", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-16", lang: "fil", text: "kahilingan mula sa psa", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-16", lang: "fil", text: "tanong mula sa ibang cro", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-16", lang: "fil", text: "kahilingan ng ahensya sa civil registry", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-17", lang: "en", text: "breqs processing", kind: "name"}
+  - {target: "LCRO-17", lang: "en", text: "breqs processing batch request entry query system psa", kind: "name"}
+  - {target: "LCRO-17", lang: "en", text: "breqs", kind: "abbreviation"}
+  - {target: "LCRO-17", lang: "en", text: "batch request entry query system", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa copy", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa birth certificate", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa marriage certificate", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa death certificate", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa certificate", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "copy from psa", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa issued certificate", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa issued copy", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "request psa copy", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa copy of birth certificate", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa copy of marriage certificate", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa copy of death certificate", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "psa cenomar", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "cenomar", kind: "synonym"}
+  - {target: "LCRO-17", lang: "en", text: "nso copy", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "nso birth certificate", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "nso certificate", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "security paper", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "psa security paper", kind: "everyday"}
+  - {target: "LCRO-17", lang: "en", text: "get a copy from psa", kind: "everyday"}
+  - {target: "LCRO-17", lang: "fil", text: "pagproseso ng breqs", kind: "name", needs_native_review: true}
+  - {target: "LCRO-17", lang: "fil", text: "breqs", kind: "abbreviation", needs_native_review: true}
+  - {target: "LCRO-17", lang: "fil", text: "kopya mula sa psa", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-17", lang: "fil", text: "kopya ng psa", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-17", lang: "fil", text: "psa na kopya", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-17", lang: "fil", text: "psa na sertipiko", kind: "synonym", needs_native_review: true}
+  - {target: "LCRO-17", lang: "fil", text: "kumuha ng kopya sa psa", kind: "everyday", needs_native_review: true}
+  - {target: "LCRO-17", lang: "fil", text: "sertipiko mula sa psa", kind: "everyday", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "en", text: "referrals", kind: "name"}
+  - {target: "cswdo_referrals", lang: "en", text: "referral", kind: "synonym"}
+  - {target: "cswdo_referrals", lang: "en", text: "social welfare referral", kind: "synonym"}
+  - {target: "cswdo_referrals", lang: "en", text: "welfare referral", kind: "synonym"}
+  - {target: "cswdo_referrals", lang: "en", text: "cswdo referral", kind: "synonym"}
+  - {target: "cswdo_referrals", lang: "en", text: "referral to social welfare", kind: "synonym"}
+  - {target: "cswdo_referrals", lang: "en", text: "social case study", kind: "synonym"}
+  - {target: "cswdo_referrals", lang: "en", text: "financial assistance", kind: "everyday"}
+  - {target: "cswdo_referrals", lang: "en", text: "medical assistance", kind: "everyday"}
+  - {target: "cswdo_referrals", lang: "en", text: "assistance from social welfare", kind: "everyday"}
+  - {target: "cswdo_referrals", lang: "en", text: "help from social welfare", kind: "everyday"}
+  - {target: "cswdo_referrals", lang: "en", text: "need assistance", kind: "everyday"}
+  - {target: "cswdo_referrals", lang: "en", text: "request for assistance", kind: "everyday"}
+  - {target: "cswdo_referrals", lang: "en", text: "burial assistance", kind: "everyday"}
+  - {target: "cswdo_referrals", lang: "fil", text: "referral sa cswdo", kind: "name", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "fil", text: "referral", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "fil", text: "referrals", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "fil", text: "referral sa social welfare", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "fil", text: "referral ng social welfare", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "fil", text: "tulong pinansyal", kind: "everyday", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "fil", text: "tulong medikal", kind: "everyday", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "fil", text: "humingi ng tulong sa social welfare", kind: "everyday", needs_native_review: true}
+  - {target: "cswdo_referrals", lang: "fil", text: "tulong mula sa social welfare", kind: "everyday", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "en", text: "routine immunization", kind: "name"}
+  - {target: "cho_routine_immunization", lang: "en", text: "immunization", kind: "synonym"}
+  - {target: "cho_routine_immunization", lang: "en", text: "immunisation", kind: "synonym"}
+  - {target: "cho_routine_immunization", lang: "en", text: "vaccination", kind: "synonym"}
+  - {target: "cho_routine_immunization", lang: "en", text: "vaccine", kind: "synonym"}
+  - {target: "cho_routine_immunization", lang: "en", text: "vaccines", kind: "synonym"}
+  - {target: "cho_routine_immunization", lang: "en", text: "child vaccination", kind: "synonym"}
+  - {target: "cho_routine_immunization", lang: "en", text: "baby vaccination", kind: "synonym"}
+  - {target: "cho_routine_immunization", lang: "en", text: "baby vaccine", kind: "synonym"}
+  - {target: "cho_routine_immunization", lang: "en", text: "shots for my baby", kind: "everyday"}
+  - {target: "cho_routine_immunization", lang: "en", text: "vaccine for my child", kind: "everyday"}
+  - {target: "cho_routine_immunization", lang: "en", text: "free vaccine", kind: "everyday"}
+  - {target: "cho_routine_immunization", lang: "en", text: "vaccinate my baby", kind: "everyday"}
+  - {target: "cho_routine_immunization", lang: "fil", text: "regular na pagbabakuna", kind: "name", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "bakuna", kind: "synonym", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "pagbabakuna", kind: "synonym", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "bakuna ng bata", kind: "synonym", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "bakuna para sa sanggol", kind: "synonym", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "immunization", kind: "synonym", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "pabakuna", kind: "everyday", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "mag pabakuna", kind: "everyday", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "magpabakuna", kind: "everyday", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "ipabakuna ang anak", kind: "everyday", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "ipabakuna ang sanggol", kind: "everyday", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "pre natal consultation", kind: "name"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "prenatal consultation", kind: "name"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "prenatal", kind: "synonym"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "prenatal checkup", kind: "synonym"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "prenatal check up", kind: "synonym"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "prenatal care", kind: "synonym"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "pregnancy checkup", kind: "synonym"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "pregnancy check up", kind: "synonym"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "pregnancy consultation", kind: "synonym"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "maternal care", kind: "synonym"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "checkup for pregnant", kind: "everyday"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "i am pregnant", kind: "everyday"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "pregnant checkup", kind: "everyday"}
+  - {target: "cho_prenatal_consultation", lang: "en", text: "check up while pregnant", kind: "everyday"}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "konsultasyon bago manganak", kind: "name", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "prenatal", kind: "synonym", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "konsulta ng buntis", kind: "synonym", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "check up ng buntis", kind: "synonym", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "konsulta para sa buntis", kind: "synonym", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "pagpapacheck up ng buntis", kind: "synonym", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "buntis ako", kind: "everyday", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "magpacheck up na buntis", kind: "everyday", needs_native_review: true}
+  - {target: "cho_prenatal_consultation", lang: "fil", text: "buntis", kind: "everyday", needs_native_review: true}
+  - {target: "cho_family_planning", lang: "en", text: "family planning", kind: "name"}
+  - {target: "cho_family_planning", lang: "en", text: "contraceptive", kind: "synonym"}
+  - {target: "cho_family_planning", lang: "en", text: "contraceptives", kind: "synonym"}
+  - {target: "cho_family_planning", lang: "en", text: "birth control", kind: "synonym"}
+  - {target: "cho_family_planning", lang: "en", text: "family planning services", kind: "synonym"}
+  - {target: "cho_family_planning", lang: "en", text: "family planning consultation", kind: "synonym"}
+  - {target: "cho_family_planning", lang: "en", text: "pills for family planning", kind: "everyday"}
+  - {target: "cho_family_planning", lang: "en", text: "avoid pregnancy", kind: "everyday"}
+  - {target: "cho_family_planning", lang: "en", text: "planning my family", kind: "everyday"}
+  - {target: "cho_family_planning", lang: "fil", text: "pagpaplano ng pamilya", kind: "name", needs_native_review: true}
+  - {target: "cho_family_planning", lang: "fil", text: "family planning", kind: "synonym", needs_native_review: true}
+  - {target: "cho_family_planning", lang: "fil", text: "serbisyo sa family planning", kind: "synonym", needs_native_review: true}
+  - {target: "cho_family_planning", lang: "fil", text: "pills sa family planning", kind: "synonym", needs_native_review: true}
+  - {target: "cho_family_planning", lang: "fil", text: "magplano ng pamilya", kind: "everyday", needs_native_review: true}
+  - {target: "cho_family_planning", lang: "fil", text: "pampaplano ng pamilya", kind: "everyday", needs_native_review: true}
+  - {target: "CHO-04", lang: "en", text: "tb hpn filariasis schstosomiasis leprosy treatment", kind: "name"}
+  - {target: "CHO-04", lang: "en", text: "tb treatment", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "tuberculosis treatment", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "tuberculosis", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "tb", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "hypertension treatment", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "hypertension", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "filariasis", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "schistosomiasis", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "leprosy", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "tb hypertension treatment", kind: "synonym"}
+  - {target: "CHO-04", lang: "en", text: "medicine for tb", kind: "everyday"}
+  - {target: "CHO-04", lang: "en", text: "treatment for tb", kind: "everyday"}
+  - {target: "CHO-04", lang: "en", text: "high blood pressure treatment", kind: "everyday"}
+  - {target: "CHO-04", lang: "en", text: "high blood", kind: "everyday"}
+  - {target: "CHO-04", lang: "en", text: "treatment for leprosy", kind: "everyday"}
+  - {target: "CHO-04", lang: "fil", text: "paggamot sa tb hpn filariasis schstosomiasis at ketong", kind: "name", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "gamot sa tb", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "gamot sa tuberculosis", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "paggamot ng tb", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "paggamot ng tuberculosis", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "gamot sa hypertension", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "ketong", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "alta presyon", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "mataas na presyon", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "may tb ako", kind: "everyday", needs_native_review: true}
+  - {target: "CHO-04", lang: "fil", text: "gamot para sa mataas na presyon", kind: "everyday", needs_native_review: true}
+  - {target: "CHO-05", lang: "en", text: "nutrition center services", kind: "name"}
+  - {target: "CHO-05", lang: "en", text: "nutrition center", kind: "name"}
+  - {target: "CHO-05", lang: "en", text: "nutrition services", kind: "synonym"}
+  - {target: "CHO-05", lang: "en", text: "nutrition", kind: "synonym"}
+  - {target: "CHO-05", lang: "en", text: "malnutrition", kind: "synonym"}
+  - {target: "CHO-05", lang: "en", text: "nutritional services", kind: "synonym"}
+  - {target: "CHO-05", lang: "en", text: "nutrition program", kind: "synonym"}
+  - {target: "CHO-05", lang: "en", text: "weighing for my child", kind: "everyday"}
+  - {target: "CHO-05", lang: "en", text: "underweight child", kind: "everyday"}
+  - {target: "CHO-05", lang: "en", text: "child is underweight", kind: "everyday"}
+  - {target: "CHO-05", lang: "en", text: "nutrition counseling", kind: "everyday"}
+  - {target: "CHO-05", lang: "fil", text: "serbisyo ng nutrition center", kind: "name", needs_native_review: true}
+  - {target: "CHO-05", lang: "fil", text: "nutrisyon", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-05", lang: "fil", text: "nutrition center", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-05", lang: "fil", text: "kulang sa timbang", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-05", lang: "fil", text: "malnutrisyon", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-05", lang: "fil", text: "payat na bata", kind: "everyday", needs_native_review: true}
+  - {target: "CHO-05", lang: "fil", text: "timbangan ng bata", kind: "everyday", needs_native_review: true}
+  - {target: "CHO-06", lang: "en", text: "laboratory services", kind: "name"}
+  - {target: "CHO-06", lang: "en", text: "laboratory", kind: "name"}
+  - {target: "CHO-06", lang: "en", text: "lab test", kind: "synonym"}
+  - {target: "CHO-06", lang: "en", text: "laboratory test", kind: "synonym"}
+  - {target: "CHO-06", lang: "en", text: "lab tests", kind: "synonym"}
+  - {target: "CHO-06", lang: "en", text: "laboratory tests", kind: "synonym"}
+  - {target: "CHO-06", lang: "en", text: "blood test", kind: "synonym"}
+  - {target: "CHO-06", lang: "en", text: "lab", kind: "synonym"}
+  - {target: "CHO-06", lang: "en", text: "laboratory examination", kind: "synonym"}
+  - {target: "CHO-06", lang: "en", text: "lab exam", kind: "synonym"}
+  - {target: "CHO-06", lang: "en", text: "get my blood tested", kind: "everyday"}
+  - {target: "CHO-06", lang: "en", text: "urine test", kind: "everyday"}
+  - {target: "CHO-06", lang: "en", text: "stool test", kind: "everyday"}
+  - {target: "CHO-06", lang: "en", text: "test results", kind: "everyday"}
+  - {target: "CHO-06", lang: "fil", text: "serbisyo ng laboratoryo", kind: "name", needs_native_review: true}
+  - {target: "CHO-06", lang: "fil", text: "laboratoryo", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-06", lang: "fil", text: "lab test", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-06", lang: "fil", text: "pagsusuri ng dugo", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-06", lang: "fil", text: "pagsusuri sa laboratoryo", kind: "synonym", needs_native_review: true}
+  - {target: "CHO-06", lang: "fil", text: "magpa lab", kind: "everyday", needs_native_review: true}
+  - {target: "CHO-06", lang: "fil", text: "magpasuri ng dugo", kind: "everyday", needs_native_review: true}
+  - {target: "CHO-06", lang: "fil", text: "magpa lab test", kind: "everyday", needs_native_review: true}
+  - {target: "cho_pharmacy_services", lang: "en", text: "pharmacy services", kind: "name"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "pharmacy", kind: "synonym"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "medicine", kind: "synonym"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "medicines", kind: "synonym"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "free medicine", kind: "synonym"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "free medicines", kind: "synonym"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "city health pharmacy", kind: "synonym"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "drugs", kind: "synonym"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "get medicine", kind: "everyday"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "buy medicine", kind: "everyday"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "prescription medicine", kind: "everyday"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "get my prescription", kind: "everyday"}
+  - {target: "cho_pharmacy_services", lang: "en", text: "get my medicine", kind: "everyday"}
+  - {target: "cho_pharmacy_services", lang: "fil", text: "serbisyo ng botika", kind: "name", needs_native_review: true}
+  - {target: "cho_pharmacy_services", lang: "fil", text: "botika", kind: "synonym", needs_native_review: true}
+  - {target: "cho_pharmacy_services", lang: "fil", text: "gamot", kind: "synonym", needs_native_review: true}
+  - {target: "cho_pharmacy_services", lang: "fil", text: "libreng gamot", kind: "synonym", needs_native_review: true}
+  - {target: "cho_pharmacy_services", lang: "fil", text: "botika ng cho", kind: "synonym", needs_native_review: true}
+  - {target: "cho_pharmacy_services", lang: "fil", text: "kumuha ng gamot", kind: "everyday", needs_native_review: true}
+  - {target: "cho_pharmacy_services", lang: "fil", text: "bumili ng gamot", kind: "everyday", needs_native_review: true}
+  - {target: "cho_pharmacy_services", lang: "fil", text: "magpakuha ng gamot", kind: "everyday", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "en", text: "issuance of death certificate", kind: "name"}
+  - {target: "cho_death_certificate", lang: "en", text: "cho death certificate", kind: "synonym"}
+  - {target: "cho_death_certificate", lang: "en", text: "death certificate from health office", kind: "synonym"}
+  - {target: "cho_death_certificate", lang: "en", text: "death certificate from cho", kind: "synonym"}
+  - {target: "cho_death_certificate", lang: "en", text: "health office death certificate", kind: "synonym"}
+  - {target: "cho_death_certificate", lang: "en", text: "issue death certificate", kind: "synonym"}
+  - {target: "cho_death_certificate", lang: "en", text: "medical death certificate", kind: "synonym"}
+  - {target: "cho_death_certificate", lang: "en", text: "get a death certificate for my father", kind: "everyday"}
+  - {target: "cho_death_certificate", lang: "en", text: "get a death certificate for my mother", kind: "everyday"}
+  - {target: "cho_death_certificate", lang: "en", text: "my relative died and i need a certificate", kind: "everyday"}
+  - {target: "cho_death_certificate", lang: "fil", text: "pag isyu ng sertipiko ng kamatayan", kind: "name", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "sertipiko ng kamatayan mula sa cho", kind: "synonym", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "sertipiko ng kamatayan sa health office", kind: "synonym", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "kumuha ng sertipiko ng kamatayan sa health office", kind: "synonym", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "namatay ang tatay ko", kind: "everyday", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "namatay ang nanay ko", kind: "everyday", needs_native_review: true}
+  - {target: "cho_death_certificate", lang: "fil", text: "namatay ang kamag anak ko", kind: "everyday", needs_native_review: true}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "issuance of permit to transfer cadaver", kind: "name"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "permit to transfer cadaver", kind: "name"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "transfer cadaver", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "cadaver transfer permit", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "cadaver permit", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "cadaver", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "transport of cadaver", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "transfer of remains", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "permit to transfer remains", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "transfer dead body", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "transfer of dead body", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "transport a dead body", kind: "synonym"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "move a dead body", kind: "everyday"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "move the body", kind: "everyday"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "bring the body to another town", kind: "everyday"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "transfer the body", kind: "everyday"}
+  - {target: "cho_cadaver_transfer_permit", lang: "en", text: "carry a dead body", kind: "everyday"}
+  - {target: "cho_cadaver_transfer_permit", lang: "fil", text: "permit sa paglilipat ng bangkay", kind: "name", needs_native_review: true}
+  - {target: "cho_cadaver_transfer_permit", lang: "fil", text: "paglilipat ng bangkay", kind: "synonym", needs_native_review: true}
+  - {target: "cho_cadaver_transfer_permit", lang: "fil", text: "permiso sa paglilipat ng bangkay", kind: "synonym", needs_native_review: true}
+  - {target: "cho_cadaver_transfer_permit", lang: "fil", text: "bangkay", kind: "synonym", needs_native_review: true}
+  - {target: "cho_cadaver_transfer_permit", lang: "fil", text: "ilipat ang bangkay", kind: "synonym", needs_native_review: true}
+  - {target: "cho_cadaver_transfer_permit", lang: "fil", text: "ilipat ang patay", kind: "everyday", needs_native_review: true}
+  - {target: "cho_cadaver_transfer_permit", lang: "fil", text: "dalhin ang bangkay sa ibang bayan", kind: "everyday", needs_native_review: true}
+  - {target: "cho_sanitary_permit", lang: "en", text: "issuance of sanitary permit", kind: "name"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "sanitary permit", kind: "name"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "sanitary permit to operate", kind: "synonym"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "sanitary inspection", kind: "synonym"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "sanitary", kind: "synonym"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "sanitary clearance", kind: "synonym"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "health permit", kind: "synonym"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "sanitary certificate", kind: "synonym"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "permit for sanitation", kind: "everyday"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "sanitation inspection", kind: "everyday"}
+  - {target: "cho_sanitary_permit", lang: "en", text: "inspection for my business", kind: "everyday"}
+  - {target: "cho_sanitary_permit", lang: "fil", text: "sanitary permit", kind: "name", needs_native_review: true}
+  - {target: "cho_sanitary_permit", lang: "fil", text: "pag isyu ng sanitary permit", kind: "name", needs_native_review: true}
+  - {target: "cho_sanitary_permit", lang: "fil", text: "permiso sa sanitasyon", kind: "synonym", needs_native_review: true}
+  - {target: "cho_sanitary_permit", lang: "fil", text: "permit sa sanitasyon", kind: "synonym", needs_native_review: true}
+  - {target: "cho_sanitary_permit", lang: "fil", text: "sanitasyon", kind: "synonym", needs_native_review: true}
+  - {target: "cho_sanitary_permit", lang: "fil", text: "inspeksyon ng sanitasyon", kind: "synonym", needs_native_review: true}
+  - {target: "cho_sanitary_permit", lang: "fil", text: "inspeksyon para sa negosyo", kind: "everyday", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "en", text: "dental services", kind: "name"}
+  - {target: "cho_dental_services", lang: "en", text: "dental", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "dental checkup", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "dental check up", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "dentist", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "tooth extraction", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "tooth", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "teeth", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "dental clinic", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "dental cleaning", kind: "synonym"}
+  - {target: "cho_dental_services", lang: "en", text: "have a tooth pulled", kind: "everyday"}
+  - {target: "cho_dental_services", lang: "en", text: "toothache", kind: "everyday"}
+  - {target: "cho_dental_services", lang: "en", text: "pull out my tooth", kind: "everyday"}
+  - {target: "cho_dental_services", lang: "en", text: "teeth cleaning", kind: "everyday"}
+  - {target: "cho_dental_services", lang: "fil", text: "serbisyong dental", kind: "name", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "dental", kind: "synonym", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "dentista", kind: "synonym", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "ngipin", kind: "synonym", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "pabunot ng ngipin", kind: "synonym", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "pagbunot ng ngipin", kind: "synonym", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "linis ng ngipin", kind: "synonym", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "magpabunot ng ngipin", kind: "everyday", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "masakit ang ngipin", kind: "everyday", needs_native_review: true}
+  - {target: "cho_dental_services", lang: "fil", text: "sumasakit ang ngipin", kind: "everyday", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "en", text: "out patient animal bite center services", kind: "name"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "animal bite center", kind: "name"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "animal bite", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "animal bites", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "dog bite", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "cat bite", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "bitten by a dog", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "bitten by a cat", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "bitten by an animal", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "rabies", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "anti rabies", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "anti rabies vaccine", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "rabies vaccine", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "rabies shot", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "out patient animal bite center", kind: "synonym"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "my dog bit me", kind: "everyday"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "i was bitten by a dog", kind: "everyday"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "a dog bit my child", kind: "everyday"}
+  - {target: "cho_animal_bite_center", lang: "en", text: "bite by stray dog", kind: "everyday"}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "serbisyo ng animal bite center", kind: "name", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "kagat ng aso", kind: "synonym", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "kagat ng pusa", kind: "synonym", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "kagat ng hayop", kind: "synonym", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "bakuna sa rabies", kind: "synonym", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "anti rabies", kind: "synonym", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "animal bite", kind: "synonym", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "nakagat ako ng aso", kind: "everyday", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "kinagat ako ng aso", kind: "everyday", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "kinagat ng aso ang anak ko", kind: "everyday", needs_native_review: true}
+  - {target: "cho_animal_bite_center", lang: "fil", text: "nakagat ng pusa", kind: "everyday", needs_native_review: true}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "post mortem examination", kind: "name"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "postmortem", kind: "synonym"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "postmortem examination", kind: "synonym"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "post mortem", kind: "synonym"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "post mortem exam", kind: "synonym"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "autopsy", kind: "synonym"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "post mortem examination of a body", kind: "synonym"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "examine a dead body", kind: "everyday"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "autopsy of a relative", kind: "everyday"}
+  - {target: "cho_post_mortem_examination", lang: "en", text: "examination of the dead", kind: "everyday"}
+  - {target: "cho_post_mortem_examination", lang: "fil", text: "pagsusuri sa bangkay", kind: "name", needs_native_review: true}
+  - {target: "cho_post_mortem_examination", lang: "fil", text: "awtopsiya", kind: "synonym", needs_native_review: true}
+  - {target: "cho_post_mortem_examination", lang: "fil", text: "post mortem", kind: "synonym", needs_native_review: true}
+  - {target: "cho_post_mortem_examination", lang: "fil", text: "pagsusuri pagkatapos mamatay", kind: "synonym", needs_native_review: true}
+  - {target: "cho_post_mortem_examination", lang: "fil", text: "post mortem examination", kind: "synonym", needs_native_review: true}
+  - {target: "cho_post_mortem_examination", lang: "fil", text: "ipasuri ang bangkay", kind: "everyday", needs_native_review: true}
+  - {target: "cho_post_mortem_examination", lang: "fil", text: "suriin ang bangkay", kind: "everyday", needs_native_review: true}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medico legal consultation", kind: "name"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medico legal", kind: "synonym"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medicolegal", kind: "synonym"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medico legal examination", kind: "synonym"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medico legal exam", kind: "synonym"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medico legal certificate", kind: "synonym"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medico legal report", kind: "synonym"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medicolegal consultation", kind: "synonym"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medical exam for a police case", kind: "everyday"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "injury report for police", kind: "everyday"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "medical exam for a case", kind: "everyday"}
+  - {target: "cho_medico_legal_consultation", lang: "en", text: "exam for abuse victim", kind: "everyday"}
+  - {target: "cho_medico_legal_consultation", lang: "fil", text: "medico legal na konsultasyon", kind: "name", needs_native_review: true}
+  - {target: "cho_medico_legal_consultation", lang: "fil", text: "medico legal", kind: "synonym", needs_native_review: true}
+  - {target: "cho_medico_legal_consultation", lang: "fil", text: "medicolegal", kind: "synonym", needs_native_review: true}
+  - {target: "cho_medico_legal_consultation", lang: "fil", text: "medico legal na pagsusuri", kind: "synonym", needs_native_review: true}
+  - {target: "cho_medico_legal_consultation", lang: "fil", text: "medico legal na sertipiko", kind: "synonym", needs_native_review: true}
+  - {target: "cho_medico_legal_consultation", lang: "fil", text: "pagsusuri para sa kaso", kind: "everyday", needs_native_review: true}
+  - {target: "cho_medico_legal_consultation", lang: "fil", text: "ulat ng pinsala para sa pulis", kind: "everyday", needs_native_review: true}
+  - {target: "cho_medical_certificate", lang: "en", text: "issuance of medical certificates for employment", kind: "name"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical certificate for employment", kind: "name"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical certificate", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical certificates", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical certificate for work", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical certificate for job", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "employment medical", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical for work", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical for employment", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "health certificate for employment", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical clearance for work", kind: "synonym"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical for my job", kind: "everyday"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical exam for a job", kind: "everyday"}
+  - {target: "cho_medical_certificate", lang: "en", text: "medical for job application", kind: "everyday"}
+  - {target: "cho_medical_certificate", lang: "en", text: "need a medical for work", kind: "everyday"}
+  - {target: "cho_medical_certificate", lang: "fil", text: "pag isyu ng medical certificate para sa trabaho", kind: "name", needs_native_review: true}
+  - {target: "cho_medical_certificate", lang: "fil", text: "medical certificate", kind: "synonym", needs_native_review: true}
+  - {target: "cho_medical_certificate", lang: "fil", text: "sertipiko medikal", kind: "synonym", needs_native_review: true}
+  - {target: "cho_medical_certificate", lang: "fil", text: "medical para sa trabaho", kind: "synonym", needs_native_review: true}
+  - {target: "cho_medical_certificate", lang: "fil", text: "medical certificate para sa trabaho", kind: "synonym", needs_native_review: true}
+  - {target: "cho_medical_certificate", lang: "fil", text: "kumuha ng medical para sa trabaho", kind: "everyday", needs_native_review: true}
+  - {target: "cho_medical_certificate", lang: "fil", text: "magpamedical para sa trabaho", kind: "everyday", needs_native_review: true}
+  - {target: "cho_medical_certificate", lang: "fil", text: "magpamedical", kind: "everyday", needs_native_review: true}
+  - {target: "bplo", lang: "en", text: "bplo", kind: "abbreviation"}
+  - {target: "bplo", lang: "en", text: "business permits and licensing office", kind: "name"}
+  - {target: "bplo", lang: "en", text: "business permit and licensing office", kind: "name"}
+  - {target: "bplo", lang: "en", text: "business permits and license office", kind: "name"}
+  - {target: "bplo", lang: "en", text: "business permits licensing office", kind: "name"}
+  - {target: "bplo", lang: "en", text: "business permit office", kind: "synonym"}
+  - {target: "bplo", lang: "en", text: "business permits office", kind: "synonym"}
+  - {target: "bplo", lang: "en", text: "bplo office", kind: "synonym"}
+  - {target: "bplo", lang: "en", text: "permits and licensing office", kind: "synonym"}
+  - {target: "bplo", lang: "en", text: "licensing office", kind: "synonym"}
+  - {target: "bplo", lang: "en", text: "mayors permit office", kind: "synonym"}
+  - {target: "bplo", lang: "en", text: "office for business permits", kind: "everyday"}
+  - {target: "bplo", lang: "en", text: "the business office", kind: "everyday"}
+  - {target: "bplo", lang: "fil", text: "bplo", kind: "abbreviation", needs_native_review: true}
+  - {target: "bplo", lang: "fil", text: "tanggapan ng business permits and licensing", kind: "name", needs_native_review: true}
+  - {target: "bplo", lang: "fil", text: "opisina ng business permit", kind: "synonym", needs_native_review: true}
+  - {target: "bplo", lang: "fil", text: "opisina ng bplo", kind: "synonym", needs_native_review: true}
+  - {target: "bplo", lang: "fil", text: "tanggapan ng bplo", kind: "synonym", needs_native_review: true}
+  - {target: "bplo", lang: "fil", text: "opisina ng business permits", kind: "synonym", needs_native_review: true}
+  - {target: "bplo", lang: "fil", text: "opisina para sa business permit", kind: "everyday", needs_native_review: true}
+  - {target: "bplo", lang: "fil", text: "opisina ng negosyo", kind: "everyday", needs_native_review: true}
+  - {target: "lcro", lang: "en", text: "lcro", kind: "abbreviation"}
+  - {target: "lcro", lang: "en", text: "ccro", kind: "abbreviation"}
+  - {target: "lcro", lang: "en", text: "lcr", kind: "abbreviation"}
+  - {target: "lcro", lang: "en", text: "cro", kind: "abbreviation"}
+  - {target: "lcro", lang: "en", text: "civil registry office", kind: "name"}
+  - {target: "lcro", lang: "en", text: "local civil registry office", kind: "name"}
+  - {target: "lcro", lang: "en", text: "city civil registry office", kind: "name"}
+  - {target: "lcro", lang: "en", text: "city civil registrar", kind: "name"}
+  - {target: "lcro", lang: "en", text: "local civil registrar", kind: "name"}
+  - {target: "lcro", lang: "en", text: "civil registry", kind: "synonym"}
+  - {target: "lcro", lang: "en", text: "civil registrar", kind: "synonym"}
+  - {target: "lcro", lang: "en", text: "local civil registry", kind: "synonym"}
+  - {target: "lcro", lang: "en", text: "city civil registry", kind: "synonym"}
+  - {target: "lcro", lang: "en", text: "registry office", kind: "synonym"}
+  - {target: "lcro", lang: "en", text: "civil registry calbayog", kind: "synonym"}
+  - {target: "lcro", lang: "en", text: "lcr calbayog", kind: "synonym"}
+  - {target: "lcro", lang: "en", text: "civil registry department", kind: "everyday"}
+  - {target: "lcro", lang: "en", text: "the registry", kind: "everyday"}
+  - {target: "lcro", lang: "fil", text: "lcro", kind: "abbreviation", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "ccro", kind: "abbreviation", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "lcr", kind: "abbreviation", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "cro", kind: "abbreviation", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "tanggapan ng civil registry", kind: "name", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "opisina ng civil registry", kind: "name", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "civil registry", kind: "synonym", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "opisina ng lcro", kind: "synonym", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "tanggapan ng lcr", kind: "synonym", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "opisina ng civil registrar", kind: "synonym", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "opisina ng rehistro", kind: "everyday", needs_native_review: true}
+  - {target: "lcro", lang: "fil", text: "tanggapan ng rehistro", kind: "everyday", needs_native_review: true}
+  - {target: "cho", lang: "en", text: "cho", kind: "abbreviation"}
+  - {target: "cho", lang: "en", text: "city health office", kind: "name"}
+  - {target: "cho", lang: "en", text: "city health", kind: "name"}
+  - {target: "cho", lang: "en", text: "health office", kind: "synonym"}
+  - {target: "cho", lang: "en", text: "cho office", kind: "synonym"}
+  - {target: "cho", lang: "en", text: "city health office calbayog", kind: "synonym"}
+  - {target: "cho", lang: "en", text: "city health department", kind: "synonym"}
+  - {target: "cho", lang: "en", text: "health department", kind: "synonym"}
+  - {target: "cho", lang: "en", text: "health center", kind: "everyday"}
+  - {target: "cho", lang: "en", text: "the health office", kind: "everyday"}
+  - {target: "cho", lang: "en", text: "clinic of the city", kind: "everyday"}
+  - {target: "cho", lang: "fil", text: "cho", kind: "abbreviation", needs_native_review: true}
+  - {target: "cho", lang: "fil", text: "tanggapan ng kalusugan ng lungsod", kind: "name", needs_native_review: true}
+  - {target: "cho", lang: "fil", text: "opisina ng kalusugan ng lungsod", kind: "name", needs_native_review: true}
+  - {target: "cho", lang: "fil", text: "opisina ng cho", kind: "synonym", needs_native_review: true}
+  - {target: "cho", lang: "fil", text: "tanggapan ng cho", kind: "synonym", needs_native_review: true}
+  - {target: "cho", lang: "fil", text: "health office", kind: "synonym", needs_native_review: true}
+  - {target: "cho", lang: "fil", text: "opisina ng kalusugan", kind: "synonym", needs_native_review: true}
+  - {target: "cho", lang: "fil", text: "sentrong pangkalusugan", kind: "everyday", needs_native_review: true}
+  - {target: "cho", lang: "fil", text: "health center", kind: "everyday", needs_native_review: true}
+  - {target: "cswdo", lang: "en", text: "cswdo", kind: "abbreviation"}
+  - {target: "cswdo", lang: "en", text: "cswd", kind: "abbreviation"}
+  - {target: "cswdo", lang: "en", text: "city social welfare and development office", kind: "name"}
+  - {target: "cswdo", lang: "en", text: "city social welfare development office", kind: "name"}
+  - {target: "cswdo", lang: "en", text: "social welfare office", kind: "synonym"}
+  - {target: "cswdo", lang: "en", text: "social welfare", kind: "synonym"}
+  - {target: "cswdo", lang: "en", text: "city social welfare", kind: "synonym"}
+  - {target: "cswdo", lang: "en", text: "social welfare and development", kind: "synonym"}
+  - {target: "cswdo", lang: "en", text: "welfare office", kind: "synonym"}
+  - {target: "cswdo", lang: "en", text: "cswdo office", kind: "synonym"}
+  - {target: "cswdo", lang: "en", text: "social welfare department", kind: "everyday"}
+  - {target: "cswdo", lang: "en", text: "welfare department", kind: "everyday"}
+  - {target: "cswdo", lang: "fil", text: "cswdo", kind: "abbreviation", needs_native_review: true}
+  - {target: "cswdo", lang: "fil", text: "cswd", kind: "abbreviation", needs_native_review: true}
+  - {target: "cswdo", lang: "fil", text: "tanggapan ng social welfare at development ng lungsod", kind: "name", needs_native_review: true}
+  - {target: "cswdo", lang: "fil", text: "opisina ng social welfare", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo", lang: "fil", text: "opisina ng cswdo", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo", lang: "fil", text: "tanggapan ng social welfare", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo", lang: "fil", text: "kagalingang panlipunan", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo", lang: "fil", text: "kapakanang panlipunan", kind: "synonym", needs_native_review: true}
+  - {target: "cswdo", lang: "fil", text: "opisina ng welfare", kind: "everyday", needs_native_review: true}
