@@ -278,7 +278,7 @@ def _validate(query: object, schema: Schema, max_limit: int | None) -> Validatio
     if max_limit is None:
         try:
             max_limit = _load_max_limit(LIMITS_PATH)
-        except Exception:
+        except (OSError, yaml.YAMLError, LookupError, TypeError, ValueError):
             return _reject("could not read a valid limits config (fail closed)")
     elif type(max_limit) is not int or max_limit <= 0:
         return _reject("invalid max_limit (fail closed)")
