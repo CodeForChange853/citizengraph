@@ -33,7 +33,7 @@ works from the application reference). `variants` only ever holds dimension/valu
 in `graph/seed/variants.yaml` **and** are used by that service's requirements or fees.
 `phrase` is the only citizen-derived text that leaves the gateway: lowercase ASCII words, no
 punctuation, at most `max_phrase_chars` (160), cut to the part of the message about that service;
-for noisy input unknown words are dropped from it too.
+for long or noisy input unknown words are dropped from it too.
 
 Replies to a question: the UI sends the tapped option's `id` back as the next message
 (`service:<id>`, `intent:<name>`, `confirm:yes`, `confirm:no`). Typed answers work as well
