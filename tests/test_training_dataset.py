@@ -311,6 +311,9 @@ def test_no_example_contains_charter_answer_text(ds, graph, book):
     allowed = {_norm(s.name) for s in graph.seed.services}
     for names in book.service_names.values():
         allowed.update(_norm(n) for n in names["en"] + names["fil"])
+    for langs in G.load_aliases(graph).values():  # alias-derived names are service names too
+        for forms in langs.values():
+            allowed.update(_norm(n) for n in forms)
     for forms in book.variants.values():
         allowed.update(_norm(n) for n in forms["en"] + forms["fil"])
     answers = {
