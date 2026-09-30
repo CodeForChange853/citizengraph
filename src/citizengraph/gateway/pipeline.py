@@ -197,7 +197,7 @@ class Gateway:
             ctx.reasons.append("pending_dropped")
 
         with timer.stage("link"):
-            mentions = self.linker.link(norm)
+            mentions = self._drop_inside_other_services(norm, self.linker.link(norm), ctx)
         with timer.stage("intents"):
             intents = self.detector.detect(norm, mentions)
             cues, unsupported = self.detector.variant_cues(norm)
@@ -214,6 +214,24 @@ class Gateway:
             return self._route(session, norm, mentions, intents, cues, unsupported, drafts,
                                gibberish, ctx)  # fmt: skip
 
+    def _drop_inside_other_services(
+        self, norm: Normalized, mentions: list[Mention], ctx: _Ctx
+    ) -> list[Mention]:
+        """"building permit" is not the business permit: a mention that only overlaps the words
+        of a service nobody here offers, and is no better than a bare everyday word, goes."""
+        others = self.lexicon.other_services.scan(norm.texts)
+        if not others:
+            return mentions
+        kept = [
+            m
+            for m in mentions
+            if m.best.kind != "everyday"
+            or not any(h.start < m.end and m.start < h.end for h in others)
+        ]
+        if len(kept) != len(mentions):
+            ctx.reasons.append("other_service_ignored")
+        return kept
+
     # ----------------------------------------------------------------- routing
 
     def _route(
@@ -228,9 +246,14 @@ class Gateway:
         gibberish: float,
         ctx: _Ctx,
     ) -> GatewayResult:
+        words = [t.text for t in norm.words]
+        if not drafts and self.lexicon.other_services.scan(words):
+            ctx.reasons.append("other_service")
+            return GatewayResult(
+                status="out_of_scope", reasons=_unique(ctx.reasons), language=ctx.language
+            )
         if drafts:
             return self._finish(session, drafts, ctx)
-        words = [t.text for t in norm.words]
         phrase = " ".join(t.text for t in norm.words if t.known)[: self.cfg.max_phrase_chars]
         offices = sorted({m.best.target for m in mentions if m.is_office})
 
@@ -271,8 +294,8 @@ class Gateway:
                 language=ctx.language,
             )
 
-        if self.lexicon.other_services.scan(words):
-            return stop("out_of_scope", "other_service")
+        if self.lexicon.menu_requests.scan(words):
+            return stop("fallback", "menu_request")
         if words and all(w in self.lexicon.greetings for w in words):
             return stop("fallback", "greeting")
         answers = self.lexicon.confirm_yes | self.lexicon.confirm_no

@@ -28,7 +28,7 @@ injection:
     - '(?:^|\s)#{2,}\s*(?:system|instruction)'
     - '^\s*(?:system|assistant)\s*:'
   fil:
-    - '\b(?:huwag|wag|di|hindi)\s+(?:mo\s+)?(?:pansinin|sundin|pakinggan)\b(?:\W+\w+){0,4}?\W+(?:patakaran|utos|panuntunan|instruksyon|instructions?|rules?|bilin|alituntunin)\b'
+    - '\b(?:huwag|wag|di|hindi)\s+(?:mo(?:ng)?\s+)?(?:pansinin|sundin|pakinggan)\b(?:\W+\w+){0,4}?\W+(?:patakaran|utos|panuntunan|instruksyon|instructions?|rules?|bilin|alituntunin)\b'
     - '\b(?:kalimutan|kalimutin|balewalain|isantabi|lampasan|suwayin|labagin)\b(?:\W+\w+){0,4}?\W+(?:patakaran|utos|panuntunan|instruksyon|instructions?|rules?|bilin|alituntunin)\b'
     - '\b(?:ipakita|ibigay|ilista|ilabas|ipadala|kunin)\b(?:\W+\w+){0,3}?\W+(?:lahat|buong|kumpletong)\b(?:\W+\w+){0,2}?\W+(?:data|datos|record|rekord|database|talaan)\b'
     - '\b(?:magpanggap|umarte\s+ka)\b'

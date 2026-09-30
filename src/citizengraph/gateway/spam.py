@@ -14,7 +14,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from citizengraph.gateway.config import GatewayConfig
-from citizengraph.gateway.lexicon import Lexicon, read_yaml
+from citizengraph.gateway.lexicon import read_yaml
 from citizengraph.gateway.text import fold, is_word, scripts_in, tokenize
 from citizengraph.gateway.types import SessionState
 
@@ -38,7 +38,7 @@ class ScreenResult:
 class SpamPatterns:
     """Compiled patterns and word lists from ``lexicon/spam.yaml``."""
 
-    def __init__(self, lexicon: Lexicon | None = None, directory=None):
+    def __init__(self, directory=None):
         raw = read_yaml("spam.yaml", directory)
         self.injection = [re.compile(p) for ps in raw["injection"].values() for p in ps]
         self.code = {
@@ -138,8 +138,12 @@ def _mutation(tokens: Sequence[str], patterns: SpamPatterns) -> bool:
     for i, word in enumerate(words):
         if word in patterns.strong:
             return True
-        if word in patterns.weak and any(
-            w in patterns.targets for w in words[i + 1 : i + 1 + patterns.window]
+        # "change of first name" and "update on my permit" use the word as a noun
+        noun_use = words[i + 1 : i + 2] in (["of"], ["on"])
+        if (
+            word in patterns.weak
+            and not noun_use
+            and any(w in patterns.targets for w in words[i + 1 : i + 1 + patterns.window])
         ):
             return True
     return False
@@ -186,4 +190,5 @@ def gibberish_score(words: Sequence[tuple[str, bool]], message: str) -> float:
         return 1.0
     unknown = sum(1 for _, k in alpha if not k) / len(alpha)
     mash = sum(1 for w, k in alpha if _is_mash(w, k)) / len(alpha)
-    return round(min(1.0, 0.6 * unknown + 0.4 * max(mash, rep_ratio)), 4)
+    base = 0.6 * unknown + 0.4 * max(mash, rep_ratio)
+    return round(min(1.0, max(base, rep_ratio)), 4)

@@ -107,8 +107,8 @@ greetings: [
 
 # Short typed answers to an echo ("I understood ... Correct?")
 confirm_yes: [
-  "yes", yeah, yep, yup, correct, right, sure, ok, okay, oo, opo, tama, sige, yess, yea, tama,
-  po, confirm, confirmed, exactly,
+  "yes", yeah, yep, yup, correct, right, sure, ok, okay, oo, opo, tama, sige, yess, yea,
+  confirm, confirmed, exactly,
 ]
 confirm_no: [
   "no", nope, wrong, incorrect, hindi, mali, nah, cancel, di, hnd, hindi,
@@ -136,4 +136,13 @@ other_services: [
   "pwd id", "solo parent id", "osca", "voters registration", "comelec", "dole", "tesda",
   "vehicle registration", "motorcycle registration", "franchise", "tricycle", "cenomar online",
   "swab", "covid", "quarantine pass",
+]
+
+# Asking for the list of services (no charter service named): answered with the service menu.
+# The Filipino phrases are DRAFT. NEEDS-NATIVE-REVIEW
+menu_requests: [
+  "what services", "list of services", "list all services", "all services", "services available",
+  "available services", "service menu", "what can you do", "what can you help with", menu, help,
+  "what do you offer", "anong serbisyo", "ano ang mga serbisyo", "anong mga serbisyo",
+  "listahan ng serbisyo", "mga serbisyo", "ano ang maitutulong mo",
 ]

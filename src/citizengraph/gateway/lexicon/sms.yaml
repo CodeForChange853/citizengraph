@@ -33,6 +33,7 @@ sms_en:
   cert: certificate
   certs: certificates
   info: information
+  fes: fees
   appl: application
   applic: application
   reg: registration

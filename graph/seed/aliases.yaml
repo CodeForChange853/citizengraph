@@ -288,6 +288,14 @@ aliases:
   - {target: "birth_registration_timely", lang: "en", text: "timely birth certificate", kind: "synonym"}
   - {target: "birth_registration_timely", lang: "en", text: "newborn registration", kind: "synonym"}
   - {target: "birth_registration_timely", lang: "en", text: "register my newborn", kind: "synonym"}
+  - {target: "birth_registration_timely", lang: "en", text: "my baby was born", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "baby was born", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "my child was born", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "newborn", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "my baby was just born", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "en", text: "baby was born last week", kind: "everyday"}
+  - {target: "birth_registration_timely", lang: "fil", text: "ipinanganak ang anak ko", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_timely", lang: "fil", text: "nanganak ako", kind: "everyday", needs_native_review: true}
   - {target: "birth_registration_timely", lang: "fil", text: "pagpaparehistro ng sertipiko ng kapanganakan sa tamang oras", kind: "name", needs_native_review: true}
   - {target: "birth_registration_timely", lang: "fil", text: "pagpaparehistro ng bagong silang na sanggol", kind: "synonym", needs_native_review: true}
   - {target: "birth_registration_timely", lang: "fil", text: "rehistro ng bagong silang na sanggol", kind: "synonym", needs_native_review: true}
@@ -301,6 +309,15 @@ aliases:
   - {target: "birth_registration_delayed", lang: "en", text: "delayed birth certificate", kind: "synonym"}
   - {target: "birth_registration_delayed", lang: "en", text: "late birth certificate", kind: "synonym"}
   - {target: "birth_registration_delayed", lang: "en", text: "belated birth registration", kind: "synonym"}
+  - {target: "birth_registration_delayed", lang: "en", text: "birth not registered", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "baby is not registered", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "child is not registered", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "not yet registered", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "unregistered birth", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "never registered my child", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "en", text: "my baby is not registered yet", kind: "everyday"}
+  - {target: "birth_registration_delayed", lang: "fil", text: "hindi pa nairehistro ang anak ko", kind: "everyday", needs_native_review: true}
+  - {target: "birth_registration_delayed", lang: "fil", text: "hindi pa rehistrado ang anak ko", kind: "everyday", needs_native_review: true}
   - {target: "birth_registration_delayed", lang: "fil", text: "huling pagpaparehistro ng sertipiko ng kapanganakan", kind: "name", needs_native_review: true}
   - {target: "birth_registration_delayed", lang: "fil", text: "huling pagpaparehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
   - {target: "birth_registration_delayed", lang: "fil", text: "nahuling pagpaparehistro ng kapanganakan", kind: "synonym", needs_native_review: true}
@@ -752,6 +769,8 @@ aliases:
   - {target: "cho_routine_immunization", lang: "fil", text: "bakuna ng bata", kind: "synonym", needs_native_review: true}
   - {target: "cho_routine_immunization", lang: "fil", text: "bakuna para sa sanggol", kind: "synonym", needs_native_review: true}
   - {target: "cho_routine_immunization", lang: "fil", text: "immunization", kind: "synonym", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "pabakuna", kind: "everyday", needs_native_review: true}
+  - {target: "cho_routine_immunization", lang: "fil", text: "mag pabakuna", kind: "everyday", needs_native_review: true}
   - {target: "cho_routine_immunization", lang: "fil", text: "magpabakuna", kind: "everyday", needs_native_review: true}
   - {target: "cho_routine_immunization", lang: "fil", text: "ipabakuna ang anak", kind: "everyday", needs_native_review: true}
   - {target: "cho_routine_immunization", lang: "fil", text: "ipabakuna ang sanggol", kind: "everyday", needs_native_review: true}

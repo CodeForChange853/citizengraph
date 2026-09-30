@@ -27,6 +27,7 @@ from citizengraph.gateway.types import Draft, Language
 STRONG_SEPARATORS = frozenset(".?!;")
 JOINING_MARKS = frozenset(",&+/")
 PHRASE_WINDOW_WORDS = 8
+MERGE_MAX_GAP_WORDS = 3
 
 
 @dataclass(frozen=True)
@@ -69,6 +70,39 @@ def _segments(
     return bounds
 
 
+def _merge_adjacent(
+    norm: Normalized,
+    mentions: list[Mention],
+    intents: Sequence[IntentHit],
+    lexicon: Lexicon,
+) -> tuple[list[Mention], bool]:
+    """"change of first name in birth certificate" names two services in ONE request. When two
+    mentions are joined only by a few stop words (no joining word, no mark, no intent between
+    them) and either both mean the same service ("business permit for a new business") or
+    exactly one of them is ambiguous, keep the clear one."""
+    merged = False
+    out: list[Mention] = []
+    for mention in mentions:
+        if out:
+            prev = out[-1]
+            gap = norm.tokens[prev.end : mention.start]
+            gap_words = [t.text for t in gap]
+            joined_loosely = (
+                0 < len(gap) <= MERGE_MAX_GAP_WORDS
+                and all(t.is_word and t.text in lexicon.stopwords for t in gap)
+                and not any(w in lexicon.conjunctions for w in gap_words)
+                and not any(prev.end <= h.start and h.end <= mention.start for h in intents)
+            )
+            same = set(prev.targets) == set(mention.targets)
+            if joined_loosely and (same or prev.ambiguous != mention.ambiguous):
+                if prev.ambiguous and not same:
+                    out[-1] = mention
+                merged = True
+                continue
+        out.append(mention)
+    return out, merged
+
+
 def _phrase(
     norm: Normalized, lo: int, hi: int, mention: Mention, cfg: GatewayConfig, drop_unknown: bool
 ) -> str:
@@ -104,9 +138,12 @@ def split(
     service_mentions = [m for m in mentions if not m.is_office]
     if not service_mentions:
         return [], []
+    service_mentions, merged = _merge_adjacent(norm, service_mentions, intents, lexicon)
     bounds = _segments(norm, service_mentions, intents, lexicon)
     reasons: list[str] = []
-    if len(service_mentions) > 1:
+    if merged:
+        reasons.append("merged_adjacent_mentions")
+    if len({tuple(m.targets) for m in service_mentions}) > 1:
         reasons.append("multi_request")
 
     def in_part(index: int, part: tuple[int, int]) -> bool:

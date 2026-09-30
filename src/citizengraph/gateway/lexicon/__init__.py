@@ -94,6 +94,9 @@ class Lexicon:
         self.greetings = frozenset(_words(vocab["greetings"]))
         self.confirm_yes = frozenset(_words(vocab["confirm_yes"]))
         self.confirm_no = frozenset(_words(vocab["confirm_no"]))
+        self.menu_requests = PhraseTable()
+        for text in vocab["menu_requests"]:
+            self.menu_requests.add(self.phrase(str(text)), "menu")
         self.other_services = PhraseTable()
         for text in vocab["other_services"]:
             self.other_services.add(self.phrase(str(text)), "other")
@@ -148,6 +151,10 @@ class Lexicon:
             if in_en != in_fil:
                 self.lang_of[word] = "en" if in_en else "fil"
 
+        for text in vocab["menu_requests"]:
+            (fil_words if str(text).startswith(("ano", "lista", "mga")) else en_words).update(
+                self.phrase(str(text))
+            )
         en_words |= {t for p in vocab["other_services"] for t in self.phrase(str(p))}
         self.known: frozenset[str] = frozenset(
             en_words

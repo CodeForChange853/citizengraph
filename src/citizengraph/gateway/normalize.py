@@ -9,7 +9,8 @@ Repair is conservative on purpose (a wrong repair could send a citizen to the wr
 * a word already in the lexicon is never touched;
 * words shorter than 5 letters and words containing digits are never repaired;
 * the edit distance is at most 1 for 5 to 7 letters and 2 for longer words (transpositions count
-  as one edit), and the first letter must match unless the distance is 1;
+  as one edit); two edits are accepted only when they are insertions, deletions or one swap
+  (never two substitutions), and then the first letter must match;
 * if two different lexicon words are equally close, the word stays as typed ("unknown" beats a
   wrong repair);
 * an unknown word of 8+ letters that is exactly two lexicon words run together
@@ -22,7 +23,7 @@ import re
 from dataclasses import dataclass, field
 
 from rapidfuzz import process
-from rapidfuzz.distance import OSA
+from rapidfuzz.distance import OSA, Indel
 
 from citizengraph.gateway.lexicon import Lexicon
 from citizengraph.gateway.text import apply_table, fold, is_word, tokenize
@@ -100,7 +101,13 @@ class Normalizer:
         matches = process.extract(
             word, self._fuzzy, scorer=OSA.distance, score_cutoff=limit, limit=3
         )
-        usable = [(w, d) for w, d, _ in matches if d == 1 or w[0] == word[0]]
+        usable = [
+            (w, d)
+            for w, d, _ in matches
+            # two edits must be insertions, deletions or a swap; two substitutions make another
+            # word ("magtanong" is not "magsabong")
+            if (d == 1 or (w[0] == word[0] and Indel.distance(word, w) <= 2))
+        ]
         if usable:
             best = usable[0][1]
             top = [w for w, d in usable if d == best]

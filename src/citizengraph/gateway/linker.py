@@ -293,9 +293,12 @@ class Linker:
         mentions.sort(key=lambda m: m.start)
         return mentions
 
-    def _cue_words(self, norm: Normalized, mention: Mention, others: list[Mention]) -> list[str]:
-        """Words in and around the mention, stopping at separators, conjunctions and the
-        neighbouring mentions."""
+    def _cue_words(
+        self, norm: Normalized, mention: Mention, others: list[Mention], alone: bool
+    ) -> list[str]:
+        """Words in and around the mention, stopping at the neighbouring mentions and, when the
+        message names other services, at separators and conjunctions (a lone mention may take
+        its cue from the other side of a comma)."""
         toks = norm.tokens
         words = [t.text for t in toks[mention.start : mention.end] if t.is_word]
 
@@ -303,9 +306,11 @@ class Linker:
             out: list[str] = []
             for i in rng:
                 t = toks[i]
-                if not t.is_word or t.text in self._lex.conjunctions:
-                    break
                 if any(o.start <= i < o.end for o in others):
+                    break
+                if not t.is_word or t.text in self._lex.conjunctions:
+                    if alone:
+                        continue
                     break
                 out.append(t.text)
                 if len(out) >= limit:
@@ -327,7 +332,8 @@ class Linker:
             if mention.is_office or not mention.ambiguous:
                 continue
             others = [m for m in mentions if m is not mention]
-            words = self._cue_words(norm, mention, others)
+            alone = sum(1 for m in mentions if not m.is_office) == 1
+            words = self._cue_words(norm, mention, others, alone)
             hits = {
                 c.target: sum(
                     1 for cue in self._cues.get(c.target, ()) if self._has_phrase(words, cue)
