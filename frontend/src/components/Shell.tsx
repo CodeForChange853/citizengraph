@@ -50,7 +50,7 @@ export function Shell() {
             </div>
           </div>
         ) : null}
-        <p className="bg-surface-2 px-4 py-1 text-center text-caption text-fg-muted">
+        <p className="bg-surface-2 px-4 py-1 text-center text-body text-fg-muted">
           {t("app.prototype")}
         </p>
       </header>

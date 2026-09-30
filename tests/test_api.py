@@ -60,6 +60,34 @@ def test_pending_lgu_sections_carry_no_numbers():
         assert sec["checklist"] == [] and sec["fees"] == [] and sec["steps"] == []
 
 
+def test_pending_lgu_answers_use_their_own_lead_in_in_both_languages():
+    lead_ins = {
+        "en": "This checklist is still being checked with the office.",
+        "fil": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
+    }
+    for lang, expected in lead_ins.items():
+        for msg in ("birth registration", "death registration", "namatay ang tatay ko"):
+            body = _chat(msg, lang)
+            assert body["kind"] == "answer"
+            assert body["text"] == expected
+            assert "Here is what you need" not in body["text"]
+            assert "Narito ang kailangan" not in body["text"]
+
+
+def test_mixed_message_introduces_only_confirmed_services_as_what_you_need():
+    body = _chat("business permit and death registration")
+    assert body["text"] == (
+        "Here is what you need for Business Permit. "
+        "This checklist is still being checked with the office."
+    )
+    assert "Death Registration" not in body["text"]
+
+
+def test_confirmed_answers_keep_the_normal_lead_in():
+    assert _chat("business permit")["text"] == "Here is what you need for Business Permit."
+    assert _chat("business permit", "fil")["text"].startswith("Narito ang kailangan mo para sa")
+
+
 def test_multi_service_message_returns_one_section_each():
     body = _chat("business permit and medical certificate")
     assert [s["service_id"] for s in body["sections"]] == [

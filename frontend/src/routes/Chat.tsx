@@ -65,6 +65,7 @@ export default function Chat() {
   const services = useServices();
   const [failed, setFailed] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const latestAssistantRef = useRef<HTMLDivElement>(null);
   const shownTurns = useRef(0);
 
   const run = useCallback(
@@ -113,10 +114,17 @@ export default function Chat() {
   useEffect(() => {
     if (turns.length > shownTurns.current && shownTurns.current > 0) {
       const calm = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      bottomRef.current?.scrollIntoView?.({ block: "end", behavior: calm ? "auto" : "smooth" });
+      const behavior = calm ? "auto" : "smooth";
+      // A new answer is read from its top, not from the end of a long card. Your own message still
+      // scrolls to the bottom so you see it and the loading line.
+      if (turns[turns.length - 1]?.role === "assistant") {
+        latestAssistantRef.current?.scrollIntoView?.({ block: "start", behavior });
+      } else {
+        bottomRef.current?.scrollIntoView?.({ block: "end", behavior });
+      }
     }
     shownTurns.current = turns.length;
-  }, [turns.length, chat.isPending]);
+  }, [turns, chat.isPending]);
 
   const last = turns[turns.length - 1];
   const busy = chat.isPending;
@@ -151,6 +159,9 @@ export default function Chat() {
       {turns.map((turn, i) => (
         <motion.div
           key={turn.id}
+          // scroll-mt clears the sticky header so the top of the turn is not hidden under it
+          ref={turn.role === "assistant" && i === turns.length - 1 ? latestAssistantRef : undefined}
+          className="scroll-mt-28"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}

@@ -40,6 +40,12 @@
     "timeNotListed": "time not listed",
     "beingChecked": "Being checked with the office"
   },
+  "time": {
+    "minute": "minute",
+    "hour": "hour",
+    "day": "day",
+    "week": "week"
+  },
   "pending": {
     "title": "Being checked",
     "body": "This checklist is being verified with the office. Please confirm with them before you go."

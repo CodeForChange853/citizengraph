@@ -1,10 +1,12 @@
 import { useTranslation } from "react-i18next";
 import type { StepItem } from "../api/types";
+import { localizeTime } from "../lib/time";
 import { Icon } from "./Icon";
 
 /** Numbered timeline. Each step shows its own time, or says it is not listed. */
 export function StepsTimeline({ serviceId, steps }: { serviceId: string; steps: StepItem[] }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language === "fil" ? "fil" : "en";
   const id = `steps-${serviceId}`;
   if (steps.length === 0) return null;
   return (
@@ -32,7 +34,7 @@ export function StepsTimeline({ serviceId, steps }: { serviceId: string; steps: 
               <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-body text-fg-muted">
                 <span className="inline-flex items-center gap-1.5">
                   <Icon name="clock" className="size-4" />
-                  {step.time_text ? t("answer.stepTime", { time: step.time_text }) : t("answer.stepNoTime")}
+                  {step.time_text ? t("answer.stepTime", { time: localizeTime(step.time_text, lang, t) }) : t("answer.stepNoTime")}
                 </span>
                 {step.external ? (
                   <span className="inline-flex items-center gap-1.5 font-bold">

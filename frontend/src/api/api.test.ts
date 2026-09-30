@@ -36,6 +36,22 @@ describe("fixture adapter", () => {
     }
   });
 
+  it("introduces a pending_lgu checklist with its own lead-in, never as what you need", async () => {
+    const lead = {
+      en: "This checklist is still being checked with the office.",
+      fil: "Sinusuri pa ang listahang ito kasama ang tanggapan.",
+    };
+    for (const lang of ["en", "fil"] as const) {
+      for (const message of ["birth registration", "death registration", "namatay ang tatay ko"]) {
+        const res = await fx.chat({ message, lang });
+        expect(res.kind).toBe("answer");
+        expect(res.text).toBe(lead[lang]);
+      }
+    }
+    const mixed = await fx.chat({ message: "business permit and death registration", lang: "en" });
+    expect(mixed.text).toBe("Here is what you need for Business Permit. " + lead.en);
+  });
+
   it("splits a multi-service message into one section each", async () => {
     const res = await fx.chat({ message: "sanitary permit and medical certificate", lang: "en" });
     expect(res.sections.map((s) => s.service_id)).toEqual([
@@ -66,8 +82,12 @@ describe("fixture adapter", () => {
   it("gives the same answers as the Python mock (parity cases)", () => {
     for (const c of fixtures.cases) {
       const r = mockChat(c.message, c.lang as Lang);
-      expect({ kind: r.kind, ids: r.serviceIds, clarify: r.clarifyIds }, `${c.message} (${c.lang})`).toEqual({
+      expect(
+        { kind: r.kind, text: r.text, ids: r.serviceIds, clarify: r.clarifyIds },
+        `${c.message} (${c.lang})`,
+      ).toEqual({
         kind: c.kind,
+        text: c.text,
         ids: c.service_ids,
         clarify: c.clarify_ids,
       });

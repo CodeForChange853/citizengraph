@@ -86,6 +86,13 @@ describe("home screen", () => {
     expect(within(nav).getByRole("link", { name: "Ask" })).toHaveAttribute("aria-current", "page");
   });
 
+  it("sets the prototype label in the 16 px body size, not the small caption size", async () => {
+    await home();
+    const label = screen.getByText("Thesis prototype, not an official government app");
+    expect(label).toHaveClass("text-body");
+    expect(label).not.toHaveClass("text-caption");
+  });
+
   it("shows an error card with a retry button when services cannot load", async () => {
     const user = userEvent.setup();
     let fail = true;

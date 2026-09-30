@@ -21,10 +21,15 @@ export function mockChat(message: string, lang: Lang) {
     .filter((r) => r.keywords.some((k) => msg.includes(k)))
     .map((r) => r.service_id);
   if (ids.length) {
-    const list = ids.map((i) => names[i]).join(", ");
+    // A pending_lgu checklist is never introduced as "what you need": it gets its own lead-in.
+    const pending = new Set(fixtures.services.filter((s) => s.info_status === "pending_lgu").map((s) => s.id));
+    const confirmed = ids.filter((i) => !pending.has(i));
+    const parts: string[] = [];
+    if (confirmed.length) parts.push((t.answer ?? "").replace("{names}", confirmed.map((i) => names[i]).join(", ")));
+    if (confirmed.length < ids.length) parts.push(t.pending_lgu ?? "");
     return {
       kind: "answer" as Kind,
-      text: (t.answer ?? "").replace("{names}", list),
+      text: parts.join(" "),
       serviceIds: ids,
       clarifyIds: [] as string[],
     };

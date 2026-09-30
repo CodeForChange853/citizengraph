@@ -1,9 +1,9 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "../App";
 import { createFixtureAdapter } from "../api/fixtureAdapter";
-import { CHAT_KEY } from "../lib/chatStore";
+import { addTurn, CHAT_KEY, newTurnId } from "../lib/chatStore";
 import { CHECKLIST_KEY } from "../lib/checklistStore";
 import { renderApp } from "../test/utils";
 
@@ -193,5 +193,102 @@ describe("chat behaviour", () => {
     await user.click(screen.getByRole("button", { name: "New question" }));
     expect(await screen.findByLabelText("What do you need to do?")).toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem(CHAT_KEY)!).turns).toEqual([]);
+  });
+});
+
+describe("Filipino time display", () => {
+  it("shows step times and the summary with Filipino units, numbers unchanged", async () => {
+    const user = userEvent.setup();
+    openChat("business permit");
+    const c = within(await screen.findByRole("article", { name: "Business Permit" }));
+    await user.click(screen.getByRole("button", { name: "Filipino" }));
+    expect(c.getByText("Oras: 5-10 minuto")).toBeInTheDocument();
+    expect(c.getByText("Oras: 3-5 minuto")).toBeInTheDocument();
+    expect(c.getByText("14 na requirement · ₱235.50 · mga 37 minuto")).toBeInTheDocument();
+  });
+
+  it("shows a list of times in Filipino units", async () => {
+    const user = userEvent.setup();
+    openChat("sanitary permit");
+    const c = within(await screen.findByRole("article", { name: "Sanitary Permit" }));
+    await user.click(screen.getByRole("button", { name: "Filipino" }));
+    expect(c.getByText("Oras: 3 araw")).toBeInTheDocument();
+    expect(c.getByText(/mga 3 araw, 10 minuto/)).toBeInTheDocument();
+  });
+
+  it("leaves a time it does not understand exactly as the charter has it", async () => {
+    const user = userEvent.setup();
+    openChat("referral");
+    const c = within(await screen.findByRole("article", { name: "Referrals" }));
+    await user.click(screen.getByRole("button", { name: "Filipino" }));
+    expect(c.getByText("Oras: 1 hour (Once a month)")).toBeInTheDocument();
+    expect(c.getByText("Oras: 1 linggo")).toBeInTheDocument();
+  });
+
+  it("stays in English when English is chosen", async () => {
+    openChat("sanitary permit");
+    const c = within(await screen.findByRole("article", { name: "Sanitary Permit" }));
+    expect(c.getByText("Time: 3 days")).toBeInTheDocument();
+  });
+});
+
+describe("scrolling to a new answer", () => {
+  const win = window as unknown as { matchMedia?: unknown };
+
+  afterEach(() => {
+    delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+    delete win.matchMedia;
+  });
+
+  function spyOnScroll(reducedMotion = false) {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    win.matchMedia = vi.fn().mockReturnValue({ matches: reducedMotion });
+    return scroll;
+  }
+
+  it("puts the TOP of a new assistant turn in view, not the bottom of the page", async () => {
+    const scroll = spyOnScroll();
+    openChat("business permit");
+    const card = await screen.findByRole("article", { name: "Business Permit" });
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(1));
+    expect(scroll).toHaveBeenCalledWith({ block: "start", behavior: "smooth" });
+    const target = scroll.mock.contexts[0] as HTMLElement;
+    expect(target).toContainElement(card);
+    expect(target.className).toContain("scroll-mt"); // clears the sticky header
+  });
+
+  it("scrolls to the new answer, not the last one, and still shows your own message at the bottom", async () => {
+    const user = userEvent.setup();
+    const scroll = spyOnScroll();
+    openChat("business permit");
+    await screen.findByRole("article", { name: "Business Permit" });
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(1));
+    await user.type(screen.getByLabelText("Your question"), "sanitary permit{Enter}");
+    const second = await screen.findByRole("article", { name: "Sanitary Permit" });
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(3));
+    expect(scroll.mock.calls.map((c) => (c[0] as { block: string }).block)).toEqual(["start", "end", "start"]);
+    expect(scroll.mock.contexts[2] as HTMLElement).toContainElement(second);
+    expect(scroll.mock.contexts[2] as HTMLElement).not.toContainElement(
+      screen.getByRole("article", { name: "Business Permit" }),
+    );
+  });
+
+  it("keeps reduced motion: no smooth scrolling", async () => {
+    const scroll = spyOnScroll(true);
+    openChat("business permit");
+    await screen.findByRole("article", { name: "Business Permit" });
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(1));
+    expect(scroll).toHaveBeenCalledWith({ block: "start", behavior: "auto" });
+  });
+
+  it("does not scroll when earlier turns are only restored on the device", async () => {
+    const scroll = spyOnScroll();
+    const res = await createFixtureAdapter().chat({ message: "business permit", lang: "en" });
+    addTurn({ id: newTurnId(), role: "user", text: "business permit" }, res.session_id);
+    addTurn({ id: newTurnId(), role: "assistant", response: res }, res.session_id);
+    openChat();
+    await screen.findByRole("article", { name: "Business Permit" });
+    expect(scroll).not.toHaveBeenCalled();
   });
 });

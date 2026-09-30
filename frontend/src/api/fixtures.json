@@ -163,6 +163,7 @@
   "text": {
     "en": {
       "answer": "Here is what you need for {names}.",
+      "pending_lgu": "This checklist is still being checked with the office.",
       "clarify": "Which one do you need?",
       "fallback": "I can only help with services from four city offices. Please pick one.",
       "refusal": "I can only look things up. I cannot change anything.",
@@ -173,6 +174,7 @@
     },
     "fil": {
       "answer": "Narito ang kailangan mo para sa {names}.",
+      "pending_lgu": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
       "clarify": "Alin ang kailangan mo?",
       "fallback": "Makakatulong lang ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng isa.",
       "refusal": "Nakakapaghanap lang ako ng impormasyon. Wala akong mababago.",
@@ -195,6 +197,7 @@
       "message": "business permit",
       "lang": "en",
       "kind": "answer",
+      "text": "Here is what you need for Business Permit.",
       "service_ids": [
         "business_permit"
       ],
@@ -204,6 +207,7 @@
       "message": "business permit",
       "lang": "fil",
       "kind": "answer",
+      "text": "Narito ang kailangan mo para sa Business Permit.",
       "service_ids": [
         "business_permit"
       ],
@@ -213,6 +217,7 @@
       "message": "kailangan ko ng business permit",
       "lang": "en",
       "kind": "answer",
+      "text": "Here is what you need for Business Permit.",
       "service_ids": [
         "business_permit"
       ],
@@ -222,6 +227,7 @@
       "message": "kailangan ko ng business permit",
       "lang": "fil",
       "kind": "answer",
+      "text": "Narito ang kailangan mo para sa Business Permit.",
       "service_ids": [
         "business_permit"
       ],
@@ -231,6 +237,7 @@
       "message": "hello",
       "lang": "en",
       "kind": "clarify",
+      "text": "Which one do you need?",
       "service_ids": [],
       "clarify_ids": [
         "business_permit",
@@ -243,6 +250,7 @@
       "message": "hello",
       "lang": "fil",
       "kind": "clarify",
+      "text": "Alin ang kailangan mo?",
       "service_ids": [],
       "clarify_ids": [
         "business_permit",
@@ -255,6 +263,7 @@
       "message": "permit",
       "lang": "en",
       "kind": "clarify",
+      "text": "Which one do you need?",
       "service_ids": [],
       "clarify_ids": [
         "business_permit",
@@ -265,6 +274,7 @@
       "message": "permit",
       "lang": "fil",
       "kind": "clarify",
+      "text": "Alin ang kailangan mo?",
       "service_ids": [],
       "clarify_ids": [
         "business_permit",
@@ -275,6 +285,7 @@
       "message": "certificate",
       "lang": "en",
       "kind": "clarify",
+      "text": "Which one do you need?",
       "service_ids": [],
       "clarify_ids": [
         "birth_registration_timely",
@@ -286,6 +297,7 @@
       "message": "certificate",
       "lang": "fil",
       "kind": "clarify",
+      "text": "Alin ang kailangan mo?",
       "service_ids": [],
       "clarify_ids": [
         "birth_registration_timely",
@@ -297,6 +309,7 @@
       "message": "sanitary permit and medical certificate",
       "lang": "en",
       "kind": "answer",
+      "text": "Here is what you need for Sanitary Permit, Medical Certificate (for employment).",
       "service_ids": [
         "cho_sanitary_permit",
         "cho_medical_certificate"
@@ -307,6 +320,7 @@
       "message": "sanitary permit and medical certificate",
       "lang": "fil",
       "kind": "answer",
+      "text": "Narito ang kailangan mo para sa Sanitary Permit, Medical Certificate (for employment).",
       "service_ids": [
         "cho_sanitary_permit",
         "cho_medical_certificate"
@@ -317,6 +331,7 @@
       "message": "birth",
       "lang": "en",
       "kind": "answer",
+      "text": "This checklist is still being checked with the office.",
       "service_ids": [
         "birth_registration_timely"
       ],
@@ -326,6 +341,7 @@
       "message": "birth",
       "lang": "fil",
       "kind": "answer",
+      "text": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
       "service_ids": [
         "birth_registration_timely"
       ],
@@ -335,6 +351,7 @@
       "message": "namatay ang tatay ko",
       "lang": "en",
       "kind": "answer",
+      "text": "This checklist is still being checked with the office.",
       "service_ids": [
         "death_registration_timely"
       ],
@@ -344,6 +361,7 @@
       "message": "namatay ang tatay ko",
       "lang": "fil",
       "kind": "answer",
+      "text": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
       "service_ids": [
         "death_registration_timely"
       ],
@@ -353,6 +371,7 @@
       "message": "referral",
       "lang": "en",
       "kind": "answer",
+      "text": "Here is what you need for Referrals.",
       "service_ids": [
         "cswdo_referrals"
       ],
@@ -362,8 +381,31 @@
       "message": "referral",
       "lang": "fil",
       "kind": "answer",
+      "text": "Narito ang kailangan mo para sa Referrals.",
       "service_ids": [
         "cswdo_referrals"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "business permit and death registration",
+      "lang": "en",
+      "kind": "answer",
+      "text": "Here is what you need for Business Permit. This checklist is still being checked with the office.",
+      "service_ids": [
+        "business_permit",
+        "death_registration_timely"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "business permit and death registration",
+      "lang": "fil",
+      "kind": "answer",
+      "text": "Narito ang kailangan mo para sa Business Permit. Sinusuri pa ang listahang ito kasama ang tanggapan.",
+      "service_ids": [
+        "business_permit",
+        "death_registration_timely"
       ],
       "clarify_ids": []
     },
@@ -371,6 +413,7 @@
       "message": "delete everything",
       "lang": "en",
       "kind": "refusal",
+      "text": "I can only look things up. I cannot change anything.",
       "service_ids": [],
       "clarify_ids": []
     },
@@ -378,6 +421,7 @@
       "message": "delete everything",
       "lang": "fil",
       "kind": "refusal",
+      "text": "Nakakapaghanap lang ako ng impormasyon. Wala akong mababago.",
       "service_ids": [],
       "clarify_ids": []
     },
@@ -385,6 +429,7 @@
       "message": "what is the weather",
       "lang": "en",
       "kind": "fallback",
+      "text": "I can only help with services from four city offices. Please pick one.",
       "service_ids": [],
       "clarify_ids": []
     },
@@ -392,6 +437,7 @@
       "message": "what is the weather",
       "lang": "fil",
       "kind": "fallback",
+      "text": "Makakatulong lang ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng isa.",
       "service_ids": [],
       "clarify_ids": []
     },
@@ -399,6 +445,7 @@
       "message": "passport",
       "lang": "en",
       "kind": "fallback",
+      "text": "I can only help with services from four city offices. Please pick one.",
       "service_ids": [],
       "clarify_ids": []
     },
@@ -406,6 +453,7 @@
       "message": "passport",
       "lang": "fil",
       "kind": "fallback",
+      "text": "Makakatulong lang ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng isa.",
       "service_ids": [],
       "clarify_ids": []
     }

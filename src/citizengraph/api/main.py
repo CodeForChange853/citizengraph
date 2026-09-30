@@ -153,6 +153,7 @@ _SERVICES: dict[str, dict] = {
 _TEXT: dict[str, dict[str, str]] = {
     "en": {
         "answer": "Here is what you need for {names}.",
+        "pending_lgu": "This checklist is still being checked with the office.",
         "clarify": "Which one do you need?",
         "fallback": "I can only help with services from four city offices. Please pick one.",
         "refusal": "I can only look things up. I cannot change anything.",
@@ -164,6 +165,7 @@ _TEXT: dict[str, dict[str, str]] = {
     },
     "fil": {
         "answer": "Narito ang kailangan mo para sa {names}.",
+        "pending_lgu": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
         "clarify": "Alin ang kailangan mo?",
         "fallback": "Makakatulong lang ako sa mga serbisyo ng apat na tanggapan ng lungsod. "
                     "Pumili ng isa.",
@@ -233,8 +235,15 @@ def mock_chat(message: str, lang: Lang) -> tuple[str, str, list[str], list[str]]
         return "refusal", t["refusal"], [], []
     ids = _match(message)
     if ids:
-        names = ", ".join(_SERVICES[i]["name"] for i in ids)
-        return "answer", t["answer"].format(names=names), ids, []
+        # A pending_lgu checklist is never introduced as "what you need": it gets its own lead-in.
+        # Mixed messages name only the confirmed services in the first sentence.
+        confirmed = [i for i in ids if _SERVICES[i]["info_status"] != "pending_lgu"]
+        parts = []
+        if confirmed:
+            parts.append(t["answer"].format(names=", ".join(_SERVICES[i]["name"] for i in confirmed)))
+        if len(confirmed) < len(ids):
+            parts.append(t["pending_lgu"])
+        return "answer", " ".join(parts), ids, []
     for amb in _AMBIGUOUS:
         if amb["keyword"] in msg:
             return "clarify", t["clarify"], [], amb["options"]
@@ -285,6 +294,7 @@ def chat(req: ChatRequest) -> ChatResponse:
 _PARITY_MESSAGES = [
     "business permit", "kailangan ko ng business permit", "hello", "permit", "certificate",
     "sanitary permit and medical certificate", "birth", "namatay ang tatay ko", "referral",
+    "business permit and death registration",
     "delete everything", "what is the weather", "passport",
 ]
 
@@ -305,10 +315,13 @@ def mock_fixtures() -> dict:
         "text": _TEXT,
         "names": {i: s["name"] for i, s in _SERVICES.items()},
         "cases": [
-            {"message": m, "lang": lang, "kind": k, "service_ids": ids, "clarify_ids": cids}
+            {
+                "message": m, "lang": lang, "kind": k, "text": text,
+                "service_ids": ids, "clarify_ids": cids,
+            }
             for m in _PARITY_MESSAGES
             for lang in ("en", "fil")
-            for k, _text, ids, cids in [mock_chat(m, lang)]  # type: ignore[arg-type]
+            for k, text, ids, cids in [mock_chat(m, lang)]  # type: ignore[arg-type]
         ],
         "sections": {
             lang: {i: _section(i, lang).model_dump() for i in _SERVICES}  # type: ignore[arg-type]

@@ -40,6 +40,12 @@
     "timeNotListed": "walang nakalistang oras",
     "beingChecked": "Sinusuri pa kasama ang tanggapan"
   },
+  "time": {
+    "minute": "minuto",
+    "hour": "oras",
+    "day": "araw",
+    "week": "linggo"
+  },
   "pending": {
     "title": "Sinusuri pa",
     "body": "Sinusuri pa ang listahang ito kasama ang tanggapan. Pakitiyak muna sa kanila bago pumunta."
