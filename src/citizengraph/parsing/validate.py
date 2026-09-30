@@ -92,8 +92,10 @@ def _num(value: float) -> str:
     return str(int(value)) if float(value).is_integer() else f"{value:g}"
 
 
-def time_text(days: float, minutes: float) -> str:
+def time_text(days: float, minutes: float, weeks: float = 0) -> str:
     parts = []
+    if weeks:
+        parts.append(f"{_num(weeks)} week{'s' if weeks != 1 else ''}")
     if days:
         parts.append(f"{_num(days)} day{'s' if days != 1 else ''}")
     if minutes or not parts:
@@ -222,39 +224,57 @@ def compare_fees(stated: FeeParse, steps: Sequence[tuple[int, FeeParse]]) -> Che
 
 
 def compare_times(stated: Duration, steps: Sequence[tuple[int, Duration]]) -> CheckResult:
-    """Compare a stated time total with the parsed step times. ``steps`` is (order, time)."""
+    """Compare a stated time total with the parsed step times. ``steps`` is (order, time).
+
+    Weeks, days and clock minutes are three separate axes; none is converted into another.
+    """
     details: list[str] = []
     stated_text = (
-        time_text(stated.days_max or 0, stated.clock_minutes_max or 0)
+        time_text(stated.days_max or 0, stated.clock_minutes_max or 0, stated.weeks_max or 0)
         if stated.stated
         else "not stated"
     )
     unparsed = [o for o, d in steps if d.status == "unparsed"]
+    ambiguous = [o for o, d in steps if d.status == "ambiguous"]
     unstated = [o for o, d in steps if d.status == "not_stated"]
+    weeks = sum(d.weeks_max or 0 for _, d in steps if d.stated)
     days = sum(d.days_max or 0 for _, d in steps if d.stated)
     clock = sum(d.clock_minutes_max or 0 for _, d in steps if d.stated)
-    derived_text = time_text(days, clock)
+    derived_text = time_text(days, clock, weeks)
 
     if unstated:
         details.append("steps with no stated time (add nothing): " + ", ".join(map(str, unstated)))
+    for note in stated.normalizations:
+        details.append(f"stated total {stated.raw!r} was read with a typo fix ({note})")
+    for order, d in steps:
+        for note in d.normalizations:
+            details.append(f"step {order} time {d.raw!r} was read with a typo fix ({note})")
     if stated.status != "stated":
         details.append(
-            "stated total time could not be parsed"
-            if stated.status == "unparsed"
-            else "stated total time is not stated"
+            {
+                "unparsed": "stated total time could not be parsed",
+                "ambiguous": "stated total time needs review (kept raw)",
+            }.get(stated.status, "stated total time is not stated")
         )
         return CheckResult("not_comparable", stated_text, derived_text, tuple(details))
-    if unparsed:
-        details.append("steps whose time could not be parsed: " + ", ".join(map(str, unparsed)))
+    if unparsed or ambiguous:
+        if unparsed:
+            details.append("steps whose time could not be parsed: " + ", ".join(map(str, unparsed)))
+        for order, d in steps:
+            if d.status == "ambiguous":
+                details.append(f"step {order} time {d.raw!r} needs review (kept raw): {d.review}")
         return CheckResult("not_comparable", stated_text, derived_text, tuple(details))
 
+    d_weeks = weeks - (stated.weeks_max or 0)
     d_days = days - (stated.days_max or 0)
     d_clock = clock - (stated.clock_minutes_max or 0)
+    if abs(d_weeks) > _TOL:
+        details.append(f"weeks: steps - stated = {d_weeks:+g}")
     if abs(d_days) > _TOL:
         details.append(f"days: steps - stated = {d_days:+g}")
     if abs(d_clock) > _TOL:
         details.append(f"minutes: steps - stated = {d_clock:+g}")
-    good = abs(d_days) <= _TOL and abs(d_clock) <= _TOL
+    good = abs(d_weeks) <= _TOL and abs(d_days) <= _TOL and abs(d_clock) <= _TOL
     return CheckResult("match" if good else "mismatch", stated_text, derived_text, tuple(details))
 
 
@@ -286,11 +306,15 @@ def _step_table(draft: ServiceDraft) -> list[str]:
             "none" if s.fees.status == "none" else "—"
         )
         if s.time.stated:
-            time = time_text(s.time.days_max or 0, s.time.clock_minutes_max or 0)
+            time = time_text(
+                s.time.days_max or 0, s.time.clock_minutes_max or 0, s.time.weeks_max or 0
+            )
             if s.time.minutes_min != s.time.minutes_max:
                 time += " (max of range)"
             if s.time_span > 1:
                 time += f" (merged over {s.time_span} steps, counted once)"
+        elif s.time.status in ("ambiguous", "unparsed"):
+            time = f"needs review: {s.time.raw!r}"
         elif s.time_shared_from:
             time = f"(shared with step {s.time_shared_from})"
         else:
@@ -412,6 +436,21 @@ def build_flags_report(drafts: Sequence[ServiceDraft]) -> str:
         "total_missing": "No TOTAL row found.",
         "total_time_unparsed": "Stated total time is not understood.",
         "total_fee_text_only": "Stated total fee has no amount.",
+        "time_ambiguous": "Step time is a decimal such as '1.15 min'; kept raw, not converted.",
+        "total_time_ambiguous": "Stated total time is a decimal; kept raw, not converted.",
+        "time_typo_normalized": "Step time contains a known unit typo that was read as its unit.",
+        "total_time_typo_normalized": "Stated total time contains a known unit typo that was "
+        "read as its unit (e.g. 'dsys' as days).",
+        "fee_no_currency_sign": "Step fee is a bare number with no peso sign; read as an amount.",
+        "total_fee_no_currency_sign": "Stated total fee has no peso sign; read as an amount.",
+        "no_requirements_listed": "The checklist says N/A; stored as no requirements.",
+        "where_to_secure_na": "'Where to secure' says N/A; stored as null.",
+        "requirement_fragment_glued": "A labelled requirement wrapped onto the next row; the "
+        "rows were joined.",
+        "orphan_row_glued": "A row with no fee or time continues the step above (wrapped text); "
+        "appended to it.",
+        "possible_split_step": "A step with no fee or time is followed by a row with no label or "
+        "person; possibly one step split over two rows. Kept as two.",
     }
     for code, n in sorted(counts.items()):
         out.append(f"| `{code}` | {n} | {meaning.get(code, '')} |")
