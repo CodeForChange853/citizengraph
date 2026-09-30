@@ -1,0 +1,173 @@
+# Curated seed: variants. Every record is needs_review until a human checks it against
+# the spreadsheet (docs/seed_review.md). Nothing here was guessed: blanks are null + a flag.
+variants:
+- id: business_type:association
+  dimension: business_type
+  value: association
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  flags: []
+- id: business_type:corporation
+  dimension: business_type
+  value: corporation
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  flags: []
+- id: business_type:single_proprietor
+  dimension: business_type
+  value: single_proprietor
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  flags: []
+- id: applicant_type:new
+  dimension: applicant_type
+  value: new
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  flags: []
+- id: taxpayer:company
+  dimension: taxpayer
+  value: company
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  flags: []
+- id: taxpayer:individual
+  dimension: taxpayer
+  value: individual
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  flags: []
+- id: cockfight_category:2C
+  dimension: cockfight_category
+  value: 2C
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  flags: []
+- id: cockfight_category:3C
+  dimension: cockfight_category
+  value: 3C
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  flags: []
+- id: cockfight_category:4C
+  dimension: cockfight_category
+  value: 4C
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  flags: []
+- id: cockfight_category:5C
+  dimension: cockfight_category
+  value: 5C
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  flags: []
+- id: cockfight_category:Derby
+  dimension: cockfight_category
+  value: Derby
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  flags: []
+- id: cockfight_category:MD
+  dimension: cockfight_category
+  value: MD
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  flags: []
+- id: birth_status:marital
+  dimension: birth_status
+  value: marital
+  review_status: needs_review
+  sources:
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
+  flags: []
+- id: birth_status:non_marital
+  dimension: birth_status
+  value: non_marital
+  review_status: needs_review
+  sources:
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 21
+    - 40
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
+  flags: []
+- id: foreign_parent:yes
+  dimension: foreign_parent
+  value: 'yes'
+  review_status: needs_review
+  sources:
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
+  flags: []
