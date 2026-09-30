@@ -22,21 +22,29 @@
 # 5. fp16 only (T4 has no bf16): the loss must stay finite. If it turns NaN, lower LEARNING_RATE
 #    to 1e-4 first.
 # 6. Cell 7 prints one training example with the masked prompt: only the assistant answer (the
-#    Cypher and the closing `<|eot_id|>`) may appear as trained text.
-# 7. Step time and peak VRAM (printed) fit: ~7,000 examples x 2 epochs must finish well inside
-#    the 12-hour session limit (and the weekly GPU quota). Lower EPOCHS or batch size if not.
-# 8. Validation loss falls; cell 10 quick eval: guardrail-valid and exact-match rates on
-#    validation examples.
+#    three header lines `intent:` / `shape:` / `variants:`, the Cypher and the closing
+#    `<|eot_id|>`) may appear as trained text.
+# 7. Step time and peak VRAM (printed) fit: ~6,400 examples of about 600 tokens (most of it the
+#    fixed system message) x 2 epochs must finish well inside the 12-hour session limit (and the
+#    weekly GPU quota). Lower EPOCHS or batch size if not; MAX_SEQ_LEN 1280 is checked in cell 5.
+# 8. Validation loss falls (it runs on VAL_SUBSET examples only, to keep evaluation short); cell
+#    10 quick eval: guardrail-valid, intent and exact-match rates on validation examples.
+# 11. The ablation: run the whole notebook twice, once on the default data (slots INFERRED: the
+#    prompt has targets, language and phrase) and once with SLOTS_GIVEN = True (the `slots_given/`
+#    files: the same examples with intent and variants added to the prompt), and compare both with
+#    `training/eval_generate.py` on the same test split.
 # 9. Disk: /kaggle/working is limited (about 20 GB). The merge (16-bit) goes to /tmp; the GGUF
 #    cell needs a 16 GB f16 intermediate before the ~5 GB Q4_K_M file. If it runs out of disk,
 #    download the LoRA adapter (cell 9) and convert on another machine.
 # 10. After import into llama.cpp/Ollama: the Llama-3 chat template is applied and generation
 #     stops at `<|eot_id|>`. The inference prompt must come from
-#     `citizengraph.core1.prompt.build_prompt`, the same format as the training data.
+#     `citizengraph.core1.prompt.build_prompt_v2` (and `build_prompt_slots_given` for the
+#     `SLOTS_GIVEN` ablation), the same format as the training data.
 #
 # ## Data
 # Generate the data locally (`python -m training.generate_dataset --seed 0`), then upload
-# `training/out/train.jsonl` and `validation.jsonl` as a Kaggle Dataset and attach it.
+# `training/out/train.jsonl` and `validation.jsonl` (and the `slots_given/` folder for the
+# ablation) as a Kaggle Dataset and attach it.
 # No data here may come from an LLM, and `eval/heldout/` must never be uploaded.
 
 # %% [markdown]
@@ -65,7 +73,9 @@ import os
 import torch
 
 MODEL_NAME = "unsloth/llama-3-8b-Instruct-bnb-4bit"  # public mirror of Llama-3-8B-Instruct, 4-bit
-MAX_SEQ_LEN = 1024  # examples are ~500 tokens; raise only if the check in cell 5 says so
+MAX_SEQ_LEN = 1280  # examples are ~600 tokens (prompt v2 carries the schema); see cell 5
+SLOTS_GIVEN = False  # True: the ablation data, intent and variants given in the prompt
+VAL_SUBSET = 400  # validation examples used for the loss during training
 LORA_R = 16
 LORA_ALPHA = 16
 LEARNING_RATE = 2e-4
@@ -93,6 +103,8 @@ def find_data_dir() -> Path:
     candidates = [Path(os.environ["CORE1_DATA"])] if "CORE1_DATA" in os.environ else []
     candidates += [p.parent for p in sorted(Path("/kaggle/input").glob("*/train.jsonl"))]
     candidates += [Path("training/out")]
+    if SLOTS_GIVEN:  # the ablation files sit in a slots_given/ folder next to the others
+        candidates = [d / "slots_given" for d in candidates] + candidates
     for directory in candidates:
         if (directory / "train.jsonl").is_file() and (directory / "validation.jsonl").is_file():
             return directory
@@ -158,6 +170,9 @@ def to_text(batch):
 
 
 data = raw.map(to_text, batched=True, remove_columns=raw["train"].column_names)
+data["validation"] = (
+    data["validation"].shuffle(seed=SEED).select(range(min(VAL_SUBSET, len(data["validation"]))))
+)
 lengths = [
     len(tokenizer(t, add_special_tokens=False).input_ids) for t in data["train"]["text"][:500]
 ]
@@ -233,7 +248,7 @@ trainer = train_on_responses_only(
 example = trainer.train_dataset[0]
 labels = [t for t in example["labels"] if t != -100]
 print("trained tokens in example 0:", len(labels), "of", len(example["input_ids"]))
-print("----- trained text (must be only the Cypher answer + <|eot_id|>) -----")
+print("----- trained text (must be only the header lines, the Cypher and <|eot_id|>) -----")
 print(tokenizer.decode(labels))
 
 # %% [markdown]
@@ -262,10 +277,8 @@ print("adapter saved:", ADAPTER_DIR)
 # %%
 FastLanguageModel.for_inference(model)
 SAMPLE = 100
-val_rows = [
-    json.loads(x)
-    for x in (DATA_DIR / "validation.jsonl").read_text(encoding="utf-8").splitlines()[:SAMPLE]
-]
+all_rows = (DATA_DIR / "validation.jsonl").read_text(encoding="utf-8").splitlines()
+val_rows = [json.loads(x) for x in all_rows[:: max(1, len(all_rows) // SAMPLE)][:SAMPLE]]
 outputs = []
 for row in val_rows:
     prompt_ids = tokenizer.apply_chat_template(
@@ -273,7 +286,7 @@ for row in val_rows:
     ).to("cuda")
     generated = model.generate(
         input_ids=prompt_ids,
-        max_new_tokens=400,
+        max_new_tokens=600,  # three header lines and the longest query
         do_sample=False,
         use_cache=True,
         pad_token_id=tokenizer.eos_token_id,
@@ -286,11 +299,20 @@ exact = sum(
     " ".join(o.split()) == " ".join(r["messages"][2]["content"].split())
     for o, r in zip(outputs, val_rows, strict=True)
 )
-print(f"exact match on {SAMPLE} validation examples: {exact / SAMPLE:.3f}")
-try:  # needs `pip install -e .` of the repo (guardrail); skipped otherwise
+print(f"exact match on {len(val_rows)} validation examples: {exact / len(val_rows):.3f}")
+try:  # needs `pip install -e .` of the repo (guardrail, completion format); skipped otherwise
+    from citizengraph.core1.output import parse_completion
+
+    parsed = [parse_completion(o) for o in outputs]
+    gold = [parse_completion(r["messages"][2]["content"]) for r in val_rows]
+    print("header present:", sum(not p.problems for p in parsed) / len(parsed))
+    print(
+        "intent accuracy:",
+        sum(p.intents == g.intents for p, g in zip(parsed, gold, strict=True)) / len(parsed),
+    )
     from citizengraph.guardrail.validator import validate_cypher
 
-    print("guardrail-valid:", sum(validate_cypher(o).ok for o in outputs) / SAMPLE)
+    print("guardrail-valid:", sum(validate_cypher(p.cypher).ok for p in parsed) / len(parsed))
 except ImportError:
     print(
         "citizengraph not installed here: run training/eval_generate.py later for the full report"

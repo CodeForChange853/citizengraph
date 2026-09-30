@@ -192,8 +192,16 @@ def _recase(text: str, rng: random.Random) -> str:
     return " ".join(w.upper() if rng.random() < 0.3 else w.lower() for w in text.split(" "))
 
 
-def add_noise(text: str, level: float, rng: random.Random) -> str:
-    """Return ``text`` with noise at ``level`` percent (0 = unchanged)."""
+def add_noise(
+    text: str, level: float, rng: random.Random, protect: frozenset[str] = frozenset()
+) -> str:
+    """Return ``text`` with noise at ``level`` percent (0 = unchanged).
+
+    ``protect`` holds lowercase words that are never changed: the entity words (service, office,
+    agency, document and variant names) that the gateway's lexicon would repair before the model
+    sees them (casing noise still applies to the whole message; the dataset lower-cases it again
+    when it cleans the phrase like the gateway).
+    """
     if isinstance(level, bool) or not isinstance(level, (int, float)) or not 0 <= level <= 100:
         raise ValueError(f"noise level must be a percentage between 0 and 100, got {level!r}")
     if level == 0:
@@ -205,7 +213,7 @@ def add_noise(text: str, level: float, rng: random.Random) -> str:
             out.append(token)
             continue
         lead, core, trail = _WORD.match(token).groups()  # type: ignore[union-attr]
-        if _eligible(token, core) and rng.random() < p:
+        if _eligible(token, core) and rng.random() < p and core.lower() not in protect:
             core = _perturb(core, rng)
         out.append(lead + core + trail)
     noisy = "".join(out)

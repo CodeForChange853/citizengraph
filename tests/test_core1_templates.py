@@ -61,15 +61,27 @@ def test_templates_contain_no_literal_ids(template):
 @pytest.mark.parametrize("template", ALL, ids=ids)
 def test_parameters_are_exactly_the_documented_ones(template):
     used = params_in(template.cypher)
-    assert used <= {"sid", "variant_ids"}
+    assert used <= set(T.PARAMETERS)
     assert template.params == tuple(sorted(used))
-    assert "sid" in used
+    assert used - {"variant_ids"}, "every template needs at least one target parameter"
     assert ("variant_ids" in used) == template.filtered
+    assert template.needs == tuple(sorted(used - {"variant_ids"}))
 
 
 def test_the_contract_is_documented_in_the_module():
     doc = T.__doc__ or ""
-    for needle in ("$sid", "$variant_ids", "dimension:value", "Service.id"):
+    for needle in (
+        "$sid",
+        "$sid2",
+        "$oid",
+        "$aid",
+        "$doc",
+        "$variant_ids",
+        "dimension:value",
+        "Service.id",
+        "Office.id",
+        "Agency.id",
+    ):
         assert needle in doc
 
 
@@ -96,8 +108,11 @@ def test_variant_filters_exist_only_where_the_graph_can_filter():
     assert filtered == {
         ("requirements", "list"),
         ("requirements", "count"),
+        ("requirements", "doc_in_service"),
         ("fees", "list"),
         ("fees", "per_step"),
+        ("fees", "fees_total"),
+        ("fees", "fee_time"),
         ("where_to_secure", "list"),
         ("where_to_secure", "go_first"),
     }
@@ -106,6 +121,63 @@ def test_variant_filters_exist_only_where_the_graph_can_filter():
         assert (intent, shape, False) in T.TEMPLATES
     assert not T.supports_variants("steps", "list")
     assert not T.supports_variants("office", "list")
+    assert not T.supports_variants("fees", "compare_fees")
+
+
+def test_there_are_at_least_ten_new_shapes_with_different_cypher():
+    assert len(T.NEW_SHAPES) >= 10 and len(set(T.NEW_SHAPES)) == len(T.NEW_SHAPES)
+    assert not set(T.NEW_SHAPES) & set(T.LEGACY_SHAPES)
+    new = {t.shape: t for t in ALL if not t.filtered and t.shape in T.NEW_SHAPES}
+    assert set(new) == set(T.NEW_SHAPES)
+    legacy = {t.cypher for t in ALL if t.shape in T.LEGACY_SHAPES}
+    assert not {t.cypher for t in new.values()} & legacy
+
+
+def test_the_new_shapes_use_the_extended_parameters():
+    needs = {t.shape: t.needs for t in ALL if not t.filtered}
+    assert needs["doc_services"] == ("doc",)
+    assert needs["doc_where"] == ("doc",)
+    assert needs["doc_in_service"] == ("doc", "sid")
+    assert needs["agency_services"] == ("aid",)
+    for shape in ("office_services", "office_count", "office_req_counts", "office_who"):
+        assert needs[shape] == ("oid",)
+    assert needs["office_prereqs"] == ("oid",)
+    assert needs["cheapest"] == needs["no_fee_rows"] == ("oid",)
+    for shape in ("compare_fees", "compare_requirements", "compare_time"):
+        assert needs[shape] == ("sid", "sid2")
+    for shape in ("fees_total", "fee_time", "longest_step", "external_steps"):
+        assert needs[shape] == ("sid",)
+
+
+def test_the_new_shapes_cover_the_requested_question_families():
+    text = {t.shape: t.cypher for t in ALL if not t.filtered}
+    assert "CONTAINS $doc" in text["doc_services"]  # which services require a document
+    assert "SECURED_AT" in text["agency_services"]  # which services need an agency
+    assert "OFFERS" in text["office_services"] and "count(s)" in text["office_count"]
+    assert "SATISFIED_BY" in text["office_prereqs"] and "IS_OFFICE" in text["office_prereqs"]
+    assert "min(f.amount_min)" in text["cheapest"]
+    assert "NOT EXISTS" in text["no_fee_rows"]
+    assert "sum(f.amount_min)" in text["fees_total"]
+    assert "CHARGES" in text["fee_time"] and "dur_max" in text["fee_time"]
+    assert "ORDER BY st.minutes_max DESC" in text["longest_step"]
+    assert "external_agency IS NOT NULL" in text["external_steps"]
+    assert "$sid2" in text["compare_fees"] and "$sid2" in text["compare_time"]
+    assert "who_may_avail" in text["office_who"]
+
+
+def test_a_shape_that_serves_two_intents_says_so():
+    t = T.TEMPLATES[("fees", "fee_time", False)]
+    assert t.intents == ("fees", "processing_time") and t.intent_header == "fees+processing_time"
+    assert T.TEMPLATES[("fees", "list", False)].intent_header == "fees"
+    assert {t.intent_header for t in ALL if "+" in t.intent_header} == {"fees+processing_time"}
+
+
+def test_v1_builders_refuse_shapes_that_need_more_than_a_service():
+    with pytest.raises(T.MissingTarget):
+        T.build_query(slots("office"), "office_services")
+    with pytest.raises(T.MissingTarget):
+        T.build_query(slots("fees"), "compare_fees")
+    assert T.build_query(slots("fees"), "fees_total").params == {"sid": "business_permit"}
 
 
 def test_templates_are_distinct():
@@ -118,6 +190,13 @@ def test_row_limit_fits_the_configured_maximum():
     assert T.ROW_LIMIT <= limits["core1"]["cypher_limit_max"]
     for t in ALL:
         assert re.search(r"LIMIT \d+\Z", t.cypher)
+
+
+def test_ordered_queries_do_not_break_ties_on_unordered_properties():
+    # every list-like query ends in ORDER BY on ids or an explicit key, so results are comparable
+    for t in ALL:
+        if "LIMIT 1" not in t.cypher and "count(" not in t.cypher:
+            assert "ORDER BY" in t.cypher, t.key
 
 
 def test_the_seed_fits_in_the_row_limit():
