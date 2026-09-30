@@ -1,0 +1,73 @@
+{
+  "app": {
+    "name": "Citizen Graph",
+    "prototype": "Thesis prototype, not an official government app",
+    "sampleData": "Sample data",
+    "skip": "Skip to main content"
+  },
+  "lang": {
+    "label": "Language",
+    "en": "English",
+    "fil": "Filipino"
+  },
+  "display": {
+    "title": "Display",
+    "theme": "Colours",
+    "themeSystem": "Match my phone",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "textSize": "Text size",
+    "sizeNormal": "Normal",
+    "sizeLarge": "Large",
+    "sizeXlarge": "Extra large"
+  },
+  "offline": {
+    "banner": "You are offline. Lists you saved still work."
+  },
+  "groups": {
+    "business": "Business",
+    "family": "Family records",
+    "health": "Health",
+    "assistance": "Help and assistance"
+  },
+  "scent": {
+    "requirements_one": "{{count}} requirement",
+    "requirements_other": "{{count}} requirements",
+    "noDocuments": "No documents listed",
+    "feeNotListed": "fee not listed",
+    "timeAbout": "about {{time}}",
+    "timeNotListed": "time not listed",
+    "beingChecked": "Being checked with the office"
+  },
+  "pending": {
+    "title": "Being checked",
+    "body": "This checklist is being verified with the office. Please confirm with them before you go."
+  },
+  "answer": {
+    "bring": "What to bring",
+    "ready": "{{done}} of {{total}} ready",
+    "progressLabel": "Checklist progress",
+    "nothingToBring": "The office lists no documents to bring for this service.",
+    "fees": "What it costs",
+    "feesNone": "The office does not list a fee for this service. Ask the office before you go.",
+    "steps": "Steps",
+    "stepTime": "Time: {{time}}",
+    "stepNoTime": "Time not listed",
+    "otherOffice": "At another office",
+    "where": "Where to go",
+    "also": "You will also need",
+    "alsoGoTo": "Go to {{office}}",
+    "keep": "Keep this list on my phone",
+    "kept": "Saved on this phone",
+    "tick": "Mark as ready: {{item}}"
+  },
+  "clarify": {
+    "title": "Which one do you need?"
+  },
+  "fallback": {
+    "title": "I could not match that",
+    "body": "I can help with services from four city offices. Pick a topic to start.",
+    "refusalTitle": "I can only look things up",
+    "refusalBody": "I cannot change anything. Pick a topic to see what you need."
+  }
+}

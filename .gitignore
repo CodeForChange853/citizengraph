@@ -15,3 +15,8 @@ data/private/
 models/
 alerts.db
 *.jsonl.log
+
+# frontend
+frontend/reference/
+frontend/node_modules/
+frontend/dist/

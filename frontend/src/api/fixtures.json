@@ -1,0 +1,987 @@
+{
+  "services": [
+    {
+      "id": "business_permit",
+      "name": "Business Permit",
+      "office": "Business Permits & Licensing Office",
+      "group": "business",
+      "summary": {
+        "requirement_count": 14,
+        "fee_text": "₱235.50",
+        "time_text": "37 minutes"
+      },
+      "info_status": "confirmed"
+    },
+    {
+      "id": "cho_sanitary_permit",
+      "name": "Sanitary Permit",
+      "office": "City Health Office",
+      "group": "health",
+      "summary": {
+        "requirement_count": 1,
+        "fee_text": null,
+        "time_text": "3 days, 10 minutes"
+      },
+      "info_status": "confirmed"
+    },
+    {
+      "id": "cho_medical_certificate",
+      "name": "Medical Certificate (for employment)",
+      "office": "City Health Office",
+      "group": "health",
+      "summary": {
+        "requirement_count": 0,
+        "fee_text": "₱30.00",
+        "time_text": "20 minutes"
+      },
+      "info_status": "confirmed"
+    },
+    {
+      "id": "cswdo_referrals",
+      "name": "Referrals",
+      "office": "City Social Welfare Development Office",
+      "group": "assistance",
+      "summary": {
+        "requirement_count": 5,
+        "fee_text": null,
+        "time_text": "1 week, 1 hour, 40 minutes"
+      },
+      "info_status": "confirmed"
+    },
+    {
+      "id": "birth_registration_timely",
+      "name": "Birth Registration (timely)",
+      "office": "Civil Registry Office",
+      "group": "family",
+      "summary": {
+        "requirement_count": null,
+        "fee_text": null,
+        "time_text": null
+      },
+      "info_status": "pending_lgu"
+    },
+    {
+      "id": "death_registration_timely",
+      "name": "Death Registration (timely)",
+      "office": "Civil Registry Office",
+      "group": "family",
+      "summary": {
+        "requirement_count": null,
+        "fee_text": null,
+        "time_text": null
+      },
+      "info_status": "pending_lgu"
+    }
+  ],
+  "routes": [
+    {
+      "service_id": "business_permit",
+      "keywords": [
+        "business",
+        "negosyo",
+        "mayor's permit",
+        "mayors permit"
+      ]
+    },
+    {
+      "service_id": "cho_sanitary_permit",
+      "keywords": [
+        "sanitary",
+        "sanitaryo"
+      ]
+    },
+    {
+      "service_id": "cho_medical_certificate",
+      "keywords": [
+        "medical",
+        "medikal",
+        "health certificate"
+      ]
+    },
+    {
+      "service_id": "cswdo_referrals",
+      "keywords": [
+        "referral",
+        "assistance",
+        "tulong",
+        "ayuda"
+      ]
+    },
+    {
+      "service_id": "birth_registration_timely",
+      "keywords": [
+        "birth",
+        "born",
+        "panganganak",
+        "ipinanganak",
+        "kapanganakan"
+      ]
+    },
+    {
+      "service_id": "death_registration_timely",
+      "keywords": [
+        "death",
+        "died",
+        "namatay",
+        "patay",
+        "kamatayan"
+      ]
+    }
+  ],
+  "ambiguous": [
+    {
+      "keyword": "permit",
+      "options": [
+        "business_permit",
+        "cho_sanitary_permit"
+      ]
+    },
+    {
+      "keyword": "certificate",
+      "options": [
+        "birth_registration_timely",
+        "death_registration_timely",
+        "cho_medical_certificate"
+      ]
+    }
+  ],
+  "greetings": [
+    "hi",
+    "hello",
+    "hey",
+    "kumusta",
+    "kamusta",
+    "help"
+  ],
+  "default_options": [
+    "business_permit",
+    "birth_registration_timely",
+    "cho_medical_certificate",
+    "cswdo_referrals"
+  ],
+  "refusal_pattern": "\\b(delete|drop|remove|ignore previous|ignore all|burahin|alisin)\\b",
+  "text": {
+    "en": {
+      "answer": "Here is what you need for {names}.",
+      "clarify": "Which one do you need?",
+      "fallback": "I can only help with services from four city offices. Please pick one.",
+      "refusal": "I can only look things up. I cannot change anything.",
+      "related_note": "Get this first, then come back.",
+      "business_type": "Some items are only for some kinds of business. Bring the ones for yours.",
+      "days_unknown": "The office does not say if these days are calendar days or working days.",
+      "sanitary_total": "The office’s own total time does not match its steps. The times below come from the steps."
+    },
+    "fil": {
+      "answer": "Narito ang kailangan mo para sa {names}.",
+      "clarify": "Alin ang kailangan mo?",
+      "fallback": "Makakatulong lang ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng isa.",
+      "refusal": "Nakakapaghanap lang ako ng impormasyon. Wala akong mababago.",
+      "related_note": "Kunin muna ito, saka bumalik dito.",
+      "business_type": "May mga papel na para lang sa ilang uri ng negosyo. Dalhin ang para sa iyo.",
+      "days_unknown": "Hindi sinasabi ng tanggapan kung araw-araw o araw ng trabaho ang bilang.",
+      "sanitary_total": "Hindi tugma ang kabuuang oras ng tanggapan sa mga hakbang nito. Galing sa mga hakbang ang mga oras sa ibaba."
+    }
+  },
+  "names": {
+    "business_permit": "Business Permit",
+    "cho_sanitary_permit": "Sanitary Permit",
+    "cho_medical_certificate": "Medical Certificate (for employment)",
+    "cswdo_referrals": "Referrals",
+    "birth_registration_timely": "Birth Registration (timely)",
+    "death_registration_timely": "Death Registration (timely)"
+  },
+  "cases": [
+    {
+      "message": "business permit",
+      "lang": "en",
+      "kind": "answer",
+      "service_ids": [
+        "business_permit"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "business permit",
+      "lang": "fil",
+      "kind": "answer",
+      "service_ids": [
+        "business_permit"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "kailangan ko ng business permit",
+      "lang": "en",
+      "kind": "answer",
+      "service_ids": [
+        "business_permit"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "kailangan ko ng business permit",
+      "lang": "fil",
+      "kind": "answer",
+      "service_ids": [
+        "business_permit"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "hello",
+      "lang": "en",
+      "kind": "clarify",
+      "service_ids": [],
+      "clarify_ids": [
+        "business_permit",
+        "birth_registration_timely",
+        "cho_medical_certificate",
+        "cswdo_referrals"
+      ]
+    },
+    {
+      "message": "hello",
+      "lang": "fil",
+      "kind": "clarify",
+      "service_ids": [],
+      "clarify_ids": [
+        "business_permit",
+        "birth_registration_timely",
+        "cho_medical_certificate",
+        "cswdo_referrals"
+      ]
+    },
+    {
+      "message": "permit",
+      "lang": "en",
+      "kind": "clarify",
+      "service_ids": [],
+      "clarify_ids": [
+        "business_permit",
+        "cho_sanitary_permit"
+      ]
+    },
+    {
+      "message": "permit",
+      "lang": "fil",
+      "kind": "clarify",
+      "service_ids": [],
+      "clarify_ids": [
+        "business_permit",
+        "cho_sanitary_permit"
+      ]
+    },
+    {
+      "message": "certificate",
+      "lang": "en",
+      "kind": "clarify",
+      "service_ids": [],
+      "clarify_ids": [
+        "birth_registration_timely",
+        "death_registration_timely",
+        "cho_medical_certificate"
+      ]
+    },
+    {
+      "message": "certificate",
+      "lang": "fil",
+      "kind": "clarify",
+      "service_ids": [],
+      "clarify_ids": [
+        "birth_registration_timely",
+        "death_registration_timely",
+        "cho_medical_certificate"
+      ]
+    },
+    {
+      "message": "sanitary permit and medical certificate",
+      "lang": "en",
+      "kind": "answer",
+      "service_ids": [
+        "cho_sanitary_permit",
+        "cho_medical_certificate"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "sanitary permit and medical certificate",
+      "lang": "fil",
+      "kind": "answer",
+      "service_ids": [
+        "cho_sanitary_permit",
+        "cho_medical_certificate"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "birth",
+      "lang": "en",
+      "kind": "answer",
+      "service_ids": [
+        "birth_registration_timely"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "birth",
+      "lang": "fil",
+      "kind": "answer",
+      "service_ids": [
+        "birth_registration_timely"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "namatay ang tatay ko",
+      "lang": "en",
+      "kind": "answer",
+      "service_ids": [
+        "death_registration_timely"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "namatay ang tatay ko",
+      "lang": "fil",
+      "kind": "answer",
+      "service_ids": [
+        "death_registration_timely"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "referral",
+      "lang": "en",
+      "kind": "answer",
+      "service_ids": [
+        "cswdo_referrals"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "referral",
+      "lang": "fil",
+      "kind": "answer",
+      "service_ids": [
+        "cswdo_referrals"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "delete everything",
+      "lang": "en",
+      "kind": "refusal",
+      "service_ids": [],
+      "clarify_ids": []
+    },
+    {
+      "message": "delete everything",
+      "lang": "fil",
+      "kind": "refusal",
+      "service_ids": [],
+      "clarify_ids": []
+    },
+    {
+      "message": "what is the weather",
+      "lang": "en",
+      "kind": "fallback",
+      "service_ids": [],
+      "clarify_ids": []
+    },
+    {
+      "message": "what is the weather",
+      "lang": "fil",
+      "kind": "fallback",
+      "service_ids": [],
+      "clarify_ids": []
+    },
+    {
+      "message": "passport",
+      "lang": "en",
+      "kind": "fallback",
+      "service_ids": [],
+      "clarify_ids": []
+    },
+    {
+      "message": "passport",
+      "lang": "fil",
+      "kind": "fallback",
+      "service_ids": [],
+      "clarify_ids": []
+    }
+  ],
+  "sections": {
+    "en": {
+      "business_permit": {
+        "service_id": "business_permit",
+        "service_name": "Business Permit",
+        "office": "Business Permits & Licensing Office",
+        "info_status": "confirmed",
+        "summary": {
+          "requirement_count": 14,
+          "fee_text": "₱235.50",
+          "time_text": "37 minutes"
+        },
+        "checklist": [
+          "Duly accomplished Mayor’s Permit Application Form",
+          "Brgy. Business Clearance & Solid Waste Certification",
+          "City Solid Waste Certification",
+          "Single Proprietor – Owner’s Cedula; Corporation – Corporation Cedula",
+          "Single Proprietor: DTI Certification of Registration",
+          "Corporation: SEC Certificate of Incorporation",
+          "Corporation: By-Laws (for new business)",
+          "Corporation: Articles of Incorporation (for new business)",
+          "Association: SEC Certificate of Registration",
+          "Corporation: CDA Certificate of Registration",
+          "Fire Safety Inspection Certification",
+          "Sanitary Permit to Operate",
+          "Employee’s Occupational Permit (proof of payment only)",
+          "Locational Clearance (subject to assessment of location)"
+        ],
+        "fees": [
+          {
+            "label": "Zoning",
+            "amount_text": "₱30.00"
+          },
+          {
+            "label": "Sanitary Services",
+            "amount_text": "₱100.00"
+          },
+          {
+            "label": "Business Name Clearance",
+            "amount_text": "₱5.50"
+          },
+          {
+            "label": "Signboard",
+            "amount_text": "₱100.00"
+          }
+        ],
+        "steps": [
+          {
+            "order": 1,
+            "text": "Approach receiving employee",
+            "time_text": "2 minutes",
+            "external": false
+          },
+          {
+            "order": 2,
+            "text": "Submit complete requirements with citizen’s signature & filled-out Mayor’s Permit application form",
+            "time_text": "2 minutes",
+            "external": false
+          },
+          {
+            "order": 3,
+            "text": "Wait for the TOP",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 4,
+            "text": "Signs TOP / Release Book",
+            "time_text": "5-10 minutes",
+            "external": false
+          },
+          {
+            "order": 5,
+            "text": "Proceed to the City Treasurer’s Office for payment",
+            "time_text": null,
+            "external": true
+          },
+          {
+            "order": 6,
+            "text": "Proceed to the BPLO main office with the proof of payment (official receipt) and complete set of documents",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 7,
+            "text": "Prepare & print Business/Mayor’s Permit",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 8,
+            "text": "Approval of Business/Mayor’s Permit",
+            "time_text": "3-5 minutes",
+            "external": false
+          },
+          {
+            "order": 9,
+            "text": "Record and release approved Business/Mayor’s",
+            "time_text": "2-3 minutes",
+            "external": false
+          },
+          {
+            "order": 10,
+            "text": "Receive permit & sign on the release record book",
+            "time_text": null,
+            "external": false
+          }
+        ],
+        "notes": [
+          "Some items are only for some kinds of business. Bring the ones for yours."
+        ],
+        "related": [
+          {
+            "label": "Sanitary Permit to Operate",
+            "office": "City Health Office",
+            "note": "Get this first, then come back."
+          }
+        ]
+      },
+      "cho_sanitary_permit": {
+        "service_id": "cho_sanitary_permit",
+        "service_name": "Sanitary Permit",
+        "office": "City Health Office",
+        "info_status": "confirmed",
+        "summary": {
+          "requirement_count": 1,
+          "fee_text": null,
+          "time_text": "3 days, 10 minutes"
+        },
+        "checklist": [
+          "Application Form"
+        ],
+        "fees": [],
+        "steps": [
+          {
+            "order": 1,
+            "text": "Receiving",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 2,
+            "text": "Inspection",
+            "time_text": "3 days",
+            "external": false
+          },
+          {
+            "order": 3,
+            "text": "Releasing of Sanitary Permit",
+            "time_text": "5 minutes",
+            "external": false
+          }
+        ],
+        "notes": [
+          "The office’s own total time does not match its steps. The times below come from the steps.",
+          "The office does not say if these days are calendar days or working days."
+        ],
+        "related": []
+      },
+      "cho_medical_certificate": {
+        "service_id": "cho_medical_certificate",
+        "service_name": "Medical Certificate (for employment)",
+        "office": "City Health Office",
+        "info_status": "confirmed",
+        "summary": {
+          "requirement_count": 0,
+          "fee_text": "₱30.00",
+          "time_text": "20 minutes"
+        },
+        "checklist": [],
+        "fees": [
+          {
+            "label": "Medical certificate",
+            "amount_text": "₱30.00"
+          }
+        ],
+        "steps": [
+          {
+            "order": 1,
+            "text": "Receiving and vital signs taking",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 2,
+            "text": "Consultation with physician",
+            "time_text": "10 minutes",
+            "external": false
+          },
+          {
+            "order": 3,
+            "text": "Releasing and recording",
+            "time_text": "5 minutes",
+            "external": false
+          }
+        ],
+        "notes": [],
+        "related": []
+      },
+      "cswdo_referrals": {
+        "service_id": "cswdo_referrals",
+        "service_name": "Referrals",
+        "office": "City Social Welfare Development Office",
+        "info_status": "confirmed",
+        "summary": {
+          "requirement_count": 5,
+          "fee_text": null,
+          "time_text": "1 week, 1 hour, 40 minutes"
+        },
+        "checklist": [
+          "Brgy Certification as to residence",
+          "Certification from Assessor's Office that client does not own real property",
+          "Certification from BPLO that the client has no existing business",
+          "Medical Abstract",
+          "Death Certificate"
+        ],
+        "fees": [],
+        "steps": [
+          {
+            "order": 1,
+            "text": "Present required document",
+            "time_text": "30 minutes",
+            "external": false
+          },
+          {
+            "order": 2,
+            "text": "Clients referred to LTO for transportation assisstance / PCSO for financial (Medical) assistance / Missionaries of Charity for temporary placement / SOS for long term residential care",
+            "time_text": "1 week",
+            "external": false
+          },
+          {
+            "order": 3,
+            "text": "Receive the needed documents",
+            "time_text": "10 minutes",
+            "external": false
+          },
+          {
+            "order": 4,
+            "text": "Monitoring",
+            "time_text": "1 hour (Once a month)",
+            "external": false
+          }
+        ],
+        "notes": [
+          "The office does not say if these days are calendar days or working days."
+        ],
+        "related": [
+          {
+            "label": "Certification from BPLO that the client has no existing business",
+            "office": "Business Permits & Licensing Office",
+            "note": "Get this first, then come back."
+          }
+        ]
+      },
+      "birth_registration_timely": {
+        "service_id": "birth_registration_timely",
+        "service_name": "Birth Registration (timely)",
+        "office": "Civil Registry Office",
+        "info_status": "pending_lgu",
+        "summary": {
+          "requirement_count": null,
+          "fee_text": null,
+          "time_text": null
+        },
+        "checklist": [],
+        "fees": [],
+        "steps": [],
+        "notes": [],
+        "related": []
+      },
+      "death_registration_timely": {
+        "service_id": "death_registration_timely",
+        "service_name": "Death Registration (timely)",
+        "office": "Civil Registry Office",
+        "info_status": "pending_lgu",
+        "summary": {
+          "requirement_count": null,
+          "fee_text": null,
+          "time_text": null
+        },
+        "checklist": [],
+        "fees": [],
+        "steps": [],
+        "notes": [],
+        "related": []
+      }
+    },
+    "fil": {
+      "business_permit": {
+        "service_id": "business_permit",
+        "service_name": "Business Permit",
+        "office": "Business Permits & Licensing Office",
+        "info_status": "confirmed",
+        "summary": {
+          "requirement_count": 14,
+          "fee_text": "₱235.50",
+          "time_text": "37 minutes"
+        },
+        "checklist": [
+          "Duly accomplished Mayor’s Permit Application Form",
+          "Brgy. Business Clearance & Solid Waste Certification",
+          "City Solid Waste Certification",
+          "Single Proprietor – Owner’s Cedula; Corporation – Corporation Cedula",
+          "Single Proprietor: DTI Certification of Registration",
+          "Corporation: SEC Certificate of Incorporation",
+          "Corporation: By-Laws (for new business)",
+          "Corporation: Articles of Incorporation (for new business)",
+          "Association: SEC Certificate of Registration",
+          "Corporation: CDA Certificate of Registration",
+          "Fire Safety Inspection Certification",
+          "Sanitary Permit to Operate",
+          "Employee’s Occupational Permit (proof of payment only)",
+          "Locational Clearance (subject to assessment of location)"
+        ],
+        "fees": [
+          {
+            "label": "Zoning",
+            "amount_text": "₱30.00"
+          },
+          {
+            "label": "Sanitary Services",
+            "amount_text": "₱100.00"
+          },
+          {
+            "label": "Business Name Clearance",
+            "amount_text": "₱5.50"
+          },
+          {
+            "label": "Signboard",
+            "amount_text": "₱100.00"
+          }
+        ],
+        "steps": [
+          {
+            "order": 1,
+            "text": "Approach receiving employee",
+            "time_text": "2 minutes",
+            "external": false
+          },
+          {
+            "order": 2,
+            "text": "Submit complete requirements with citizen’s signature & filled-out Mayor’s Permit application form",
+            "time_text": "2 minutes",
+            "external": false
+          },
+          {
+            "order": 3,
+            "text": "Wait for the TOP",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 4,
+            "text": "Signs TOP / Release Book",
+            "time_text": "5-10 minutes",
+            "external": false
+          },
+          {
+            "order": 5,
+            "text": "Proceed to the City Treasurer’s Office for payment",
+            "time_text": null,
+            "external": true
+          },
+          {
+            "order": 6,
+            "text": "Proceed to the BPLO main office with the proof of payment (official receipt) and complete set of documents",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 7,
+            "text": "Prepare & print Business/Mayor’s Permit",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 8,
+            "text": "Approval of Business/Mayor’s Permit",
+            "time_text": "3-5 minutes",
+            "external": false
+          },
+          {
+            "order": 9,
+            "text": "Record and release approved Business/Mayor’s",
+            "time_text": "2-3 minutes",
+            "external": false
+          },
+          {
+            "order": 10,
+            "text": "Receive permit & sign on the release record book",
+            "time_text": null,
+            "external": false
+          }
+        ],
+        "notes": [
+          "May mga papel na para lang sa ilang uri ng negosyo. Dalhin ang para sa iyo."
+        ],
+        "related": [
+          {
+            "label": "Sanitary Permit to Operate",
+            "office": "City Health Office",
+            "note": "Kunin muna ito, saka bumalik dito."
+          }
+        ]
+      },
+      "cho_sanitary_permit": {
+        "service_id": "cho_sanitary_permit",
+        "service_name": "Sanitary Permit",
+        "office": "City Health Office",
+        "info_status": "confirmed",
+        "summary": {
+          "requirement_count": 1,
+          "fee_text": null,
+          "time_text": "3 days, 10 minutes"
+        },
+        "checklist": [
+          "Application Form"
+        ],
+        "fees": [],
+        "steps": [
+          {
+            "order": 1,
+            "text": "Receiving",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 2,
+            "text": "Inspection",
+            "time_text": "3 days",
+            "external": false
+          },
+          {
+            "order": 3,
+            "text": "Releasing of Sanitary Permit",
+            "time_text": "5 minutes",
+            "external": false
+          }
+        ],
+        "notes": [
+          "Hindi tugma ang kabuuang oras ng tanggapan sa mga hakbang nito. Galing sa mga hakbang ang mga oras sa ibaba.",
+          "Hindi sinasabi ng tanggapan kung araw-araw o araw ng trabaho ang bilang."
+        ],
+        "related": []
+      },
+      "cho_medical_certificate": {
+        "service_id": "cho_medical_certificate",
+        "service_name": "Medical Certificate (for employment)",
+        "office": "City Health Office",
+        "info_status": "confirmed",
+        "summary": {
+          "requirement_count": 0,
+          "fee_text": "₱30.00",
+          "time_text": "20 minutes"
+        },
+        "checklist": [],
+        "fees": [
+          {
+            "label": "Medical certificate",
+            "amount_text": "₱30.00"
+          }
+        ],
+        "steps": [
+          {
+            "order": 1,
+            "text": "Receiving and vital signs taking",
+            "time_text": "5 minutes",
+            "external": false
+          },
+          {
+            "order": 2,
+            "text": "Consultation with physician",
+            "time_text": "10 minutes",
+            "external": false
+          },
+          {
+            "order": 3,
+            "text": "Releasing and recording",
+            "time_text": "5 minutes",
+            "external": false
+          }
+        ],
+        "notes": [],
+        "related": []
+      },
+      "cswdo_referrals": {
+        "service_id": "cswdo_referrals",
+        "service_name": "Referrals",
+        "office": "City Social Welfare Development Office",
+        "info_status": "confirmed",
+        "summary": {
+          "requirement_count": 5,
+          "fee_text": null,
+          "time_text": "1 week, 1 hour, 40 minutes"
+        },
+        "checklist": [
+          "Brgy Certification as to residence",
+          "Certification from Assessor's Office that client does not own real property",
+          "Certification from BPLO that the client has no existing business",
+          "Medical Abstract",
+          "Death Certificate"
+        ],
+        "fees": [],
+        "steps": [
+          {
+            "order": 1,
+            "text": "Present required document",
+            "time_text": "30 minutes",
+            "external": false
+          },
+          {
+            "order": 2,
+            "text": "Clients referred to LTO for transportation assisstance / PCSO for financial (Medical) assistance / Missionaries of Charity for temporary placement / SOS for long term residential care",
+            "time_text": "1 week",
+            "external": false
+          },
+          {
+            "order": 3,
+            "text": "Receive the needed documents",
+            "time_text": "10 minutes",
+            "external": false
+          },
+          {
+            "order": 4,
+            "text": "Monitoring",
+            "time_text": "1 hour (Once a month)",
+            "external": false
+          }
+        ],
+        "notes": [
+          "Hindi sinasabi ng tanggapan kung araw-araw o araw ng trabaho ang bilang."
+        ],
+        "related": [
+          {
+            "label": "Certification from BPLO that the client has no existing business",
+            "office": "Business Permits & Licensing Office",
+            "note": "Kunin muna ito, saka bumalik dito."
+          }
+        ]
+      },
+      "birth_registration_timely": {
+        "service_id": "birth_registration_timely",
+        "service_name": "Birth Registration (timely)",
+        "office": "Civil Registry Office",
+        "info_status": "pending_lgu",
+        "summary": {
+          "requirement_count": null,
+          "fee_text": null,
+          "time_text": null
+        },
+        "checklist": [],
+        "fees": [],
+        "steps": [],
+        "notes": [],
+        "related": []
+      },
+      "death_registration_timely": {
+        "service_id": "death_registration_timely",
+        "service_name": "Death Registration (timely)",
+        "office": "Civil Registry Office",
+        "info_status": "pending_lgu",
+        "summary": {
+          "requirement_count": null,
+          "fee_text": null,
+          "time_text": null
+        },
+        "checklist": [],
+        "fees": [],
+        "steps": [],
+        "notes": [],
+        "related": []
+      }
+    }
+  }
+}

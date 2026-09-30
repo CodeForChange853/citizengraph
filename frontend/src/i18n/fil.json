@@ -1,0 +1,73 @@
+{
+  "app": {
+    "name": "Citizen Graph",
+    "prototype": "Prototype para sa thesis, hindi opisyal na app ng gobyerno",
+    "sampleData": "Halimbawang datos",
+    "skip": "Lumaktaw sa pangunahing nilalaman"
+  },
+  "lang": {
+    "label": "Wika",
+    "en": "English",
+    "fil": "Filipino"
+  },
+  "display": {
+    "title": "Hitsura",
+    "theme": "Kulay",
+    "themeSystem": "Sundin ang telepono ko",
+    "themeLight": "Maliwanag",
+    "themeDark": "Madilim",
+    "textSize": "Laki ng letra",
+    "sizeNormal": "Karaniwan",
+    "sizeLarge": "Malaki",
+    "sizeXlarge": "Napakalaki"
+  },
+  "offline": {
+    "banner": "Walang internet. Gumagana pa rin ang mga listahang na-save mo."
+  },
+  "groups": {
+    "business": "Negosyo",
+    "family": "Talaan ng pamilya",
+    "health": "Kalusugan",
+    "assistance": "Tulong"
+  },
+  "scent": {
+    "requirements_one": "{{count}} na requirement",
+    "requirements_other": "{{count}} na requirement",
+    "noDocuments": "Walang nakalistang papeles",
+    "feeNotListed": "walang nakalistang bayad",
+    "timeAbout": "mga {{time}}",
+    "timeNotListed": "walang nakalistang oras",
+    "beingChecked": "Sinusuri pa kasama ang tanggapan"
+  },
+  "pending": {
+    "title": "Sinusuri pa",
+    "body": "Sinusuri pa ang listahang ito kasama ang tanggapan. Pakitiyak muna sa kanila bago pumunta."
+  },
+  "answer": {
+    "bring": "Dalhin",
+    "ready": "{{done}} sa {{total}} ang handa na",
+    "progressLabel": "Progreso ng listahan",
+    "nothingToBring": "Walang nakalistang papeles na dadalhin ang tanggapan para sa serbisyong ito.",
+    "fees": "Magkano",
+    "feesNone": "Walang nakalistang bayad ang tanggapan para sa serbisyong ito. Magtanong muna sa tanggapan bago pumunta.",
+    "steps": "Mga hakbang",
+    "stepTime": "Oras: {{time}}",
+    "stepNoTime": "Walang nakalistang oras",
+    "otherOffice": "Sa ibang tanggapan",
+    "where": "Saan pupunta",
+    "also": "Kakailanganin mo rin",
+    "alsoGoTo": "Pumunta sa {{office}}",
+    "keep": "Itago ang listahang ito sa telepono ko",
+    "kept": "Na-save sa telepono na ito",
+    "tick": "Markahang handa na: {{item}}"
+  },
+  "clarify": {
+    "title": "Alin ang kailangan mo?"
+  },
+  "fallback": {
+    "title": "Hindi ko maintindihan iyon",
+    "body": "Makakatulong ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng paksa para magsimula.",
+    "refusalTitle": "Nakakapaghanap lang ako ng impormasyon",
+    "refusalBody": "Wala akong mababago. Pumili ng paksa para makita ang kailangan mo."
+  }
+}
