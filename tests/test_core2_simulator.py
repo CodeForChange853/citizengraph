@@ -52,7 +52,9 @@ class TestDeterminism:
 
     def test_different_seeds_differ_somewhere(self):
         dumps = {
-            build([AppSpec("business_permit", at_step=8, situation="on_time")], seed=s).store.to_json()
+            build(
+                [AppSpec("business_permit", at_step=8, situation="on_time")], seed=s
+            ).store.to_json()
             for s in range(6)
         }
         assert len(dumps) > 1
@@ -69,7 +71,9 @@ class TestSafetyOfTheData:
         pop = Simulator(graph(), seed=5).population(60, AS_OF)
         text = pop.store.to_json()
         for a in pop.store.all():
-            assert SIM_CODE.match(a.app_id) and SIM_CODE.match(a.ref) and SIM_CODE.match(a.citizen_ref)
+            assert (
+                SIM_CODE.match(a.app_id) and SIM_CODE.match(a.ref) and SIM_CODE.match(a.citizen_ref)
+            )
         assert not any(n in text for n in staff_names(graph().seed))
 
     def test_serializes_to_plain_json(self):

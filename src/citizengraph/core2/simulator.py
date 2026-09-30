@@ -258,7 +258,9 @@ class Simulator:
             t = end - timedelta(minutes=sum(spans))
             submitted = t
             for st, m in zip(steps, spans, strict=True):
-                entries.append(StepEntry(step_id=st.id, entered_at=t, completed_at=t + timedelta(minutes=m)))
+                entries.append(
+                    StepEntry(step_id=st.id, entered_at=t, completed_at=t + timedelta(minutes=m))
+                )
                 t += timedelta(minutes=m)
         else:
             cur_entered = as_of - timedelta(minutes=elapsed)
@@ -269,15 +271,25 @@ class Simulator:
                 t = submitted
                 for st in steps[: cur - 1]:
                     m = spent(st)
-                    entries.append(StepEntry(step_id=st.id, entered_at=t, completed_at=t + timedelta(minutes=m)))
+                    entries.append(
+                        StepEntry(
+                            step_id=st.id, entered_at=t, completed_at=t + timedelta(minutes=m)
+                        )
+                    )
                     t += timedelta(minutes=m)
-                entries.append(StepEntry(step_id=steps[cur - 1].id, entered_at=t, completed_at=cur_entered))
+                entries.append(
+                    StepEntry(step_id=steps[cur - 1].id, entered_at=t, completed_at=cur_entered)
+                )
             else:
                 t = cur_entered
                 back: list[StepEntry] = []
                 for st in reversed(steps[:cur]):
                     m = spent(st)
-                    back.append(StepEntry(step_id=st.id, entered_at=t - timedelta(minutes=m), completed_at=t))
+                    back.append(
+                        StepEntry(
+                            step_id=st.id, entered_at=t - timedelta(minutes=m), completed_at=t
+                        )
+                    )
                     t -= timedelta(minutes=m)
                 entries.extend(reversed(back))
                 submitted = t
@@ -317,7 +329,11 @@ class Simulator:
             reasons.add("missing_timestamp_earlier_step")
         if "missing_current" in spec.inject:
             entries = [e for e in entries if e.step_id != current.id]
-            status, alerts, reasons = "cannot_determine", {"missing_data_flag"}, {"missing_timestamp"}
+            status, alerts, reasons = (
+                "cannot_determine",
+                {"missing_data_flag"},
+                {"missing_timestamp"},
+            )
         if "role_unavailable" in spec.inject:
             store.set_absent(clean_name(current.role or ""), as_of, "absent (simulated)")
             if status == "delayed":
