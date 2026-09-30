@@ -13,7 +13,7 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: &id001
+  source:
     file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
@@ -33,7 +33,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 39
   flags: []
 - id: business_permit-F03
@@ -48,7 +53,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 39
   flags: []
 - id: business_permit-F04
@@ -63,7 +73,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 39
   flags: []
 - id: occupational_permit-F01
@@ -78,7 +93,7 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: &id002
+  source:
     file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
@@ -98,7 +113,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id002
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   source_row: 66
   flags: []
 - id: occupational_permit-F03
@@ -113,7 +133,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id002
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   source_row: 66
   flags: []
 - id: occupational_permit-F04
@@ -129,7 +154,12 @@ fees:
   variant_ids:
   - taxpayer:company
   review_status: needs_review
-  source: *id002
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   source_row: 66
   flags: []
 - id: occupational_permit-F05
@@ -145,7 +175,12 @@ fees:
   variant_ids:
   - taxpayer:individual
   review_status: needs_review
-  source: *id002
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   source_row: 66
   flags: []
 - id: product_promotion_peddlers-F01
@@ -160,7 +195,7 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: &id003
+  source:
     file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
@@ -183,7 +218,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id003
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 94
+    - 111
   source_row: 106
   flags: []
 - id: cockfight_permit-F01
@@ -199,7 +239,7 @@ fees:
   variant_ids:
   - cockfight_category:MD
   review_status: needs_review
-  source: &id004
+  source:
     file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
@@ -220,7 +260,12 @@ fees:
   variant_ids:
   - cockfight_category:Derby
   review_status: needs_review
-  source: *id004
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   source_row: 126
   flags: []
 - id: cockfight_permit-F03
@@ -236,7 +281,12 @@ fees:
   variant_ids:
   - cockfight_category:2C
   review_status: needs_review
-  source: *id004
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   source_row: 126
   flags: []
 - id: cockfight_permit-F04
@@ -252,7 +302,12 @@ fees:
   variant_ids:
   - cockfight_category:3C
   review_status: needs_review
-  source: *id004
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   source_row: 126
   flags: []
 - id: cockfight_permit-F05
@@ -268,7 +323,12 @@ fees:
   variant_ids:
   - cockfight_category:4C
   review_status: needs_review
-  source: *id004
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   source_row: 126
   flags: []
 - id: cockfight_permit-F06
@@ -284,7 +344,12 @@ fees:
   variant_ids:
   - cockfight_category:5C
   review_status: needs_review
-  source: *id004
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   source_row: 126
   flags: []
 - id: certified_transcription-F01
@@ -299,7 +364,7 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: &id005
+  source:
     file: LCRO-CC.xlsx
     sheet: CRO
     rows:
@@ -321,7 +386,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 210
+    - 227
   source_row: 223
   flags:
   - code: fee_label_null
@@ -338,7 +408,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 210
+    - 227
   source_row: 225
   flags:
   - code: fee_label_null
@@ -355,7 +430,7 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: &id006
+  source:
     file: LCRO-CC.xlsx
     sheet: CRO
     rows:
@@ -377,7 +452,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 267
   flags:
   - code: fee_label_null
@@ -394,7 +474,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 268
   flags:
   - code: fee_label_null
@@ -412,7 +497,12 @@ fees:
   condition_structured: null
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 269
   flags:
   - code: fee_label_null
@@ -430,7 +520,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured
@@ -449,7 +544,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured
@@ -468,7 +568,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured
@@ -487,7 +592,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured
@@ -506,7 +616,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured
@@ -525,7 +640,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured
@@ -544,7 +664,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured
@@ -563,7 +688,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured
@@ -582,7 +712,12 @@ fees:
   condition_structured: false
   variant_ids: []
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 270
   flags:
   - code: condition_not_structured

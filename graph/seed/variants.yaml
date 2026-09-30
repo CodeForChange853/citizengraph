@@ -6,8 +6,7 @@ variants:
   value: association
   review_status: needs_review
   sources:
-  - &id001
-    file: BPLO-CC.xlsx
+  - file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
     - 11
@@ -18,29 +17,40 @@ variants:
   value: corporation
   review_status: needs_review
   sources:
-  - *id001
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   flags: []
 - id: business_type:single_proprietor
   dimension: business_type
   value: single_proprietor
   review_status: needs_review
   sources:
-  - *id001
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   flags: []
 - id: applicant_type:new
   dimension: applicant_type
   value: new
   review_status: needs_review
   sources:
-  - *id001
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   flags: []
 - id: taxpayer:company
   dimension: taxpayer
   value: company
   review_status: needs_review
   sources:
-  - &id002
-    file: BPLO-CC.xlsx
+  - file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
     - 51
@@ -51,15 +61,18 @@ variants:
   value: individual
   review_status: needs_review
   sources:
-  - *id002
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   flags: []
 - id: cockfight_category:2C
   dimension: cockfight_category
   value: 2C
   review_status: needs_review
   sources:
-  - &id003
-    file: BPLO-CC.xlsx
+  - file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
     - 113
@@ -70,43 +83,62 @@ variants:
   value: 3C
   review_status: needs_review
   sources:
-  - *id003
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   flags: []
 - id: cockfight_category:4C
   dimension: cockfight_category
   value: 4C
   review_status: needs_review
   sources:
-  - *id003
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   flags: []
 - id: cockfight_category:5C
   dimension: cockfight_category
   value: 5C
   review_status: needs_review
   sources:
-  - *id003
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   flags: []
 - id: cockfight_category:Derby
   dimension: cockfight_category
   value: Derby
   review_status: needs_review
   sources:
-  - *id003
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   flags: []
 - id: cockfight_category:MD
   dimension: cockfight_category
   value: MD
   review_status: needs_review
   sources:
-  - *id003
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   flags: []
 - id: birth_status:marital
   dimension: birth_status
   value: marital
   review_status: needs_review
   sources:
-  - &id004
-    file: LCRO-CC.xlsx
+  - file: LCRO-CC.xlsx
     sheet: CRO
     rows:
     - 42
@@ -122,12 +154,20 @@ variants:
     rows:
     - 21
     - 40
-  - *id004
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   flags: []
 - id: foreign_parent:yes
   dimension: foreign_parent
   value: 'yes'
   review_status: needs_review
   sources:
-  - *id004
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   flags: []

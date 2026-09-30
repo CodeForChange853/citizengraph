@@ -13,7 +13,7 @@ requirements:
   variant_ids: []
   secured_at: One Stop Shop of the BPLO
   review_status: needs_review
-  source: &id001
+  source:
     file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
@@ -33,7 +33,12 @@ requirements:
   variant_ids: []
   secured_at: Barangay where the business is located
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 20
   flags: []
 - id: business_permit-R03
@@ -48,7 +53,12 @@ requirements:
   variant_ids: []
   secured_at: City Solid Waste Management Office (CSWMO)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 21
   flags: []
 - id: business_permit-R04
@@ -63,7 +73,12 @@ requirements:
   variant_ids: []
   secured_at: Barangay or City Treasurer’s Office
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 22
   flags:
   - code: merged_cell_text
@@ -82,7 +97,12 @@ requirements:
   - business_type:single_proprietor
   secured_at: null
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 23
   flags: []
 - id: business_permit-R06
@@ -98,7 +118,12 @@ requirements:
   - business_type:single_proprietor
   secured_at: Department of Trade and Industry (DTI)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 24
   flags: []
 - id: business_permit-R07
@@ -114,7 +139,12 @@ requirements:
   - business_type:corporation
   secured_at: null
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 25
   flags: []
 - id: business_permit-R08
@@ -130,7 +160,12 @@ requirements:
   - business_type:corporation
   secured_at: Security and Exchange Commission (SEC)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 26
   flags: []
 - id: business_permit-R09
@@ -147,7 +182,12 @@ requirements:
   - applicant_type:new
   secured_at: null
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 27
   flags:
   - code: where_to_secure_missing
@@ -166,7 +206,12 @@ requirements:
   - applicant_type:new
   secured_at: null
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 28
   flags:
   - code: where_to_secure_missing
@@ -184,7 +229,12 @@ requirements:
   - business_type:association
   secured_at: null
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 29
   flags: []
 - id: business_permit-R12
@@ -200,7 +250,12 @@ requirements:
   - business_type:association
   secured_at: Security and Exchange Commission (SEC)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 30
   flags: []
 - id: business_permit-R13
@@ -215,7 +270,12 @@ requirements:
   variant_ids: []
   secured_at: null
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 31
   flags:
   - code: heading_maybe_cooperative
@@ -236,7 +296,12 @@ requirements:
   variant_ids: []
   secured_at: Cooperative Development Authority (CDA)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 32
   flags:
   - code: heading_maybe_cooperative
@@ -257,7 +322,12 @@ requirements:
   variant_ids: []
   secured_at: Bureau of Fire Protection (BFP)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 33
   flags: []
 - id: business_permit-R16
@@ -272,7 +342,12 @@ requirements:
   variant_ids: []
   secured_at: City Health Office (CHO)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 34
   flags: []
 - id: business_permit-R17
@@ -287,7 +362,12 @@ requirements:
   variant_ids: []
   secured_at: Business Permits and Licensing Office (BPLO)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 35
   flags: []
 - id: business_permit-R18
@@ -302,7 +382,12 @@ requirements:
   variant_ids: []
   secured_at: City Planning and Development Office (CPDO)
   review_status: needs_review
-  source: *id001
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
   source_row: 36
   flags: []
 - id: occupational_permit-R01
@@ -317,7 +402,7 @@ requirements:
   variant_ids: []
   secured_at: Business Permits & Licensing Office (main office)
   review_status: needs_review
-  source: &id002
+  source:
     file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
@@ -337,7 +422,12 @@ requirements:
   variant_ids: []
   secured_at: Barangay where applicant resides
   review_status: needs_review
-  source: *id002
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   source_row: 60
   flags: []
 - id: occupational_permit-R03
@@ -352,7 +442,12 @@ requirements:
   variant_ids: []
   secured_at: Citizen option
   review_status: needs_review
-  source: *id002
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   source_row: 61
   flags: []
 - id: occupational_permit-R04
@@ -367,7 +462,12 @@ requirements:
   variant_ids: []
   secured_at: PNP Office
   review_status: needs_review
-  source: *id002
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   source_row: 62
   flags: []
 - id: occupational_permit-R05
@@ -382,7 +482,12 @@ requirements:
   variant_ids: []
   secured_at: City Health Office
   review_status: needs_review
-  source: *id002
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
   source_row: 63
   flags: []
 - id: product_promotion_peddlers-R01
@@ -397,7 +502,7 @@ requirements:
   variant_ids: []
   secured_at: Requesting Company
   review_status: needs_review
-  source: &id003
+  source:
     file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
@@ -417,7 +522,12 @@ requirements:
   variant_ids: []
   secured_at: City Treasurer’s Office
   review_status: needs_review
-  source: *id003
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 94
+    - 111
   source_row: 103
   flags: []
 - id: cockfight_permit-R01
@@ -432,7 +542,7 @@ requirements:
   variant_ids: []
   secured_at: Requesting Party
   review_status: needs_review
-  source: &id004
+  source:
     file: BPLO-CC.xlsx
     sheet: BPLO
     rows:
@@ -452,7 +562,12 @@ requirements:
   variant_ids: []
   secured_at: City Treasurer’s Office
   review_status: needs_review
-  source: *id004
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
   source_row: 122
   flags: []
 - id: fishing_permit-R01
@@ -512,7 +627,7 @@ requirements:
   variant_ids: []
   secured_at: Corresponding private institution or Government Agencies concerned
   review_status: needs_review
-  source: &id005
+  source:
     file: LCRO-CC.xlsx
     sheet: CRO
     rows:
@@ -535,7 +650,12 @@ requirements:
   variant_ids: []
   secured_at: Philippine Statistics Authority / LCR Calbayog thru BREQS
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 51
   flags:
   - code: where_to_secure_normalized
@@ -554,7 +674,12 @@ requirements:
   variant_ids: []
   secured_at: City Treasurer’s Office
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 52
   flags: []
 - id: birth_registration_delayed-R04
@@ -570,7 +695,12 @@ requirements:
   - birth_status:non_marital
   secured_at: Civil Registry Office / or Notary Public
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 53
   flags: []
 - id: birth_registration_delayed-R05
@@ -585,7 +715,12 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office - Civil Registrar
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 54
   flags:
   - code: where_to_secure_shared
@@ -604,7 +739,12 @@ requirements:
   - birth_status:marital
   secured_at: Civil Registry Office - Civil Registrar
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 54
   flags:
   - code: variant_interpretation
@@ -622,7 +762,12 @@ requirements:
   - birth_status:non_marital
   secured_at: Civil Registry Office - Civil Registrar
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 54
   flags: []
 - id: birth_registration_delayed-R08
@@ -637,7 +782,12 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office - Civil Registrar
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 54
   flags:
   - code: condition_not_structured
@@ -654,7 +804,12 @@ requirements:
   variant_ids: []
   secured_at: Punong Barangay
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 55
   flags: []
 - id: birth_registration_delayed-R10
@@ -669,7 +824,12 @@ requirements:
   variant_ids: []
   secured_at: PSA / Phil ID Kiosk
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 56
   flags: []
 - id: birth_registration_delayed-R11
@@ -684,7 +844,12 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office / PSA / Government Officer
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 57
   flags:
   - code: min_required_conditional_children
@@ -705,7 +870,12 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office / PSA / Government Officer
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 57
   flags: []
 - id: birth_registration_delayed-R13
@@ -720,7 +890,12 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office / PSA / Government Officer
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 57
   flags: []
 - id: birth_registration_delayed-R14
@@ -735,7 +910,12 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office / PSA / Government Officer
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 57
   flags:
   - code: condition_not_structured
@@ -752,7 +932,12 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office / PSA / Government Officer
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 57
   flags:
   - code: condition_not_structured
@@ -769,7 +954,12 @@ requirements:
   variant_ids: []
   secured_at: Citizen’s preference
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 58
   flags: []
 - id: birth_registration_delayed-R17
@@ -784,7 +974,12 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 59
   flags:
   - code: condition_not_structured
@@ -802,7 +997,12 @@ requirements:
   - foreign_parent:yes
   secured_at: Civil Registry Office / Department of Foreign Affairs / Bureau of Immigration
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 60
   flags:
   - code: where_to_secure_shared
@@ -822,7 +1022,12 @@ requirements:
   - birth_status:marital
   secured_at: Civil Registry Office / Department of Foreign Affairs / Bureau of Immigration
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 60
   flags: []
 - id: birth_registration_delayed-R20
@@ -838,7 +1043,12 @@ requirements:
   - foreign_parent:yes
   secured_at: Civil Registry Office / Department of Foreign Affairs / Bureau of Immigration
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 60
   flags: []
 - id: birth_registration_delayed-R21
@@ -854,7 +1064,12 @@ requirements:
   - foreign_parent:yes
   secured_at: Civil Registry Office / Department of Foreign Affairs / Bureau of Immigration
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 60
   flags: []
 - id: birth_registration_delayed-R22
@@ -870,7 +1085,12 @@ requirements:
   - birth_status:non_marital
   secured_at: Civil Registry Office
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 61
   flags:
   - code: condition_not_structured
@@ -891,7 +1111,12 @@ requirements:
   - birth_status:non_marital
   secured_at: Civil Registry Office
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 61
   flags:
   - code: condition_not_structured
@@ -910,7 +1135,12 @@ requirements:
   - birth_status:non_marital
   secured_at: Civil Registry Office
   review_status: needs_review
-  source: *id005
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
   source_row: 61
   flags:
   - code: condition_not_structured
@@ -951,7 +1181,7 @@ requirements:
   variant_ids: []
   secured_at: Civil Registry Office / or Notary Public
   review_status: needs_review
-  source: &id006
+  source:
     file: LCRO-CC.xlsx
     sheet: CRO
     rows:
@@ -975,7 +1205,12 @@ requirements:
   variant_ids: []
   secured_at: Judicial Court or religious sector who solemnized the marriage
   review_status: needs_review
-  source: *id006
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 148
+    - 168
   source_row: 157
   flags:
   - code: suspected_copy_paste
@@ -1014,7 +1249,7 @@ requirements:
   variant_ids: []
   secured_at: Judicial Court
   review_status: needs_review
-  source: &id007
+  source:
     file: LCRO-CC.xlsx
     sheet: CRO
     rows:
@@ -1034,7 +1269,12 @@ requirements:
   variant_ids: []
   secured_at: Judicial Court
   review_status: needs_review
-  source: *id007
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 259
   flags:
   - code: where_to_secure_shared
@@ -1052,7 +1292,12 @@ requirements:
   variant_ids: []
   secured_at: Judicial Court
   review_status: needs_review
-  source: *id007
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 260
   flags:
   - code: where_to_secure_shared
@@ -1070,7 +1315,12 @@ requirements:
   variant_ids: []
   secured_at: Judicial Court
   review_status: needs_review
-  source: *id007
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 261
   flags:
   - code: where_to_secure_shared
@@ -1090,7 +1340,12 @@ requirements:
   variant_ids: []
   secured_at: Judicial Court
   review_status: needs_review
-  source: *id007
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
   source_row: 262
   flags:
   - code: where_to_secure_shared
@@ -1110,7 +1365,7 @@ requirements:
   variant_ids: []
   secured_at: Philippine Statistics Authority / LCR Calbayog thru BREQS
   review_status: needs_review
-  source: &id008
+  source:
     file: LCRO-CC.xlsx
     sheet: CRO
     rows:
@@ -1130,7 +1385,12 @@ requirements:
   variant_ids: []
   secured_at: Notary Public / or LCR Office
   review_status: needs_review
-  source: *id008
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 304
+    - 325
   source_row: 313
   flags: []
 - id: ausf_registration-R03
@@ -1145,7 +1405,12 @@ requirements:
   variant_ids: []
   secured_at: City Treasurer’s Office
   review_status: needs_review
-  source: *id008
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 304
+    - 325
   source_row: 314
   flags: []
 - id: ausf_registration-R04
@@ -1160,7 +1425,12 @@ requirements:
   variant_ids: []
   secured_at: Notary Public / or LCR Office
   review_status: needs_review
-  source: *id008
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 304
+    - 325
   source_row: 315
   flags: []
 - id: legal_instrument_other-R01
