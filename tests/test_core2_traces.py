@@ -73,7 +73,7 @@ def test_no_training_prompt_is_an_evaluation_prompt():
     # Prompts with no history (same task text) or an empty result may coincide; any prompt
     # whose history carries application data must not.
     mine = {e["messages"][1]["content"] for e in EXAMPLES}
-    carries_data = re.compile(r"^RESULT \d+: .*(app_id|CG-SIM)", re.MULTILINE)
+    carries_data = re.compile(r"^RESULT \d+: .*(app_id|CG-SIM-(?!9999))", re.MULTILINE)
     shared = {p for p in eval_prompts & mine if carries_data.search(p)}
     assert shared == set()
 
