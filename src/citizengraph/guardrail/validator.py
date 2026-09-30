@@ -16,6 +16,7 @@ from pathlib import Path
 import yaml
 
 from .lexer import NUMBER, PUNCT, WORD, LexError, Token, tokenize
+from .patterns import check_patterns
 from .schema import OFFICIAL_SCHEMA, Schema
 
 LIMITS_PATH = Path(__file__).resolve().parents[3] / "config" / "limits.yaml"
@@ -99,14 +100,28 @@ class ValidationResult:
     reasons: list[str] = field(default_factory=list)
 
 
+def _read_core1_limit(path: Path, key: str) -> int:
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    value = data["core1"][key]
+    if type(value) is not int or value <= 0:
+        raise ValueError(f"{key} must be a positive integer")
+    return value
+
+
 @lru_cache(maxsize=8)
 def _load_max_limit(path: Path) -> int:
     """Read core1.cypher_limit_max. Cached per path: restart to pick up config edits."""
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    value = data["core1"]["cypher_limit_max"]
-    if type(value) is not int or value <= 0:
-        raise ValueError("cypher_limit_max must be a positive integer")
-    return value
+    return _read_core1_limit(path, "cypher_limit_max")
+
+
+@lru_cache(maxsize=8)
+def _load_max_chars(path: Path) -> int:
+    """Read core1.cypher_max_chars. Cached per path: restart to pick up config edits."""
+    return _read_core1_limit(path, "cypher_max_chars")
+
+
+def _is_valid_bound(value: object) -> bool:
+    return type(value) is int and value > 0
 
 
 def _clip(text: str, limit: int = MAX_REASON_CHARS) -> str:
@@ -179,6 +194,9 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
                 last_was_label = True
                 continue
             if _is_punct(tok, "!"):
+                # `:!Service` matches every node that is not a Service: it would defeat the
+                # explicit-label rule, so negation is refused for labels and types alike.
+                add("negated label or relationship-type expressions (:!X) are not allowed")
                 continue
             if not (_is_punct(tok, ":") and _is_punct(prev, "|", "&")):
                 add("malformed label expression")
@@ -232,6 +250,7 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
     if stack:
         add("unbalanced brackets")
 
+    check_patterns(tokens, add)
     _check_limit(tokens, depths, return_idx, max_limit, add)
     return list(reasons)
 
@@ -272,16 +291,26 @@ def _check_limit(
         add(f"LIMIT exceeds the maximum of {max_limit}")
 
 
-def _validate(query: object, schema: Schema, max_limit: int | None) -> ValidationResult:
+def _validate(
+    query: object, schema: Schema, max_limit: int | None, max_chars: int | None
+) -> ValidationResult:
     if not isinstance(query, str):
         return _reject("query must be a string")
-    if max_limit is None:
-        try:
-            max_limit = _load_max_limit(LIMITS_PATH)
-        except Exception:
-            return _reject("could not read a valid limits config (fail closed)")
-    elif type(max_limit) is not int or max_limit <= 0:
+    if max_limit is not None and not _is_valid_bound(max_limit):
         return _reject("invalid max_limit (fail closed)")
+    if max_chars is not None and not _is_valid_bound(max_chars):
+        return _reject("invalid max_chars (fail closed)")
+    try:
+        if max_limit is None:
+            max_limit = _load_max_limit(LIMITS_PATH)
+        if max_chars is None:
+            max_chars = _load_max_chars(LIMITS_PATH)
+    except (OSError, yaml.YAMLError, LookupError, TypeError, ValueError):
+        return _reject("could not read a valid limits config (fail closed)")
+
+    # Checked before tokenizing, so an oversized query costs one comparison.
+    if len(query) > max_chars:
+        return _reject(f"query too long ({len(query)} characters; the maximum is {max_chars})")
 
     try:
         tokens = tokenize(query)
@@ -293,13 +322,19 @@ def _validate(query: object, schema: Schema, max_limit: int | None) -> Validatio
 
 
 def validate_cypher(
-    query: str, *, schema: Schema = OFFICIAL_SCHEMA, max_limit: int | None = None
+    query: str,
+    *,
+    schema: Schema = OFFICIAL_SCHEMA,
+    max_limit: int | None = None,
+    max_chars: int | None = None,
 ) -> ValidationResult:
     """Validate one generated Cypher query. Never raises.
 
-    ``max_limit`` defaults to ``core1.cypher_limit_max`` in config/limits.yaml.
+    ``max_limit`` defaults to ``core1.cypher_limit_max`` and ``max_chars`` (the longest
+    accepted query) to ``core1.cypher_max_chars``, both in config/limits.yaml. A value that is
+    missing or invalid, in the config or as an argument, is a rejection.
     """
     try:
-        return _validate(query, schema, max_limit)
+        return _validate(query, schema, max_limit, max_chars)
     except Exception:  # noqa: BLE001 - fail closed on anything unexpected
         return _reject("internal guardrail error (fail closed)")

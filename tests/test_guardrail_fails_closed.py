@@ -73,9 +73,11 @@ def test_empty_input_is_rejected(empty):
         "MATCH (s:) RETURN s LIMIT 1",
         "MATCH (s:Service:) RETURN s LIMIT 1",
         "MATCH (s:Service) RETURN s LIMIT",
-        "😀" * 500,
-        "A" * 100_000,
-        "MATCH " + "(" * 2000,
+        # Long inputs get short ids: pytest puts the id in PYTEST_CURRENT_TEST, and Windows
+        # rejects environment variables over 32,767 characters.
+        pytest.param("😀" * 500, id="emoji-500"),
+        pytest.param("A" * 100_000, id="very-long-100k"),
+        pytest.param("MATCH " + "(" * 2000, id="open-parens-2000"),
     ],
 )
 def test_garbage_never_raises_and_never_passes(garbage):
@@ -108,23 +110,34 @@ VALID = [
     "MATCH (s:Service) RETURN s LIMIT 1",
     "match (s:Service) return s limit 1",
     "MATCH (s:Service {id: 'bplo_new_permit'}) RETURN s.name LIMIT 1",
-    'MATCH (s:Service {id: "bplo_new_permit"})-[:REQUIRES]->(r:Requirement) '
-    "RETURN r.text, r.group, r.min_required LIMIT 50",
+    (
+        'MATCH (s:Service {id: "bplo_new_permit"})-[:REQUIRES]->(r:Requirement) '
+        "RETURN r.text, r.group, r.min_required LIMIT 50"
+    ),
     "MATCH (o:Office)-[:OFFERS]->(s:Service) WHERE o.id = 'bplo' RETURN s.name ORDER BY s.name LIMIT 20",
-    "MATCH (s:Service)-[:HAS_STEP]->(st:Step) WHERE s.id = $sid "
-    "RETURN st.order, st.citizen_action, st.agency_action ORDER BY st.order LIMIT 30",
+    (
+        "MATCH (s:Service)-[:HAS_STEP]->(st:Step) WHERE s.id = $sid "
+        "RETURN st.order, st.citizen_action, st.agency_action ORDER BY st.order LIMIT 30"
+    ),
     "MATCH (s:Service)-[:HAS_STEP]->(st:Step)-[:PERFORMED_BY]->(ro:Role) RETURN ro.title LIMIT 10",
     "MATCH (s:Service)-[:HAS_STEP]->(a:Step)-[:NEXT]->(b:Step) RETURN a.id, b.id LIMIT 10",
-    "MATCH (s:Service)-[:HAS_FEE]->(f:Fee)-[:APPLIES_WHEN]->(v:Variant) "
-    "WHERE v.dimension = 'applicant_type' AND v.value = 'renewal' "
-    "RETURN f.label, f.amount_min, f.amount_max, f.unit, f.note LIMIT 10",
-    "MATCH (s:Service)-[:REQUIRES]->(r:Requirement) "
-    "OPTIONAL MATCH (r)-[:SECURED_AT]->(a:Agency) RETURN r.text, a.name LIMIT 50",
+    (
+        "MATCH (s:Service)-[:HAS_FEE]->(f:Fee)-[:APPLIES_WHEN]->(v:Variant) "
+        "WHERE v.dimension = 'applicant_type' AND v.value = 'renewal' "
+        "RETURN f.label, f.amount_min, f.amount_max, f.unit, f.note LIMIT 10"
+    ),
+    (
+        "MATCH (s:Service)-[:REQUIRES]->(r:Requirement) "
+        "OPTIONAL MATCH (r)-[:SECURED_AT]->(a:Agency) RETURN r.text, a.name LIMIT 50"
+    ),
     "MATCH (r:Requirement)-[:PART_OF]->(p:Requirement) RETURN r.id, p.id, r.parent_id LIMIT 50",
     "MATCH (s:Service)-[:KNOWN_AS]->(al:Alias) WHERE al.lang = 'fil' RETURN al.text, al.lang LIMIT 10",
-    "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x) RETURN x LIMIT 10",
-    "MATCH (s:Service)-[:REQUIRES]->(r:Requirement)-[:SECURED_AT]->(a:Agency) "
-    "RETURN a.name, count(r) AS n ORDER BY n DESC SKIP 5 LIMIT 10",
+    # was `->(x)`; an unlabeled node is now rejected (tests/test_guardrail_patterns.py)
+    "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x:Requirement|Fee) RETURN x LIMIT 10",
+    (
+        "MATCH (s:Service)-[:REQUIRES]->(r:Requirement)-[:SECURED_AT]->(a:Agency) "
+        "RETURN a.name, count(r) AS n ORDER BY n DESC SKIP 5 LIMIT 10"
+    ),
     "MATCH (s:Service) WITH s, size(s.name) AS len WHERE len > 3 RETURN s.name, len LIMIT 10",
     "MATCH (s:Service) WHERE s.id IN ['a', 'b', 'c'] RETURN s.name LIMIT 3",
     "MATCH (s:Service) WHERE s.name STARTS WITH 'Bus' AND NOT s.name CONTAINS 'Old' RETURN s LIMIT 5",
@@ -132,10 +145,14 @@ VALID = [
     "MATCH (s:Service) WHERE s.description IS NOT NULL RETURN s.description LIMIT 5",
     "UNWIND ['a', 'b'] AS sid MATCH (s:Service {id: sid}) RETURN s.name LIMIT 5",
     "MATCH (s:Service) RETURN DISTINCT s.classification ORDER BY s.classification ASC LIMIT 5",
-    "MATCH (s:Service) RETURN s.id AS id, CASE WHEN s.total_fee_text IS NULL THEN 'n/a' "
-    "ELSE s.total_fee_text END AS fee LIMIT 5",
-    "MATCH (st:Step) RETURN st.dur_min, st.dur_max, st.dur_unit, st.minutes_min, st.minutes_max, "
-    "st.day_type, st.external_agency LIMIT 5",
+    (
+        "MATCH (s:Service) RETURN s.id AS id, CASE WHEN s.total_fee_text IS NULL THEN 'n/a' "
+        "ELSE s.total_fee_text END AS fee LIMIT 5"
+    ),
+    (
+        "MATCH (st:Step) RETURN st.dur_min, st.dur_max, st.dur_unit, st.minutes_min, st.minutes_max, "
+        "st.day_type, st.external_agency LIMIT 5"
+    ),
     "MATCH (s:Service) RETURN s.who_may_avail, s.transaction_type, s.total_time_text LIMIT 5",
     "MATCH (r:Requirement) RETURN r.condition_text, r.parent_id LIMIT 5",
     "MATCH (v:Variant) RETURN v.dimension, v.value LIMIT 5",
@@ -146,8 +163,10 @@ VALID = [
     f"MATCH (s:Service) RETURN s LIMIT {MAX_LIMIT}",
     "MATCH (s:Service) RETURN s.name LIMIT 1",
     "MATCH (s:Service) WHERE s.name = 'it\\'s' RETURN s LIMIT 5",
-    "MATCH (s:Service)-[:REQUIRES]->(r:Requirement) WITH s, collect(r.text) AS reqs "
-    "RETURN s.name, reqs LIMIT 5",
+    (
+        "MATCH (s:Service)-[:REQUIRES]->(r:Requirement) WITH s, collect(r.text) AS reqs "
+        "RETURN s.name, reqs LIMIT 5"
+    ),
     "MATCH (s:Service) WHERE toLower(s.name) = toLower($name) RETURN s LIMIT 5",
 ]
 
@@ -320,7 +339,7 @@ def test_comment_markers_inside_strings_are_not_comments():
     rejected("MATCH (s:Service) WHERE s.name = '/*' DELETE s RETURN s LIMIT 5 // */", "DELETE")
 
 
-@pytest.mark.parametrize("sep", [" ", " ", "\x85", "\x0b", "\x0c", "\r"])
+@pytest.mark.parametrize("sep", ["\u2028", "\u2029", "\x85", "\x0b", "\x0c", "\r"])
 def test_unicode_line_separators_cannot_end_a_comment_unseen(sep):
     # Neo4j may treat these as newlines, ending the comment; we must not hide what follows.
     result = validate_cypher(f"MATCH (s:Service) // note{sep}DELETE s RETURN s LIMIT 5")
@@ -449,14 +468,14 @@ def test_backtick_inside_comment_is_ignored():
 
 
 HOMOGLYPH_KEYWORDS = {
-    "cyrillic C": "СREATE",  # Cyrillic Es
-    "cyrillic E": "CRЕATE",  # Cyrillic Ie
-    "cyrillic A": "CREАTE",  # Cyrillic A
-    "fullwidth": "ＣＲＥＡＴＥ",
-    "greek": "CRΕATE",  # Greek capital epsilon
-    "long s": "ſET",  # LATIN SMALL LETTER LONG S upper()s to S
-    "kelvin": "Keep",  # Kelvin sign lowers to k
-    "dotless i": "DELETEı",
+    "cyrillic C": "\u0421REATE",  # Cyrillic Es
+    "cyrillic E": "CR\u0415ATE",  # Cyrillic Ie
+    "cyrillic A": "CRE\u0410TE",  # Cyrillic A
+    "fullwidth": "\uff23\uff32\uff25\uff21\uff34\uff25",
+    "greek": "CR\u0395ATE",  # Greek capital epsilon
+    "long s": "\u017fET",  # LATIN SMALL LETTER LONG S upper()s to S
+    "kelvin": "\u212aeep",  # Kelvin sign lowers to k
+    "dotless i": "DELETE\u0131",
 }
 
 
@@ -466,20 +485,22 @@ def test_homoglyph_keywords_are_rejected(name):
     rejected(f"MATCH (s:Service) {word} (x) RETURN s LIMIT 5", "non-ascii")
 
 
-@pytest.mark.parametrize("ch", ["​", "‌", "‍", "⁠", "﻿", "­"])
+@pytest.mark.parametrize("ch", ["\u200b", "\u200c", "\u200d", "\u2060", "\ufeff", "\u00ad"])
 def test_zero_width_characters_inside_identifiers_are_rejected(ch):
     rejected(f"MATCH (s:Service) CRE{ch}ATE (x) RETURN s LIMIT 5", "non-ascii")
     rejected(f"MATCH (s:Serv{ch}ice) RETURN s LIMIT 5", "non-ascii")
     rejected(f"MATCH (s:Service) RETURN s.na{ch}me LIMIT 5", "non-ascii")
 
 
-@pytest.mark.parametrize("ws", [" ", " ", "　", " ", " ", "\x85", " "])
+@pytest.mark.parametrize("ws", ["\u00a0", "\u2003", "\u3000", "\u2028", "\u2029", "\x85", "\u1680"])
 def test_non_ascii_whitespace_outside_strings_is_rejected(ws):
     rejected(f"MATCH{ws}(s:Service) RETURN s LIMIT 5", "non-ascii")
     rejected(f"MATCH (s:Service) RETURN s{ws}LIMIT 5", "non-ascii")
 
 
-@pytest.mark.parametrize("op", ["‘", "’", "“", "”", "；", ";", "∕"])
+@pytest.mark.parametrize(
+    "op", ["\u2018", "\u2019", "\u201c", "\u201d", "\uff1b", "\u037e", "\u2215"]
+)
 def test_lookalike_punctuation_is_rejected(op):
     # curly quotes, fullwidth/Greek semicolon, division slash
     rejected(f"MATCH (s:Service) WHERE s.name = {op}x{op} RETURN s LIMIT 5", "non-ascii")
@@ -487,8 +508,8 @@ def test_lookalike_punctuation_is_rejected(op):
 
 
 def test_unicode_digits_in_limit_are_rejected():
-    rejected("MATCH (s:Service) RETURN s LIMIT ٥", "non-ascii")
-    rejected("MATCH (s:Service) RETURN s LIMIT ５", "non-ascii")
+    rejected("MATCH (s:Service) RETURN s LIMIT \u0665", "non-ascii")
+    rejected("MATCH (s:Service) RETURN s LIMIT \uff15", "non-ascii")
 
 
 def test_non_ascii_text_inside_string_literals_is_allowed():
@@ -496,15 +517,15 @@ def test_non_ascii_text_inside_string_literals_is_allowed():
         "MATCH (s:Service) WHERE s.name CONTAINS 'Pagpaparehistro ng Kapanganakan ñ é' "
         "RETURN s LIMIT 5"
     )
-    accepted("MATCH (s:Service) WHERE s.name = 'СREATE ​' RETURN s LIMIT 5")
+    accepted("MATCH (s:Service) WHERE s.name = '\u0421REATE \u200b' RETURN s LIMIT 5")
 
 
 def test_non_ascii_inside_comments_is_allowed_but_controls_are_not():
     accepted("MATCH (s:Service) // pabalik-balik ñ é\nRETURN s LIMIT 5")
     accepted("MATCH (s:Service) /* ñ */ RETURN s LIMIT 5")
     rejected("MATCH (s:Service) /* \x00 */ RETURN s LIMIT 5")
-    rejected("MATCH (s:Service) /*   */ RETURN s LIMIT 5")
-    rejected("MATCH (s:Service) /* ‮ */ RETURN s LIMIT 5")  # bidi override
+    rejected("MATCH (s:Service) /* \u2028 */ RETURN s LIMIT 5")
+    rejected("MATCH (s:Service) /* \u202e */ RETURN s LIMIT 5")  # bidi override
 
 
 @pytest.mark.parametrize("ctl", ["\x00", "\x01", "\x07", "\x1b", "\x7f"])
@@ -865,12 +886,15 @@ def limits_file(tmp_path, monkeypatch):
     path = tmp_path / "limits.yaml"
     monkeypatch.setattr(validator, "LIMITS_PATH", path)
     validator._load_max_limit.cache_clear()
+    validator._load_max_chars.cache_clear()
     yield path
     validator._load_max_limit.cache_clear()
+    validator._load_max_chars.cache_clear()
 
 
 def test_config_value_is_read_from_yaml(limits_file):
-    limits_file.write_text("core1:\n  cypher_limit_max: 7\n")
+    # cypher_max_chars is required too (missing means fail closed), so the file carries it
+    limits_file.write_text("core1:\n  cypher_limit_max: 7\n  cypher_max_chars: 2000\n")
     assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 7").ok is True
     assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 8").ok is False
 
@@ -901,8 +925,9 @@ def test_unreadable_or_invalid_config_fails_closed(limits_file, content):
 
 
 def test_explicit_max_limit_does_not_need_config(limits_file):
-    # config file is absent here, but an explicit max means it is never consulted
-    assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 5", max_limit=10).ok is True
+    # config file is absent here, but explicit maxima mean it is never consulted
+    result = validate_cypher("MATCH (s:Service) RETURN s LIMIT 5", max_limit=10, max_chars=2000)
+    assert result.ok is True
 
 
 # --------------------------------------------------------------------------- lexer unit tests
@@ -963,7 +988,7 @@ def test_lexer_records_positions():
 
 @pytest.mark.parametrize(
     "text",
-    ["'abc", '"abc', "/* abc", "`x`", ";", "С", "a\x00", "$", "\\", "@", "#", "?", "'a\\"],
+    ["'abc", '"abc', "/* abc", "`x`", ";", "\u0421", "a\x00", "$", "\\", "@", "#", "?", "'a\\"],
 )
 def test_lexer_raises_lexerror_on_bad_input(text):
     with pytest.raises(LexError):

@@ -84,9 +84,13 @@ Reject any generated Cypher that:
 - uses a clause outside the allow-list: `MATCH, OPTIONAL MATCH, WHERE, WITH, RETURN, ORDER BY, LIMIT, SKIP, UNWIND`;
 - lacks `LIMIT` or exceeds the maximum;
 - references labels, relationship types or properties outside the schema;
+- has a node pattern without a label (the one exception is a bare variable already bound with a label earlier in scope, e.g. `(f)` after `(f:Fee)`), or a relationship pattern without a type (`[r]`, `[]`, `--`, `-->`, `<--`), or a negated label or type (`:!X`), anywhere, including inside `WHERE`, `EXISTS` and `COUNT`. This keeps queries such as `MATCH (n) RETURN n` and `MATCH ()-[r]->() RETURN r` inside the official charter graph;
+- is longer than `core1.cypher_max_chars` in `config/limits.yaml` (2000);
 - hides keywords via case changes, comments (`//`, `/* */`), string concatenation, Unicode homoglyphs, or backtick-quoted identifiers.
 
 Use a real tokenizer that handles string literals and comments, not a regex on raw text. Validate with `EXPLAIN` when Neo4j is available. Always execute with read transactions (`session.execute_read`). Where the edition supports roles, also use a read-only user (Neo4j Community has no RBAC, so guardrail plus read transactions are the defense). This module gets the largest test suite in the repo.
+
+**The guardrail does not stop expensive but read-only queries.** Examples: `UNWIND range(...)` range bombs, `reduce()`, unbounded `[*]` paths, cartesian products (several disconnected `MATCH` patterns) and regex backtracking. Neo4j must therefore run with a transaction timeout and a per-transaction memory limit (Neo4j 5 settings `db.transaction.timeout` and `db.memory.transaction.max`; confirm the names against the installed version), and the driver call in the future executor must pass its own timeout (in the Python driver, decorate the transaction function passed to `session.execute_read` with `neo4j.unit_of_work(timeout=...)`), so a query that slips through is cut off on both sides. The `cypher_max_chars` cap limits how large a query can be, not how much work it does.
 
 ## 5. Gateway and language handling
 

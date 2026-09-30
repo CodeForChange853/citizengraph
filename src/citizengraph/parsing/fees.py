@@ -21,7 +21,7 @@ _NOT_STATED = re.compile(r"^[\s\-–—]*$")
 _NONE = re.compile(r"^\s*none\b(?P<rest>.*)$", re.IGNORECASE | re.DOTALL)
 _LIST_MARKER = re.compile(r"^\s*(?:[A-Za-z]|\d+(?:\.\d+)*)[.)]\s+")
 _UNIT = re.compile(
-    r"^\s*(?:/|per\b)\s*(?P<unit>[A-Za-z]+(?: [A-Za-z]+)*?)\s*(?=$|\s[-–—]\s|\()", re.I
+    r"^\s*(?:/|per\b)\s*(?P<unit>[A-Za-z]+(?: [A-Za-z]+)*?)\s*(?=$|\s[-–—]\s|\()", re.IGNORECASE
 )
 _PARENS = re.compile(r"\(([^)]*)\)")
 _PAYMENT_NOTE = re.compile(r"^\*|^all fees\b", re.IGNORECASE)

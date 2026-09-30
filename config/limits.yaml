@@ -8,5 +8,6 @@ prompt:
 core1:
   max_retries: 3
   cypher_limit_max: 50
+  cypher_max_chars: 2000    # longest Cypher query the guardrail accepts
 core2:
   max_steps: 8
