@@ -4,7 +4,7 @@ import type { Lang } from "../api/types";
 import en from "./en.json";
 import fil from "./fil.json";
 
-// The Filipino strings are unverified: see frontend/NEEDS-NATIVE-REVIEW.md.
+// Filipino strings: review status per string is in frontend/NEEDS-NATIVE-REVIEW.md.
 export const LANG_KEY = "cg.lang";
 
 export function detectLanguage(): Lang {

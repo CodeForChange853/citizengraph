@@ -97,3 +97,7 @@ Button, Chip, Segmented, LanguageToggle, DisplayControls (theme and text size), 
 - **Bug found and fixed:** TanStack Query pauses requests while `navigator.onLine` is false, so the home screen would load forever when the app started offline. The query client now uses `networkMode: "always"` (`src/api/queryClient.ts`); a test covers a start with no signal.
 - **Bundle:** one 530 kB chunk (164 kB gzip), precached once; the `/design` page is lazy-loaded. The Vite chunk warning limit is raised to 600 kB on purpose.
 - **Not done:** an "update available" prompt (updates apply on the next visit), install prompt UI, and a real-device test on a low-end Android phone.
+
+## Filipino review (2026-10-01)
+
+The team reviewed `NEEDS-NATIVE-REVIEW.md` and verified all 116 Filipino strings (screen text and the mock API's sentences). Recorded in `src/i18n/fil.verified.json` (written by `npm run i18n:review -- --accept`). Each string is ticked only while it is identical to that snapshot, so any edit or new string shows as unverified again. Retrieved charter facts stay in the charter's English wording; Waray remains out of scope. `CLAUDE.md` rule 8 still applies to new Filipino wording.

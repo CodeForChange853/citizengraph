@@ -148,7 +148,8 @@ _SERVICES: dict[str, dict] = {
     },
 }
 
-# Sentences around the facts. FIL is unverified: NEEDS-NATIVE-REVIEW (frontend/NEEDS-NATIVE-REVIEW.md).
+# Sentences around the facts. The FIL strings were verified by the team on 2026-10-01 (status per string:
+# frontend/NEEDS-NATIVE-REVIEW.md); any later edit needs review again.
 _TEXT: dict[str, dict[str, str]] = {
     "en": {
         "answer": "Here is what you need for {names}.",
@@ -161,7 +162,6 @@ _TEXT: dict[str, dict[str, str]] = {
         "sanitary_total": "The office’s own total time does not match its steps. "
                           "The times below come from the steps.",
     },
-    # NEEDS-NATIVE-REVIEW
     "fil": {
         "answer": "Narito ang kailangan mo para sa {names}.",
         "clarify": "Alin ang kailangan mo?",

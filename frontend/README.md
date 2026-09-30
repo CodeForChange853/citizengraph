@@ -62,7 +62,9 @@ python frontend/scripts/export_fixtures.py
 
 ## Filipino text
 
-Filipino strings are unverified. `NEEDS-NATIVE-REVIEW.md` lists them all; regenerate it with
-`npm run i18n:review` after editing `src/i18n/fil.json` (a test checks it is complete).
+`NEEDS-NATIVE-REVIEW.md` lists every Filipino string and whether it is verified (all 116 were verified by the
+team on 2026-10-01). After editing `src/i18n/fil.json` or the mock's Filipino sentences, run
+`npm run i18n:review`: changed or new strings show as unverified until a person reviews them and you run
+`npm run i18n:review -- --accept`. A test checks that the list is complete.
 
 Design decisions: `DESIGN.md`. API: `../docs/api_contract.md`.
