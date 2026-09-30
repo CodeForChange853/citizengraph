@@ -39,8 +39,24 @@ How the comparison works (see `src/citizengraph/parsing/validate.py`):
 | LCRO-15 | PETITION FOR CHANGE OF FIRST NAME OR CORRECTION OF CLERICAL  | MISMATCH | match |
 | LCRO-16 | FACILITATE REQUEST/QUERIES FROM DIFF. CITY/MUNICIPAL CRO, PS | match | MISMATCH |
 | LCRO-17 | BREQS PROCESSING (BATCH REQUEST ENTRY QUERY SYSTEM - PSA) | MISMATCH | MISMATCH |
+| CHO-01 | Routine Immunization | not comparable | match |
+| CHO-02 | Pre-Natal Consultation | not comparable | match |
+| CHO-03 | Family Planning | not comparable | match |
+| CHO-04 | TB/HPN/Filariasis/Schstosomiasis/Leprosy treatment | not comparable | not comparable |
+| CHO-05 | Nutrition Center Services | not comparable | MISMATCH |
+| CHO-06 | Laboratory Services | not comparable | MISMATCH |
+| CHO-07 | Pharmacy Services | not comparable | match |
+| CHO-08 | Issuance of Death Certificate | not comparable | match |
+| CHO-09 | Issuance of permit to transfer cadaver | not comparable | match |
+| CHO-10 | Issuance of Sanitary Permit | not comparable | MISMATCH |
+| CHO-11 | Dental Services | not comparable | match |
+| CHO-12 | The Out-Patient/Animal Bite Center services | not comparable | match |
+| CHO-13 | Post-Mortem examination | not comparable | match |
+| CHO-14 | Medico-Legal Consultation | not comparable | match |
+| CHO-15 | Issuance of Medial Certificates for employment | match | match |
+| CSWDO-01 | Referrals | not comparable | match |
 
-24 services checked. Fee mismatches: 3. Time mismatches: 9. Services with at least one mismatch: 11.
+40 services checked. Fee mismatches: 3. Time mismatches: 12. Services with at least one mismatch: 14.
 
 ## Mismatches
 
@@ -234,6 +250,59 @@ How the comparison works (see `src/citizengraph/parsing/validate.py`):
 | 8 | 3.3. | Encode to BREQS programs software | none | 5 min |
 | 9 | 4. | Issuance of PSA documents | none | 10 days (max of range) |
 
+### CHO-05: Nutrition Center Services
+
+- **Fees: not comparable.** Stated: not stated. Sum of steps: no amounts.
+- **Time: MISMATCH.** Stated: 35 min. Sum of steps: 34 min.
+  - minutes: steps - stated = -1
+
+| # | Label | Agency action | Fees | Time |
+|---|---|---|---|---|
+| 1 |  | • Client is taken in, referral validated | none | 2 min |
+| 2 |  | • Client is assessed | none | 30 min |
+| 3 |  | Supplies are logged in the dispensary | none | 2 min |
+
+### CHO-06: Laboratory Services
+
+- **Fees: not comparable.** Stated: not stated. Sum of steps: no amounts.
+- **Time: MISMATCH.** Stated: 3 days. Sum of steps: 3 days, 7 min.
+  - steps with no stated time (add nothing): 1
+  - stated total '3 dsys' was read with a typo fix (dsys -> day)
+  - minutes: steps - stated = +7
+
+| # | Label | Agency action | Fees | Time |
+|---|---|---|---|---|
+| 1 |  | Client is taken in, request received | — | — |
+| 2 |  | • Client information validated and other information collected for rec | none | 5 min |
+| 3 |  | • Specimen is prepared, examined | none | 3 days (max of range) |
+| 4 |  | • Name of patient validated | none | 2 min |
+
+### CHO-10: Issuance of Sanitary Permit
+
+- **Fees: not comparable.** Stated: not stated. Sum of steps: no amounts.
+- **Time: MISMATCH.** Stated: 20 min. Sum of steps: 3 days, 10 min.
+  - days: steps - stated = +3
+  - minutes: steps - stated = -10
+
+| # | Label | Agency action | Fees | Time |
+|---|---|---|---|---|
+| 1 |  | • Client is taken in, information | none | 5 min |
+| 2 |  | • Client is scheduled for inspection | none | 3 days |
+| 3 |  | Permit released after compliance of minimal requirements | none | 5 min |
+
 ## Not comparable
 
 - BPLO-07 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-01 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-02 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-03 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-04 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-04 (Time): stated 90 min (1 h 30 min); steps 10 min. step 2 time '1.15 min' needs review (kept raw): decimal value: could be clock notation (e.g. 1.15 = 1 h 15 min) or a fraction (1.15 min); not converted, ask the LGU
+- CHO-07 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-08 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-09 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-11 (Fees): stated not stated; steps ₱250.00. stated total fee is not a number, so nothing to compare step 1: ₱250.00
+- CHO-12 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-13 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CHO-14 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare
+- CSWDO-01 (Fees): stated not stated; steps no amounts. stated total fee is not a number, so nothing to compare

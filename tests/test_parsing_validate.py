@@ -258,3 +258,114 @@ def test_flags_report_covers_all_services(checks):
     text = build_flags_report(checks[0])
     for draft_id in checks[1]:
         assert draft_id in text
+
+
+# ------------------------------------------------------------------ weeks, ambiguous, typos
+
+
+def test_weeks_are_compared_on_their_own_axis():
+    d = mk(
+        [(None, "30 min/s"), (None, "1 week"), (None, "10 min/s"), (None, "1 hour (Once a month)")],
+        (None, "1 week, 1 hour, 40 minutes"),
+    )
+    r = check_service(d).time
+    assert r.verdict == "match"
+    assert "1 week" in r.stated and "1 week" in r.derived
+    wrong = mk([(None, "1 week"), (None, "40 minutes")], (None, "7 days, 40 minutes"))
+    assert check_service(wrong).time.verdict == "mismatch"  # a week is never turned into days
+
+
+def test_ambiguous_step_time_makes_the_time_check_not_comparable():
+    d = mk([(None, "10 min"), (None, "1.15  min")], (None, "1 hour 30 min"))
+    r = check_service(d).time
+    assert r.verdict == "not_comparable"
+    assert any("needs review" in x for x in r.details)
+
+
+def test_typo_in_the_stated_total_is_named_in_the_details():
+    d = mk([(None, "5 min"), (None, "2-3 days"), (None, "2 min")], (None, "3 dsys"))
+    r = check_service(d).time
+    assert (
+        r.verdict == "mismatch"
+    )  # 3 days matches, but the 7 minutes of steps are not in the total
+    assert any("dsys" in x for x in r.details)
+    ok = mk([(None, "2-3 days")], (None, "3 dsys"))
+    assert check_service(ok).time.verdict == "match"
+
+
+def test_bare_number_fee_counts_as_an_amount():
+    d = mk([("250", None)], ("₱250.00", None))
+    assert check_service(d).fee.verdict == "match"
+
+
+# ------------------------------------------------------------------ all 40 services
+
+
+@pytest.fixture(scope="module")
+def checks40():
+    drafts = []
+    for name in ("BPLO-CC", "LCRO-CC", "CYPCC_HEALTH", "CYPCC_SOCIALWELFARE"):
+        drafts += split_workbook(RAW / f"{name}.xlsx")
+    return drafts, {d.draft_id: check_service(d) for d in drafts}
+
+
+def test_forty_services_checked(checks40):
+    assert len(checks40[1]) == 40
+
+
+def test_health_and_social_welfare_time_verdicts(checks40):
+    v = verdicts(checks40, "time")
+    new = {k: x for k, x in v.items() if k.startswith(("CHO", "CSWDO"))}
+    assert len(new) == 16
+    assert {k for k, x in new.items() if x == "mismatch"} == {"CHO-05", "CHO-06", "CHO-10"}
+    assert {k for k, x in new.items() if x == "not_comparable"} == {"CHO-04"}
+    assert new["CSWDO-01"] == "match"  # 30 min + 1 week + 10 min + 1 hour = 1 week, 1 h 40 min
+
+
+def test_health_known_issues_from_charter_data_are_reproduced(checks40):
+    by_id = checks40[1]
+    assert "35" in by_id["CHO-05"].time.stated and "34" in by_id["CHO-05"].time.derived
+    sanitary = by_id["CHO-10"].time  # 3 days of inspection, total says 20 min
+    assert "20 min" in sanitary.stated and "3 days" in sanitary.derived
+    lab = by_id["CHO-06"].time
+    assert "3 days" in lab.stated and any("dsys" in x for x in lab.details)
+    assert by_id["CHO-04"].time.verdict == "not_comparable"  # "1.15 min" is not converted
+
+
+def test_health_and_social_welfare_fee_verdicts(checks40):
+    v = verdicts(checks40, "fee")
+    assert v["CHO-15"] == "match"  # P30.00 in the step, ₱30.00 in the total
+    # the total row of the other CHO services and of CSWDO carries no fee
+    assert all(v[k] == "not_comparable" for k in v if k.startswith("CHO") and k != "CHO-15")
+    assert v["CSWDO-01"] == "not_comparable"
+    assert {k for k, x in v.items() if x == "mismatch"} == {"BPLO-03", "LCRO-15", "LCRO-17"}
+
+
+def test_report_covers_forty_services(checks40):
+    drafts, by_id = checks40
+    report = build_report(drafts)
+    assert "40 services checked" in report
+    for draft_id in by_id:
+        assert f"| {draft_id} |" in report
+    for draft_id, c in by_id.items():
+        assert (f"### {draft_id}:" in report) == c.has_mismatch
+    assert "Services with at least one mismatch: 14." in report
+    assert "Fee mismatches: 3. Time mismatches: 12." in report
+    assert "Nothing in this report is auto-corrected" in report
+    assert report == build_report(drafts)
+
+
+def test_flags_report_explains_the_new_codes(checks40):
+    text = build_flags_report(checks40[0])
+    for code in (
+        "time_ambiguous",
+        "total_time_typo_normalized",
+        "orphan_row_glued",
+        "possible_split_step",
+        "no_requirements_listed",
+        "fee_no_currency_sign",
+        "requirement_fragment_glued",
+    ):
+        assert f"`{code}`" in text
+    row = next(ln for ln in text.splitlines() if ln.startswith("| `time_ambiguous`"))
+    assert row.rstrip().rstrip("|").rstrip().split("|")[-1].strip() != ""  # has a meaning

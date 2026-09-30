@@ -169,3 +169,31 @@ def test_settle_at_cto_note_without_asterisks_is_still_a_note():
     f = parse_fees("ALL FEES MUST BE SETTLED AT THE CTO")
     assert f.status == "not_stated"
     assert f.notes == ("ALL FEES MUST BE SETTLED AT THE CTO",)
+
+
+# ------------------------------------------------------------------- health / social welfare
+
+
+@pytest.mark.parametrize("text", ["None", "None ", "none\n"])
+def test_capitalised_none_with_trailing_space(text):
+    assert parse_fees(text).status == "none"
+
+
+def test_bare_number_is_an_amount_with_a_no_currency_note():
+    f = parse_fees("250")
+    assert f.status == "amounts"
+    assert [(i.amount_min, i.amount_max, i.note) for i in f.items] == [
+        (250, 250, "no currency sign in source")
+    ]
+    assert parse_fees("1,250.50").items[0].amount_max == 1250.5
+
+
+@pytest.mark.parametrize("text", ["P30.00", "₱30.00", "Php 30.00", "PHP30"])
+def test_peso_forms(text):
+    f = parse_fees(text)
+    assert [(i.amount_min, i.amount_max, i.note) for i in f.items] == [(30, 30, None)]
+
+
+def test_bare_number_only_when_the_whole_cell_is_a_number():
+    assert parse_fees("250 per session").status == "text_only"
+    assert parse_fees("1 copy").status == "text_only"
