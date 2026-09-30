@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0038A8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#060E24" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="description" content="Ask what to bring, what it costs and where to go for city services. Thesis prototype, not an official government app." />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <title>Citizen Graph</title>
+    <script>
+      // Apply saved theme and text size before first paint (no flash). Storage may be blocked.
+      try {
+        var s = JSON.parse(localStorage.getItem("cg.settings.v1") || "{}");
+        var r = document.documentElement;
+        if (s.theme === "light" || s.theme === "dark") r.setAttribute("data-theme", s.theme);
+        if (s.textSize) r.setAttribute("data-text-size", s.textSize);
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

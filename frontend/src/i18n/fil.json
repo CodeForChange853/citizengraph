@@ -1,0 +1,148 @@
+{
+  "app": {
+    "name": "Citizen Graph",
+    "prototype": "Prototype para sa thesis, hindi opisyal na app ng gobyerno",
+    "sampleData": "Halimbawang datos",
+    "skip": "Lumaktaw sa pangunahing nilalaman"
+  },
+  "lang": {
+    "label": "Wika",
+    "en": "English",
+    "fil": "Filipino"
+  },
+  "display": {
+    "title": "Hitsura",
+    "theme": "Kulay",
+    "themeSystem": "Sundin ang telepono ko",
+    "themeLight": "Maliwanag",
+    "themeDark": "Madilim",
+    "textSize": "Laki ng letra",
+    "sizeNormal": "Karaniwan",
+    "sizeLarge": "Malaki",
+    "sizeXlarge": "Napakalaki"
+  },
+  "offline": {
+    "banner": "Walang internet. Gumagana pa rin ang mga listahang na-save mo.",
+    "askDisabled": "Walang internet. Mababasa mo pa rin ang mga naka-save mong listahan at ang huling mga sagot."
+  },
+  "groups": {
+    "business": "Negosyo",
+    "family": "Talaan ng pamilya",
+    "health": "Kalusugan",
+    "assistance": "Tulong"
+  },
+  "scent": {
+    "requirements_one": "{{count}} na requirement",
+    "requirements_other": "{{count}} na requirement",
+    "noDocuments": "Walang nakalistang papeles",
+    "feeNotListed": "walang nakalistang bayad",
+    "timeAbout": "mga {{time}}",
+    "timeNotListed": "walang nakalistang oras",
+    "beingChecked": "Sinusuri pa kasama ang tanggapan"
+  },
+  "time": {
+    "minute": "minuto",
+    "hour": "oras",
+    "day": "araw",
+    "week": "linggo"
+  },
+  "pending": {
+    "title": "Sinusuri pa",
+    "body": "Sinusuri pa ang listahang ito kasama ang tanggapan. Pakitiyak muna sa kanila bago pumunta."
+  },
+  "answer": {
+    "bring": "Dalhin",
+    "ready": "{{done}} sa {{total}} ang handa na",
+    "progressLabel": "Progreso ng listahan",
+    "nothingToBring": "Walang nakalistang papeles na dadalhin ang tanggapan para sa serbisyong ito.",
+    "fees": "Magkano",
+    "feesNone": "Walang nakalistang bayad ang tanggapan para sa serbisyong ito. Magtanong muna sa tanggapan bago pumunta.",
+    "steps": "Mga hakbang",
+    "stepTime": "Oras: {{time}}",
+    "stepNoTime": "Walang nakalistang oras",
+    "otherOffice": "Sa ibang tanggapan",
+    "where": "Saan pupunta",
+    "also": "Kakailanganin mo rin",
+    "alsoGoTo": "Pumunta muna sa {{office}}",
+    "keep": "Itago ang listahang ito sa telepono ko",
+    "kept": "Na-save sa telepono na ito",
+    "tick": "Markahang handa na: {{item}}",
+    "total": "Kabuuan",
+    "stepNumber": "Hakbang {{n}}:"
+  },
+  "clarify": {
+    "title": "Alin ang kailangan mo?"
+  },
+  "fallback": {
+    "title": "Hindi ko maintindihan iyon",
+    "body": "Makakatulong ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng paksa para magsimula.",
+    "refusalTitle": "Nakakapaghanap lang ako ng impormasyon",
+    "refusalBody": "Wala akong mababago. Pumili ng paksa para makita ang kailangan mo."
+  },
+  "nav": {
+    "label": "Pangunahing menu",
+    "ask": "Magtanong",
+    "saved": "Naka-save",
+    "help": "Tulong"
+  },
+  "shell": {
+    "display": "Mga setting ng hitsura",
+    "home": "Home ng Citizen Graph"
+  },
+  "home": {
+    "title": "Ano ang kailangan mong gawin?",
+    "hint": "Magtanong sa English, Filipino, o pinaghalo.",
+    "placeholder": "Halimbawa: Kailangan ko ng business permit",
+    "ask": "Itanong",
+    "topics": "Pumili ng paksa",
+    "services": "Mga serbisyo",
+    "byOffice": "O pumili ng tanggapan",
+    "noResults": "Walang tugmang serbisyo. Subukan ang ibang paksa o tanggapan.",
+    "loading": "Kinukuha ang mga serbisyo",
+    "error": "Hindi namin makuha ang mga serbisyo.",
+    "retry": "Subukan ulit"
+  },
+  "chat": {
+    "loading": "Hinahanap",
+    "ready": "Handa na ang sagot",
+    "error": "May nagkamali. Pakisubukan ulit.",
+    "retry": "Subukan ulit",
+    "you": "Tinanong mo",
+    "inputLabel": "Ang tanong mo",
+    "inputPlaceholder": "Magtanong pa",
+    "send": "Ipadala",
+    "newQuestion": "Bagong tanong",
+    "empty": "Magtanong sa ibaba, o pumili ng paksa."
+  },
+  "saved": {
+    "title": "Mga naka-save na listahan",
+    "note": "Nasa telepono na ito ang mga naka-save na listahan. Walang account.",
+    "empty": "Wala pang naka-save. Mag-tick ng item sa checklist, o pindutin ang “Itago ang listahang ito sa telepono ko”, at lalabas ito rito.",
+    "ask": "Magtanong",
+    "remove": "Alisin",
+    "removeAsk": "Alisin ang listahang ito?",
+    "removeYes": "Oo, alisin",
+    "removeNo": "Itago pa rin"
+  },
+  "help": {
+    "title": "Tulong",
+    "aboutTitle": "Ano ito",
+    "about1": "Sinasabi ng Citizen Graph kung ano ang dadalhin, magkano, at saan pupunta para sa mga serbisyo ng lungsod.",
+    "about2": "Prototype ito para sa thesis. Hindi ito opisyal na app ng gobyerno at hindi nito pinapalitan ang tanggapan.",
+    "howTitle": "Paano gamitin",
+    "how1": "I-type ang kailangan mo, o pumili ng paksa.",
+    "how2": "Basahin ang sagot. Mag-tick ng bawat papel kapag handa na.",
+    "how3": "Sundin ang mga hakbang at pumunta sa tanggapang nakasaad.",
+    "pendingTitle": "Kapag sinabing sinusuri pa ang listahan",
+    "pending": "May mga listahang kinukumpirma pa sa tanggapan. Wala kaming ipinapakitang numero para sa mga ito. Magtanong muna sa tanggapan bago pumunta.",
+    "privacyTitle": "Ang privacy mo",
+    "privacy1": "Walang login at walang account.",
+    "privacy2": "Nasa telepono na ito lang ang mga listahang sine-save mo at mga item na tina-tick mo.",
+    "privacy3": "Ipinapadala ang mga tanong mo sa serbisyo para makahanap ng sagot.",
+    "offlineTitle": "Kapag walang internet",
+    "offline": "Mababasa mo ang mga listahang na-save mo at ang huling mga sagot kahit walang signal. Kailangan ng signal para magtanong ng bago.",
+    "sampleTitle": "Halimbawang datos",
+    "sample": "Gumagamit ang prototype na ito ng maliit na set ng halimbawang serbisyo mula sa mga inilathalang service charter ng mga tanggapan ng lungsod. May ilan pang sinusuri.",
+    "displayTitle": "Hitsura at wika"
+  }
+}

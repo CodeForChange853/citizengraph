@@ -16,3 +16,8 @@ models/
 alerts.db
 *.jsonl.log
 training/out/
+
+# frontend
+frontend/reference/
+frontend/node_modules/
+frontend/dist/
