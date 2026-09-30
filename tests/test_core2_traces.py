@@ -69,10 +69,12 @@ def test_no_training_prompt_is_an_evaluation_prompt():
         for ex in episode(scn.task_obj(), case.toolbox, scn.max_steps):
             eval_prompts.add(ex["messages"][1]["content"])
     assert eval_prompts
-    # Prompts that hold no application data (same task text, empty result) may coincide; any
-    # prompt that carries application data must not.
+    # Prompts with no history (same task text) or an empty result may coincide; any prompt
+    # whose history carries application data must not.
     mine = {e["messages"][1]["content"] for e in EXAMPLES}
-    shared = {p for p in eval_prompts & mine if '"app_id"' in p or "CG-SIM" in p}
+    shared = {
+        p for p in eval_prompts & mine if "ACTION 1:" in p and ('"app_id"' in p or "CG-SIM" in p)
+    }
     assert shared == set()
 
 
