@@ -31,6 +31,7 @@ from datetime import date, datetime, time, timedelta
 from citizengraph.core2.calendar import PHT, Calendar
 from citizengraph.core2.config import Core2Config, StatutoryCaps, load_statutory_caps
 from citizengraph.core2.models import Application, StepEntry
+from citizengraph.core2.sla import workflow_state
 from citizengraph.core2.store import WorkflowStore
 from citizengraph.graph import InMemoryGraph
 from citizengraph.graph.ids import clean_name
@@ -138,8 +139,10 @@ class Simulator:
                 ok = i == len(steps) - 1 and _is_plain(st)
             else:
                 raise SimulationError(f"unknown situation {sit!r}")
-            if "missing_earlier" in spec.inject and i < 1:
-                ok = False
+            if "missing_earlier" in spec.inject and not any(
+                not s.external_agency for s in steps[:i]
+            ):
+                ok = False  # needs an earlier non-external step to lose a timestamp
             if "role_unavailable" in spec.inject and st.role is None:
                 ok = False
             if "missing_current" in spec.inject and sit == "completed":
@@ -170,11 +173,29 @@ class Simulator:
         cal = base.with_suspensions(self._suspension_days(specs, as_of, base))
         store = WorkflowStore()
         truth: dict[str, Truth] = {}
+        roles: dict[str, str | None] = {}
         for n, spec in enumerate(specs, start=1):
             app, tr = self._build_one(spec, n, as_of, cal, store, rng)
             store.add(app)
             truth[app.app_id] = tr
+            roles[app.app_id] = self._current_role(app, tr)
+        # The roster is shared: a role marked absent for one application is absent for every
+        # application waiting on that role, so settle the escalations once all are built.
+        for app_id, tr in list(truth.items()):
+            role = roles[app_id]
+            if tr.status == "delayed" and role and store.absence(role, as_of):
+                truth[app_id] = Truth(
+                    tr.status,
+                    tr.alerts | {"department_head_escalation"},
+                    tr.reasons | {"role_unavailable"},
+                    tr.situation,
+                    tr.inject,
+                )
         return Simulated(store, cal, as_of, dict(day_types or {}), truth)
+
+    def _current_role(self, app: Application, truth: Truth) -> str | None:
+        cur = workflow_state(app, self.graph).current
+        return clean_name(cur.role) if cur and cur.role else None
 
     def _suspension_days(
         self, specs: Sequence[AppSpec], as_of: datetime, base: Calendar
@@ -317,7 +338,14 @@ class Simulator:
             reasons.add("suspension_days_excluded")
 
         if "missing_earlier" in spec.inject:
-            j = rng.randrange(0, cur if sit != "completed" else len(steps) - 1)
+            # Never an external step: losing its times would make the statutory count
+            # undecidable, which is a different situation from the one being built.
+            pool = [
+                k
+                for k in range(cur if sit != "completed" else len(steps) - 1)
+                if not steps[k].external_agency
+            ]
+            j = rng.choice(pool)
             e = entries[j]
             drop_entered = j >= 1 and rng.random() < 0.5
             entries[j] = StepEntry(
