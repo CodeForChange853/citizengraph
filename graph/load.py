@@ -35,9 +35,9 @@ _SRC = Path(__file__).resolve().parents[1] / "src"
 if _SRC.is_dir() and str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from citizengraph.graph.ids import clean_name, slug  # noqa: E402
-from citizengraph.graph.loader import DEFAULT_SEED_DIR, SeedError, load_seed  # noqa: E402
-from citizengraph.graph.models import Seed  # noqa: E402
+from citizengraph.graph.ids import clean_name, slug
+from citizengraph.graph.loader import DEFAULT_SEED_DIR, SeedError, load_seed
+from citizengraph.graph.models import Seed
 
 SCHEMA_PATH = Path(__file__).with_name("schema.cypher")
 DEFAULT_BATCH_SIZE = 500

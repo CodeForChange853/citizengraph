@@ -11,7 +11,6 @@ from collections import Counter
 from pathlib import Path
 
 import pytest
-
 from graph_fixtures import staff_names
 
 from citizengraph.graph.loader import DEFAULT_SEED_DIR, load_seed

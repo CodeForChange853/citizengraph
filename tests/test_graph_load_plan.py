@@ -14,7 +14,6 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from graph_fixtures import staff_names
 
 from citizengraph.graph.loader import DEFAULT_SEED_DIR, load_seed
@@ -164,7 +163,9 @@ class TestStatementHygiene:
         assert not re.search(r"\d{3,}", blob), "numbers must come from parameters"
 
     def test_data_statements_only_merge_and_set(self, plan):
-        banned = re.compile(r"\b(CREATE|DELETE|DETACH|REMOVE|DROP|LOAD|FOREACH|CALL)\b", re.I)
+        banned = re.compile(
+            r"\b(CREATE|DELETE|DETACH|REMOVE|DROP|LOAD|FOREACH|CALL)\b", re.IGNORECASE
+        )
         for b in plan:
             assert "MERGE" in b.cypher, b.name
             assert not banned.search(b.cypher), b.name

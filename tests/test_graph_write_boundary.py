@@ -60,9 +60,12 @@ def write_calls(source: str) -> list[str]:
             hits.append(f".{name}()")
         elif name in RUN_ATTRS and node.args:
             first = node.args[0]
-            if isinstance(first, ast.Constant) and isinstance(first.value, str):
-                if WRITE_CYPHER.search(first.value):
-                    hits.append(f".{name}() with write Cypher")
+            if (
+                isinstance(first, ast.Constant)
+                and isinstance(first.value, str)
+                and WRITE_CYPHER.search(first.value)
+            ):
+                hits.append(f".{name}() with write Cypher")
             if name == "execute_query" and not any(k.arg == "routing_" for k in node.keywords):
                 hits.append(".execute_query() without routing_ (defaults to a write)")
     return hits

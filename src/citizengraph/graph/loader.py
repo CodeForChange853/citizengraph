@@ -150,18 +150,15 @@ class _Validator:
             *(r.id for r in s.offices), *(r.id for r in s.services),
             *(r.id for r in s.requirements), *(r.id for r in s.steps), *(r.id for r in s.fees),
         ]  # fmt: skip
+        records_by_kind = (
+            ("office", s.offices),
+            ("service", s.services),
+            ("requirement", s.requirements),
+            ("step", s.steps),
+            ("fee", s.fees),
+        )  # fmt: skip
         for rec_id, n in Counter(node_ids).items():
-            kinds = {
-                k
-                for k, records in (
-                    ("office", s.offices),
-                    ("service", s.services),
-                    ("requirement", s.requirements),
-                    ("step", s.steps),
-                    ("fee", s.fees),
-                )  # fmt: skip
-                if any(r.id == rec_id for r in records)
-            }
+            kinds = {k for k, records in records_by_kind if any(r.id == rec_id for r in records)}
             if len(kinds) > 1:
                 self.add(
                     "duplicate_id", f"id {rec_id!r} is used by more than one kind: {sorted(kinds)}"
