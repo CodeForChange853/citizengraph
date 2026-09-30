@@ -78,8 +78,9 @@ def _merge_adjacent(
 ) -> tuple[list[Mention], bool]:
     """"change of first name in birth certificate" names two services in ONE request. When two
     mentions are joined only by a few stop words (no joining word, no mark, no intent between
-    them) and either both mean the same service ("business permit for a new business") or
-    exactly one of them is ambiguous, keep the clear one."""
+    them) and either both mean the same service ("business permit for a new business"), one says
+    more than the other ("birth certificate newborn"), or exactly one is ambiguous and a word sits
+    between them, keep the clear one."""
     merged = False
     out: list[Mention] = []
     for mention in mentions:
@@ -88,14 +89,17 @@ def _merge_adjacent(
             gap = norm.tokens[prev.end : mention.start]
             gap_words = [t.text for t in gap]
             joined_loosely = (
-                0 < len(gap) <= MERGE_MAX_GAP_WORDS
+                len(gap) <= MERGE_MAX_GAP_WORDS
                 and all(t.is_word and t.text in lexicon.stopwords for t in gap)
                 and not any(w in lexicon.conjunctions for w in gap_words)
                 and not any(prev.end <= h.start and h.end <= mention.start for h in intents)
             )
-            same = set(prev.targets) == set(mention.targets)
-            if joined_loosely and (same or prev.ambiguous != mention.ambiguous):
-                if prev.ambiguous and not same:
+            a, b = set(prev.targets), set(mention.targets)
+            same = a == b
+            refines = a < b or b < a  # "birth certificate newborn": the clear one says more
+            one_clear = prev.ambiguous != mention.ambiguous and len(gap) > 0
+            if joined_loosely and (same or refines or one_clear):
+                if len(a) > len(b):
                     out[-1] = mention
                 merged = True
                 continue

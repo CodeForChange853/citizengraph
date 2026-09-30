@@ -287,9 +287,8 @@ class Linker:
             start = min(m.start for m in chosen)
             end = max(m.end for m in chosen)
             mentions.append(Mention(start, end, [m.cand for m in chosen]))
-            lo = min(start, min(m.start for m in overlapping))
-            hi = max(end, max(m.end for m in overlapping))
-            pool = [m for m in pool if not (m.start < hi and lo < m.end)]
+            # drop everything that overlaps what was just decided, not what was merely considered
+            pool = [m for m in pool if not (m.start < end and start < m.end)]
         mentions.sort(key=lambda m: m.start)
         return mentions
 

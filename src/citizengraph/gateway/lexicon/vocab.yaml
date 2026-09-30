@@ -99,23 +99,25 @@ fil_common: [
 ]
 
 # Greeting and thanks words: a message made only of these (and function words) is not a request.
-greetings: [
-  hello, hi, hey, good, morning, afternoon, evening, thanks, thank, salamat, kumusta, kamusta,
-  magandang, umaga, hapon, gabi, po, opo, ok, okay, bye, goodbye, sir, maam, madam, helo, hallo,
-  hai, yo,
-]
+greetings:
+  en: [
+    hello, hi, hey, good, morning, afternoon, evening, thanks, thank, ok, okay, bye, goodbye, sir,
+    maam, madam, helo, hallo, hai, yo,
+  ]
+  fil: [salamat, kumusta, kamusta, magandang, umaga, hapon, gabi, po, opo]
 
 # Short typed answers to an echo ("I understood ... Correct?")
-confirm_yes: [
-  "yes", yeah, yep, yup, correct, right, sure, ok, okay, oo, opo, tama, sige, yess, yea,
-  confirm, confirmed, exactly,
-]
-confirm_no: [
-  "no", nope, wrong, incorrect, hindi, mali, nah, cancel, di, hnd, hindi,
-]
+confirm_yes:
+  en: ["yes", yeah, yep, yup, correct, right, sure, ok, okay, yess, yea, confirm, confirmed, exactly]
+  fil: [oo, opo, tama, sige]
+confirm_no:
+  en: ["no", nope, wrong, incorrect, nah, cancel]
+  fil: [hindi, mali, di, hnd]
 
 # Words that join two requests when they sit between two service mentions.
-conjunctions: [and, at, saka, tsaka, atsaka, tapos, plus, also, pati, then, or, o, versus, vs]
+conjunctions:
+  en: [and, plus, also, then, or, versus, vs]
+  fil: [at, saka, tsaka, atsaka, tapos, pati, o]
 
 # Words left out of an alias' "content tokens" (the words that must all be present for a
 # reordered match). Real stop words only; do not add nouns here.
@@ -140,9 +142,13 @@ other_services: [
 
 # Asking for the list of services (no charter service named): answered with the service menu.
 # The Filipino phrases are DRAFT. NEEDS-NATIVE-REVIEW
-menu_requests: [
-  "what services", "list of services", "list all services", "all services", "services available",
-  "available services", "service menu", "what can you do", "what can you help with", menu, help,
-  "what do you offer", "anong serbisyo", "ano ang mga serbisyo", "anong mga serbisyo",
-  "listahan ng serbisyo", "mga serbisyo", "ano ang maitutulong mo",
-]
+menu_requests:
+  en: [
+    "what services", "list of services", "list all services", "all services",
+    "services available", "available services", "service menu", "what can you do",
+    "what can you help with", menu, help, "what do you offer",
+  ]
+  fil: [
+    "anong serbisyo", "ano ang mga serbisyo", "anong mga serbisyo", "listahan ng serbisyo",
+    "mga serbisyo", "ano ang maitutulong mo",
+  ]

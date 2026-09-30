@@ -24,6 +24,13 @@ def read_yaml(name: str, directory: Path | None = None) -> Any:
     return yaml.safe_load(((directory or LEXICON_DIR) / name).read_text(encoding="utf-8"))
 
 
+def _flat(section: Any) -> list[str]:
+    """A vocab section is a list, or a mapping of language -> list; return all entries."""
+    if isinstance(section, dict):
+        return [item for items in section.values() for item in items]
+    return list(section)
+
+
 def _words(items: Iterable[str]) -> list[str]:
     out: list[str] = []
     for item in items:
@@ -90,12 +97,12 @@ class Lexicon:
                 self.sms[str(key)] = tuple(_words([value]))
         vocab = read_yaml("vocab.yaml", directory)
         self.stopwords = frozenset(_words(vocab["stopwords"]))
-        self.conjunctions = frozenset(_words(vocab["conjunctions"]))
-        self.greetings = frozenset(_words(vocab["greetings"]))
-        self.confirm_yes = frozenset(_words(vocab["confirm_yes"]))
-        self.confirm_no = frozenset(_words(vocab["confirm_no"]))
+        self.conjunctions = frozenset(_words(_flat(vocab["conjunctions"])))
+        self.greetings = frozenset(_words(_flat(vocab["greetings"])))
+        self.confirm_yes = frozenset(_words(_flat(vocab["confirm_yes"])))
+        self.confirm_no = frozenset(_words(_flat(vocab["confirm_no"])))
         self.menu_requests = PhraseTable()
-        for text in vocab["menu_requests"]:
+        for text in _flat(vocab["menu_requests"]):
             self.menu_requests.add(self.phrase(str(text)), "menu")
         self.other_services = PhraseTable()
         for text in vocab["other_services"]:
@@ -151,10 +158,9 @@ class Lexicon:
             if in_en != in_fil:
                 self.lang_of[word] = "en" if in_en else "fil"
 
-        for text in vocab["menu_requests"]:
-            (fil_words if str(text).startswith(("ano", "lista", "mga")) else en_words).update(
-                self.phrase(str(text))
-            )
+        for lang, texts in vocab["menu_requests"].items():
+            for text in texts:
+                (en_words if lang == "en" else fil_words).update(self.phrase(str(text)))
         en_words |= {t for p in vocab["other_services"] for t in self.phrase(str(p))}
         self.known: frozenset[str] = frozenset(
             en_words

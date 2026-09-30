@@ -611,6 +611,12 @@ aliases:
   - {target: "legal_instrument_other", lang: "en", text: "affidavit of admission of paternity", kind: "synonym"}
   - {target: "legal_instrument_other", lang: "en", text: "admission of paternity", kind: "synonym"}
   - {target: "legal_instrument_other", lang: "en", text: "affidavit of paternity", kind: "synonym"}
+  - {target: "legal_instrument_other", lang: "en", text: "register a legal document", kind: "everyday"}
+  - {target: "legal_instrument_other", lang: "en", text: "register an affidavit", kind: "everyday"}
+  - {target: "legal_instrument_other", lang: "en", text: "register my affidavit", kind: "everyday"}
+  - {target: "legal_instrument_other", lang: "en", text: "register a notarized document", kind: "everyday"}
+  - {target: "legal_instrument_other", lang: "fil", text: "magparehistro ng affidavit", kind: "everyday", needs_native_review: true}
+  - {target: "legal_instrument_other", lang: "fil", text: "iparehistro ang affidavit", kind: "everyday", needs_native_review: true}
   - {target: "legal_instrument_other", lang: "fil", text: "pagpaparehistro ng legal instrument maliban sa lehitimasyon at ausf", kind: "name", needs_native_review: true}
   - {target: "legal_instrument_other", lang: "fil", text: "ibang legal instrument", kind: "synonym", needs_native_review: true}
   - {target: "legal_instrument_other", lang: "fil", text: "iba pang legal instrument", kind: "synonym", needs_native_review: true}
