@@ -20,7 +20,9 @@ def test_the_repo_file_has_the_documented_thresholds():
     assert cfg.max_chars == 500 and cfg.hard_max_chars == 2000
     assert cfg.rate_limit_per_minute == 10
     assert cfg == GatewayConfig(**cfg.__dict__)  # round-trips
-    assert cfg.default_intent is None and cfg.withheld_services == ()
+    assert cfg.default_intent is None
+    # LCRO-06 requirements look copied from marriage registration (CLAUDE.md): held back until the LGU confirms
+    assert cfg.withheld_services == ("death_registration_timely",)
 
 
 def test_every_key_of_the_section_is_a_known_setting_and_vice_versa():
