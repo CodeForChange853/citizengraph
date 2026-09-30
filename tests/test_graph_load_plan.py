@@ -104,9 +104,7 @@ class TestPlan:
         assert n["rel:REQUIRES"] == len(seed.requirements)
         assert n["rel:SECURED_AT"] == len([r for r in seed.requirements if r.secured_at])
         assert n["rel:PART_OF"] == len([r for r in seed.requirements if r.parent_id])
-        assert n["rel:APPLIES_WHEN:Requirement"] == sum(
-            len(r.variant_ids) for r in seed.requirements
-        )
+        assert n["rel:APPLIES_WHEN:Requirement"] == sum(len(r.variant_ids) for r in seed.requirements)
         assert n["rel:HAS_STEP"] == len(seed.steps)
         assert n["rel:NEXT"] == len(seed.steps) - len(seed.services)
         assert n["rel:PERFORMED_BY"] == len([s for s in seed.steps if s.role])
@@ -240,7 +238,7 @@ class TestWriteSeed:
         schema = loadmod.schema_statements()
         assert len(schema) >= 8
         assert [o[1] for o in ops[: len(schema)]] == schema
-        data = ops[len(schema) :]
+        data = ops[len(schema):]
         assert data and all("$rows" in o[1] for o in data)
         assert all(len(o[2]["rows"]) <= 7 for o in data)
         assert sum(len(o[2]["rows"]) for o in data) == sum(len(b.rows) for b in report.plan)
@@ -318,6 +316,4 @@ class TestCli:
 def _base_env():
     import os
 
-    return {
-        k: v for k, v in os.environ.items() if k.startswith(("PATH", "PYTHON", "HOME", "VIRTUAL"))
-    }
+    return {k: v for k, v in os.environ.items() if k.startswith(("PATH", "PYTHON", "HOME", "VIRTUAL"))}

@@ -52,8 +52,7 @@ class IntentDetector:
         out: list[IntentHit] = []
         for hit, intent, weak in parsed:
             if weak and any(
-                abs(hit.start - t.end) <= WEAK_NEAR_WORDS
-                or abs(t.start - hit.end) <= WEAK_NEAR_WORDS
+                abs(hit.start - t.end) <= WEAK_NEAR_WORDS or abs(t.start - hit.end) <= WEAK_NEAR_WORDS
                 for t in strong_time
             ):
                 continue

@@ -128,20 +128,9 @@ def test_random_sessions_stay_consistent_and_every_question_is_answerable(seed):
 @pytest.mark.parametrize(
     "message",
     [
-        "\x00" * 50,
-        "\u200b" * 600,
-        "💥" * 300,
-        "日本語" * 100,
-        " " * 3000,
-        "a" * 2001,
-        "?" * 2000,
-        "(" * 1000,
-        "'" * 1000,
-        "\n".join(["fees for business permit"] * 40),
-        "permit " * 70,
-        "business permit " * 100,
-        "BPLO " * 300,
-        "퟿" * 10,
+        "\x00" * 50, "\u200b" * 600, "💥" * 300, "日本語" * 100, " " * 3000, "a" * 2001,
+        "?" * 2000, "(" * 1000, "'" * 1000, "\n".join(["fees for business permit"] * 40),
+        "permit " * 70, "business permit " * 100, "BPLO " * 300, "퟿" * 10,
     ],
     ids=lambda m: f"{m[:6]!r}x{len(m)}",
 )
@@ -201,11 +190,7 @@ def test_results_do_not_depend_on_python_hash_randomization():
     for hash_seed in ("0", "4242"):
         env = {**os.environ, "PYTHONHASHSEED": hash_seed}
         done = subprocess.run(
-            [sys.executable, "-c", script],
-            env=env,
-            capture_output=True,
-            text=True,
-            check=True,
+            [sys.executable, "-c", script], env=env, capture_output=True, text=True, check=True,
             cwd=str(Path(__file__).resolve().parents[1]),
         )
         digests.add(done.stdout.strip())

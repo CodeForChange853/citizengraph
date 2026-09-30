@@ -109,7 +109,9 @@ class Lexicon:
             self.other_services.add(self.phrase(str(text)), "other")
 
         en_words: set[str] = set(_words(vocab["en_function"])) | set(_words(vocab["en_common"]))
-        fil_words: set[str] = set(_words(vocab["fil_function"])) | set(_words(vocab["fil_common"]))
+        fil_words: set[str] = set(_words(vocab["fil_function"])) | set(
+            _words(vocab["fil_common"])
+        )
         alias_en: set[str] = set()
         alias_fil: set[str] = set()
         self.alias_tokens: set[str] = set()

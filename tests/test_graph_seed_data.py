@@ -185,11 +185,15 @@ class TestFees:
          ("LCRO-13", 540), ("LCRO-14", 300)],
     )  # fmt: skip
     def test_unconditional_fees_add_up_to_the_stated_total(self, graph, sid, ref, total):
-        fees = [f for f in graph.fees(sid[ref]) if not graph.fee_condition_unresolved(f.id)]
+        fees = [
+            f for f in graph.fees(sid[ref]) if not graph.fee_condition_unresolved(f.id)
+        ]
         assert sum(f.amount_max for f in fees) == pytest.approx(total)
         assert all(f.amount_min == f.amount_max for f in fees)
 
-    @pytest.mark.parametrize(("taxpayer", "total"), [("company", 215), ("individual", 310)])
+    @pytest.mark.parametrize(
+        ("taxpayer", "total"), [("company", 215), ("individual", 310)]
+    )
     def test_occupational_permit_fee_depends_on_taxpayer(self, graph, sid, taxpayer, total):
         fees = graph.fees(sid["BPLO-02"], {"taxpayer": taxpayer})
         assert sum(f.amount_max for f in fees) == pytest.approx(total)
@@ -208,7 +212,9 @@ class TestFees:
     def test_cockfight_without_a_category_lists_all_six(self, graph, sid):
         assert len(graph.fees(sid["BPLO-05"])) == 6
 
-    @pytest.mark.parametrize("ref", ["LCRO-01", "LCRO-02", "LCRO-04", "LCRO-06", "BPLO-07"])
+    @pytest.mark.parametrize(
+        "ref", ["LCRO-01", "LCRO-02", "LCRO-04", "LCRO-06", "BPLO-07"]
+    )
     def test_services_with_no_fee_rows(self, graph, seed, sid, ref):
         assert graph.fees(sid[ref]) == []
         service = graph.service(sid[ref])
@@ -252,7 +258,8 @@ class TestVariants:
     def test_business_permit_documents_depend_on_business_type(self, graph, sid):
         def texts(business_type):
             return {
-                r.text for r in graph.requirements(sid["BPLO-01"], {"business_type": business_type})
+                r.text
+                for r in graph.requirements(sid["BPLO-01"], {"business_type": business_type})
             }
 
         assert "DTI Certification of Registration" in texts("single_proprietor")
@@ -289,9 +296,7 @@ class TestVariants:
         assert "business_type:cooperative" not in {v.id for v in seed.variants}
 
     def test_foreign_parent_documents(self, graph, sid):
-        with_foreign = {
-            r.text for r in graph.requirements(sid["LCRO-02"], {"foreign_parent": "yes"})
-        }
+        with_foreign = {r.text for r in graph.requirements(sid["LCRO-02"], {"foreign_parent": "yes"})}
         without = {r.text for r in graph.requirements(sid["LCRO-02"], {"foreign_parent": "no"})}
         assert any("Valid passport or BI Clearance" in t for t in with_foreign)
         assert not any("Valid passport or BI Clearance" in t for t in without)
@@ -368,15 +373,8 @@ ALLOWED_ROLES = {
     "City Agriculture Office authorized personnel",
     "Any authorized City Agriculture Office collector",
     # City Health Office and CSWDO: every person cell is a role title, spelled as the charter has it
-    "Personnel incharge",
-    "Nurse incharge",
-    "Person incharge",
-    "Assistant",
-    "Pharmacist",
-    "Nurse on duty",
-    "Physician on duty",
-    "Physician",
-    "Dentist",
+    "Personnel incharge", "Nurse incharge", "Person incharge", "Assistant", "Pharmacist",
+    "Nurse on duty", "Physician on duty", "Physician", "Dentist",
     "Personel in charge / Emergency Welfare Program implementer",
     "Registration Officer",
     "City Civil Registrar",
@@ -468,7 +466,9 @@ class TestFlags:
             f.code == "suspected_copy_paste" for f in steps_by_order(graph, sid, "LCRO-06")[7].flags
         )
 
-    def test_birth_registration_checklist_with_only_a_conditional_item_is_flagged(self, graph, sid):
+    def test_birth_registration_checklist_with_only_a_conditional_item_is_flagged(
+        self, graph, sid
+    ):
         s = graph.service(sid["LCRO-01"])
         assert any(f.code == "checklist_only_conditional" for f in s.flags)
 
@@ -566,9 +566,9 @@ class TestHealthAndSocialShape:
             if ref in {"CHO-10", "CHO-13", "CSWDO-01"}:
                 continue
             assert graph.requirements(sid[ref]) == [], ref
-            assert any(f.code == "no_requirements_listed" for f in graph.service(sid[ref]).flags), (
-                ref
-            )
+            assert any(
+                f.code == "no_requirements_listed" for f in graph.service(sid[ref]).flags
+            ), ref
 
     def test_post_mortem_needs_a_police_request(self, graph, sid):
         (req,) = graph.requirements(sid["CHO-13"])
@@ -597,7 +597,8 @@ class TestHealthAndSocialShape:
 
     def test_glued_and_double_action_cells_are_flagged_not_split(self, graph, sid):
         assert any(
-            f.code == "two_actions_one_line" for f in steps_by_order(graph, sid, "CHO-08")[1].flags
+            f.code == "two_actions_one_line"
+            for f in steps_by_order(graph, sid, "CHO-08")[1].flags
         )
         step = steps_by_order(graph, sid, "CHO-14")[2]
         assert any(f.code == "orphan_row_glued" for f in step.flags)
@@ -680,9 +681,7 @@ class TestCrossOfficeLinks:
         for link in satisfied:
             assert any(f.code == "link_suggested" for f in link.flags)
 
-    def test_referrals_requirement_points_at_the_bplo_office_with_a_gap_flag(
-        self, graph, seed, sid
-    ):
+    def test_referrals_requirement_points_at_the_bplo_office_with_a_gap_flag(self, graph, seed, sid):
         r = self.req(graph, sid, "CSWDO-01", "Certification from BPLO")
         link = next(
             link for link in seed.links
@@ -694,10 +693,10 @@ class TestCrossOfficeLinks:
         assert graph.satisfied_by(r.id) == []
         assert graph.office_for_agency("BPLO").id == "bplo"
 
-    def test_only_agencies_that_are_exactly_one_of_the_four_offices_point_at_an_office(self, seed):
-        linked = {
-            link.agency: link.office_id for link in seed.links if link.kind == "agency_is_office"
-        }
+    def test_only_agencies_that_are_exactly_one_of_the_four_offices_point_at_an_office(
+        self, seed
+    ):
+        linked = {link.agency: link.office_id for link in seed.links if link.kind == "agency_is_office"}
         assert linked == {
             "BPLO": "bplo",
             "Business Permits and Licensing Office (BPLO)": "bplo",

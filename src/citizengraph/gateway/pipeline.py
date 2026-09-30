@@ -154,8 +154,8 @@ class Gateway:
             limited = check_rate(session, now, cfg)
             tap = self._match_tap(session, message)
             dig = digest(message)
-            repeated = (
-                tap is None and session.pending is None and check_repeat(session, now, cfg, dig)
+            repeated = tap is None and session.pending is None and check_repeat(
+                session, now, cfg, dig
             )
             note_message(session, now, cfg, None if tap is not None else dig)
             if limited:
@@ -217,7 +217,7 @@ class Gateway:
     def _drop_inside_other_services(
         self, norm: Normalized, mentions: list[Mention], ctx: _Ctx
     ) -> list[Mention]:
-        """ "building permit" is not the business permit: a mention that only overlaps the words
+        """"building permit" is not the business permit: a mention that only overlaps the words
         of a service nobody here offers, and is no better than a bare everyday word, goes."""
         others = self.lexicon.other_services.scan(norm.texts)
         if not others:
@@ -533,7 +533,9 @@ class Gateway:
                     reasons=_unique(ctx.reasons), language=language,
                 )  # fmt: skip
             ctx.reasons.append("echo_rejected")
-            return GatewayResult(status="fallback", reasons=_unique(ctx.reasons), language=language)
+            return GatewayResult(
+                status="fallback", reasons=_unique(ctx.reasons), language=language
+            )
         drafts = pending.drafts
         if pending.kind == "service":
             target = next((d for d in drafts if d.service_id is None and d.candidates), None)
@@ -565,7 +567,10 @@ class Gateway:
         elif pending.kind == "service":
             wanted = {o.service_id: o for o in pending.options if o.service_id}
             found = {
-                c.target for m in self.linker.link(norm) for c in m.candidates if c.target in wanted
+                c.target
+                for m in self.linker.link(norm)
+                for c in m.candidates
+                if c.target in wanted
             }
             if len(found) == 1:
                 chosen = wanted[next(iter(found))]

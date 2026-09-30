@@ -81,7 +81,9 @@ def check_rate(session: SessionState, now: float, cfg: GatewayConfig) -> tuple[s
 
 def check_repeat(session: SessionState, now: float, cfg: GatewayConfig, dig: str) -> bool:
     """True when this would be the ``repeat_limit``-th identical message inside the window."""
-    same = sum(1 for t, d in session.recent_hashes if d == dig and now - t < cfg.repeat_window_s)
+    same = sum(
+        1 for t, d in session.recent_hashes if d == dig and now - t < cfg.repeat_window_s
+    )
     return same + 1 >= cfg.repeat_limit
 
 

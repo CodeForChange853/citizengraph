@@ -14,7 +14,9 @@ def run(*messages: str, session: SessionState | None = None, start: float = 10_0
     """Send the messages one after another in one session; return every result."""
     session = session or SessionState(session_id="test")
     gateway = default_gateway()
-    return [gateway.process(m, session, now=start + i * STEP_S) for i, m in enumerate(messages)]
+    return [
+        gateway.process(m, session, now=start + i * STEP_S) for i, m in enumerate(messages)
+    ]
 
 
 def ask(message: str) -> GatewayResult:
@@ -38,7 +40,8 @@ def noise(n_chars: int, seed: int = 7) -> str:
     while sum(len(w) + 1 for w in words) < n_chars:
         words.append(
             "".join(
-                rng.choice(consonants if i % 2 == 0 else vowels) for i in range(rng.randint(4, 9))
+                rng.choice(consonants if i % 2 == 0 else vowels)
+                for i in range(rng.randint(4, 9))
             )
         )
     return " ".join(words)[:n_chars]

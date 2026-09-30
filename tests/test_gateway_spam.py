@@ -80,8 +80,7 @@ def test_repeat_is_the_third_identical_message_inside_the_window():
 
 
 @pytest.mark.parametrize(
-    "variant",
-    ["FEES for business permit", "fees   for business permit", "fees, for business permit?"],
+    "variant", ["FEES for business permit", "fees   for business permit", "fees, for business permit?"]
 )
 def test_digest_ignores_case_spacing_and_punctuation(variant):
     assert digest(variant) == digest("fees for business permit")
@@ -101,13 +100,7 @@ def test_digest_is_short_and_hides_the_text():
 
 @pytest.mark.parametrize(
     ("length", "status", "long_input"),
-    [
-        (1, "ok", False),
-        (500, "ok", False),
-        (501, "ok", True),
-        (2000, "ok", True),
-        (2001, "refuse", False),
-    ],
+    [(1, "ok", False), (500, "ok", False), (501, "ok", True), (2000, "ok", True), (2001, "refuse", False)],
 )
 def test_length_caps(length, status, long_input, patterns):
     result = screen_text("a" * length, CFG, patterns)
@@ -257,16 +250,7 @@ def score(text: str, normalizer: Normalizer) -> float:
 
 @pytest.mark.parametrize(
     "text",
-    [
-        "asdf qwer zxcv",
-        "hjkl hjkl",
-        "qwertyuiop",
-        "aaaaaaaaaaaa",
-        "!!!!!!!!",
-        "zzzzzz xxxxxx",
-        "bcdfg hjklm",
-        "987654",
-    ],
+    ["asdf qwer zxcv", "hjkl hjkl", "qwertyuiop", "aaaaaaaaaaaa", "!!!!!!!!", "zzzzzz xxxxxx", "bcdfg hjklm", "987654"],
 )
 def test_gibberish_scores_high(text, normalizer):
     assert score(text, normalizer) >= CFG.gibberish_threshold

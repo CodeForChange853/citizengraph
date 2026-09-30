@@ -169,10 +169,14 @@ class Linker:
         for i in range(len(words)):
             for size in range(min(self._maxlen, len(words) - i), 0, -1):
                 for idx in self._exact.get(tuple(words[i : i + size]), ()):
-                    out.append(_Match(g + i, g + i + size, self._candidate(idx, "exact", 1.0), idx))
+                    out.append(
+                        _Match(g + i, g + i + size, self._candidate(idx, "exact", 1.0), idx)
+                    )
         return out
 
-    def _tokenset_matches(self, g: int, words: list[str], exact_aliases: set[int]) -> list[_Match]:
+    def _tokenset_matches(
+        self, g: int, words: list[str], exact_aliases: set[int]
+    ) -> list[_Match]:
         positions: dict[str, list[int]] = defaultdict(list)
         for i, w in enumerate(words):
             positions[w].append(i)
@@ -204,7 +208,9 @@ class Linker:
             if best is not None:
                 width, lo, hi = best
                 conf = 0.95 if width == k else 0.90
-                out.append(_Match(g + lo, g + hi + 1, self._candidate(idx, "tokenset", conf), idx))
+                out.append(
+                    _Match(g + lo, g + hi + 1, self._candidate(idx, "tokenset", conf), idx)
+                )
         return out
 
     def _fuzzy_matches(

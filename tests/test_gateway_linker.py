@@ -12,11 +12,7 @@ from citizengraph.gateway.splitter import split
 from citizengraph.gateway.types import Draft
 
 BP, OP, CP = "business_permit", "occupational_permit", "cockfight_permit"
-BTIM, BDEL, TRANS = (
-    "birth_registration_timely",
-    "birth_registration_delayed",
-    "certified_transcription",
-)
+BTIM, BDEL, TRANS = "birth_registration_timely", "birth_registration_delayed", "certified_transcription"
 
 
 @pytest.fixture(scope="module")
@@ -258,11 +254,7 @@ def test_where_is_my_is_status_not_office(gw):
 def test_catalog_lists_only_dimensions_the_service_uses(gw):
     catalog = gw.catalog
     assert set(catalog.dimensions(BP)) == {"applicant_type", "business_type"}
-    assert catalog.dimensions(BP)["business_type"] == {
-        "association",
-        "corporation",
-        "single_proprietor",
-    }
+    assert catalog.dimensions(BP)["business_type"] == {"association", "corporation", "single_proprietor"}
     assert set(catalog.dimensions(OP)) == {"taxpayer"}
     assert set(catalog.dimensions(CP)) == {"cockfight_category"}
     assert set(catalog.dimensions(BDEL)) == {"birth_status", "foreign_parent"}
@@ -362,15 +354,8 @@ def test_every_joiner_splits_and_carries_the_shared_intent(gw, text):
 
 
 def test_three_services_each_get_their_own_part(gw):
-    drafts, _ = drafts_for(
-        gw,
-        "fees for business permit, requirements for cockfight permit and how long for fishing permit",
-    )
-    assert summary(drafts) == [
-        (BP, "fees"),
-        (CP, "requirements"),
-        ("fishing_permit", "processing_time"),
-    ]
+    drafts, _ = drafts_for(gw, "fees for business permit, requirements for cockfight permit and how long for fishing permit")
+    assert summary(drafts) == [(BP, "fees"), (CP, "requirements"), ("fishing_permit", "processing_time")]
 
 
 def test_parts_have_their_own_phrase(gw):
@@ -380,9 +365,7 @@ def test_parts_have_their_own_phrase(gw):
 
 
 def test_cues_stay_with_their_part(gw):
-    drafts, _ = drafts_for(
-        gw, "business permit for corporation and occupational permit for individual fees"
-    )
+    drafts, _ = drafts_for(gw, "business permit for corporation and occupational permit for individual fees")
     assert drafts[0].cues == [("business_type", "corporation")]
     assert drafts[1].cues == [("taxpayer", "individual")]
 
@@ -395,9 +378,7 @@ def test_several_intents_in_one_part_make_several_drafts(gw):
 def test_a_part_without_intent_takes_the_nearest_ones(gw):
     drafts, _ = drafts_for(gw, "business permit and cockfight permit and fishing permit fees")
     assert [d.intent for d in drafts] == ["fees", "fees", "fees"]
-    drafts, _ = drafts_for(
-        gw, "requirements for business permit, cockfight permit. fees for fishing permit"
-    )
+    drafts, _ = drafts_for(gw, "requirements for business permit, cockfight permit. fees for fishing permit")
     assert [d.intent for d in drafts] == ["requirements", "requirements", "fees"]
 
 

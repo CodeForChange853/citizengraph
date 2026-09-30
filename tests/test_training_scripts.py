@@ -77,3 +77,17 @@ def test_training_package_does_not_import_the_graph_loader_or_a_writer():
     for path in Path(TRAINING).glob("*.py"):
         src = path.read_text(encoding="utf-8")
         assert "execute_write" not in src and "graph.load" not in src.replace("graph.loader", "")
+
+
+def test_qlora_script_handles_the_v2_format_and_the_ablation():
+    text = (TRAINING / "qlora_kaggle.py").read_text(encoding="utf-8")
+    assert "SLOTS_GIVEN = False" in text and "slots_given" in text
+    assert "VAL_SUBSET" in text and "MAX_SEQ_LEN = 1280" in text
+    assert "intent accuracy" in text and "parse_completion" in text
+    assert "header lines" in text
+
+
+def test_eval_script_documents_execution_accuracy_and_the_baseline():
+    head = (TRAINING / "eval_generate.py").read_text(encoding="utf-8").split('"""')[1]
+    for needle in ("EXECUTION accuracy", "--baseline", "intent accuracy", "--neo4j-uri"):
+        assert needle in head

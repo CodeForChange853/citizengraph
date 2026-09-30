@@ -35,7 +35,7 @@ from citizengraph.core1.templates import (
 )
 
 TARGET_KINDS = ("service", "office", "agency", "document")
-_ID = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
+_ID = re.compile(r"^[a-z][a-z0-9_-]{0,99}$")
 _DOCUMENT = re.compile(r"^[a-z0-9][a-z0-9 ]{0,58}[a-z0-9]$|^[a-z0-9]$")
 MAX_SERVICES = 2
 

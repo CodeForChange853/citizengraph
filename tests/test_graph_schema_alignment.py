@@ -32,9 +32,7 @@ BOOKKEEPING = {
 
 
 def _loadmod():
-    spec = importlib.util.spec_from_file_location(
-        "citizengraph_admin_load_sa", ROOT / "graph/load.py"
-    )
+    spec = importlib.util.spec_from_file_location("citizengraph_admin_load_sa", ROOT / "graph/load.py")
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)

@@ -151,25 +151,14 @@ class TestLinks:
         raw = minimal_seed_raw()
         raw["services"].append({**raw["services"][0], "id": "other", "charter_ref": "T-02"})
         raw["steps"].append(
-            {
-                **next(s for s in raw["steps"] if s["id"] == "svc-S01"),
-                "id": "other-S01",
-                "service_id": "other",
-                "next_id": None,
-            }
+            {**next(s for s in raw["steps"] if s["id"] == "svc-S01"), "id": "other-S01",
+             "service_id": "other", "next_id": None}
         )
         raw["links"].append(
-            {
-                "id": "link-02",
-                "kind": "requirement_satisfied_by",
-                "requirement_id": "svc-R01",
-                "agency": None,
-                "service_id": "other",
-                "office_id": None,
-                "review_status": "needs_review",
-                "flags": [],
-                "sources": [{"file": "TEST.xlsx", "sheet": "T", "rows": [10, 40]}],
-            }
+            {"id": "link-02", "kind": "requirement_satisfied_by", "requirement_id": "svc-R01",
+             "agency": None, "service_id": "other", "office_id": None,
+             "review_status": "needs_review", "flags": [],
+             "sources": [{"file": "TEST.xlsx", "sheet": "T", "rows": [10, 40]}]}
         )
         graph = InMemoryGraph(parse_seed(raw))
         assert [s.id for s in graph.satisfied_by("svc-R01")] == ["other"]
