@@ -1,0 +1,637 @@
+# Curated seed: fees. Every record is needs_review until a human checks it against
+# the spreadsheet (docs/seed_review.md). Nothing here was guessed: blanks are null + a flag.
+fees:
+- id: business_permit-F01
+  service_id: business_permit
+  step_id: business_permit-S01
+  label: Zoning
+  amount_min: 30
+  amount_max: 30
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: &id001
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  source_row: 39
+  flags: []
+- id: business_permit-F02
+  service_id: business_permit
+  step_id: business_permit-S01
+  label: Sanitary Services
+  amount_min: 100
+  amount_max: 100
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id001
+  source_row: 39
+  flags: []
+- id: business_permit-F03
+  service_id: business_permit
+  step_id: business_permit-S01
+  label: Business Name Clearance
+  amount_min: 5.5
+  amount_max: 5.5
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id001
+  source_row: 39
+  flags: []
+- id: business_permit-F04
+  service_id: business_permit
+  step_id: business_permit-S01
+  label: Signboard
+  amount_min: 100
+  amount_max: 100
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id001
+  source_row: 39
+  flags: []
+- id: occupational_permit-F01
+  service_id: occupational_permit
+  step_id: occupational_permit-S01
+  label: Police Clearance
+  amount_min: 25
+  amount_max: 25
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: &id002
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  source_row: 66
+  flags: []
+- id: occupational_permit-F02
+  service_id: occupational_permit
+  step_id: occupational_permit-S01
+  label: Medical Health
+  amount_min: 30
+  amount_max: 30
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id002
+  source_row: 66
+  flags: []
+- id: occupational_permit-F03
+  service_id: occupational_permit
+  step_id: occupational_permit-S01
+  label: Mayor’s Permit Fee
+  amount_min: 40
+  amount_max: 40
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id002
+  source_row: 66
+  flags: []
+- id: occupational_permit-F04
+  service_id: occupational_permit
+  step_id: occupational_permit-S01
+  label: Occupational Tax
+  amount_min: 120
+  amount_max: 120
+  unit: null
+  note: null
+  condition_text: (company)
+  condition_structured: true
+  variant_ids:
+  - taxpayer:company
+  review_status: needs_review
+  source: *id002
+  source_row: 66
+  flags: []
+- id: occupational_permit-F05
+  service_id: occupational_permit
+  step_id: occupational_permit-S01
+  label: Occupational Tax
+  amount_min: 215
+  amount_max: 215
+  unit: null
+  note: null
+  condition_text: (individual)
+  condition_structured: true
+  variant_ids:
+  - taxpayer:individual
+  review_status: needs_review
+  source: *id002
+  source_row: 66
+  flags: []
+- id: product_promotion_peddlers-F01
+  service_id: product_promotion_peddlers
+  step_id: product_promotion_peddlers-S01
+  label: null
+  amount_min: 200
+  amount_max: 200
+  unit: null
+  note: fixed
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: &id003
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 94
+    - 111
+  source_row: 106
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 1: ''Brief interview and inform
+      citizen of requirements and fees'''
+- id: product_promotion_peddlers-F02
+  service_id: product_promotion_peddlers
+  step_id: product_promotion_peddlers-S01
+  label: garbage fee
+  amount_min: 50
+  amount_max: 50
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id003
+  source_row: 106
+  flags: []
+- id: cockfight_permit-F01
+  service_id: cockfight_permit
+  step_id: cockfight_permit-S02
+  label: MD
+  amount_min: 1000
+  amount_max: 1000
+  unit: per cock
+  note: null
+  condition_text: MD
+  condition_structured: true
+  variant_ids:
+  - cockfight_category:MD
+  review_status: needs_review
+  source: &id004
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  source_row: 126
+  flags: []
+- id: cockfight_permit-F02
+  service_id: cockfight_permit
+  step_id: cockfight_permit-S02
+  label: Derby
+  amount_min: 1500
+  amount_max: 1500
+  unit: per cock
+  note: null
+  condition_text: Derby
+  condition_structured: true
+  variant_ids:
+  - cockfight_category:Derby
+  review_status: needs_review
+  source: *id004
+  source_row: 126
+  flags: []
+- id: cockfight_permit-F03
+  service_id: cockfight_permit
+  step_id: cockfight_permit-S02
+  label: 2C
+  amount_min: 3000
+  amount_max: 3000
+  unit: null
+  note: null
+  condition_text: 2C
+  condition_structured: true
+  variant_ids:
+  - cockfight_category:2C
+  review_status: needs_review
+  source: *id004
+  source_row: 126
+  flags: []
+- id: cockfight_permit-F04
+  service_id: cockfight_permit
+  step_id: cockfight_permit-S02
+  label: 3C
+  amount_min: 4500
+  amount_max: 4500
+  unit: null
+  note: null
+  condition_text: 3C
+  condition_structured: true
+  variant_ids:
+  - cockfight_category:3C
+  review_status: needs_review
+  source: *id004
+  source_row: 126
+  flags: []
+- id: cockfight_permit-F05
+  service_id: cockfight_permit
+  step_id: cockfight_permit-S02
+  label: 4C
+  amount_min: 6000
+  amount_max: 6000
+  unit: null
+  note: null
+  condition_text: 4C
+  condition_structured: true
+  variant_ids:
+  - cockfight_category:4C
+  review_status: needs_review
+  source: *id004
+  source_row: 126
+  flags: []
+- id: cockfight_permit-F06
+  service_id: cockfight_permit
+  step_id: cockfight_permit-S02
+  label: 5C
+  amount_min: 7500
+  amount_max: 7500
+  unit: null
+  note: null
+  condition_text: 5C
+  condition_structured: true
+  variant_ids:
+  - cockfight_category:5C
+  review_status: needs_review
+  source: *id004
+  source_row: 126
+  flags: []
+- id: certified_transcription-F01
+  service_id: certified_transcription
+  step_id: certified_transcription-S02
+  label: null
+  amount_min: 50
+  amount_max: 50
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: &id005
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 210
+    - 227
+  source_row: 222
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 2: ''Prepare certified transcription'''
+- id: certified_transcription-F02
+  service_id: certified_transcription
+  step_id: certified_transcription-S03
+  label: null
+  amount_min: 20
+  amount_max: 20
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id005
+  source_row: 223
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 3: ''Prepare certified photocopy'''
+- id: certified_transcription-F03
+  service_id: certified_transcription
+  step_id: certified_transcription-S05
+  label: null
+  amount_min: 40
+  amount_max: 40
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id005
+  source_row: 225
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 5: ''Attach documentary Stamp'''
+- id: court_order_registration-F01
+  service_id: court_order_registration
+  step_id: court_order_registration-S02
+  label: null
+  amount_min: 50
+  amount_max: 50
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: &id006
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
+  source_row: 266
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 2: ''Certification fee'''
+- id: court_order_registration-F02
+  service_id: court_order_registration
+  step_id: court_order_registration-S03
+  label: null
+  amount_min: 50
+  amount_max: 50
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 267
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 3: ''Certificate of Authenticity'''
+- id: court_order_registration-F03
+  service_id: court_order_registration
+  step_id: court_order_registration-S04
+  label: null
+  amount_min: 100
+  amount_max: 100
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 268
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 4: ''Certified transcription (2
+      copies)'''
+- id: court_order_registration-F04
+  service_id: court_order_registration
+  step_id: court_order_registration-S05
+  label: null
+  amount_min: 20
+  amount_max: 20
+  unit: per copy
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 269
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 5: ''Certified photocopy of Court
+      Order'''
+- id: court_order_registration-F05
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Annulment/Legal separation
+  amount_min: 500.0
+  amount_max: 500.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Annulment/Legal separation'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: court_order_registration-F06
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Adoption
+  amount_min: 500.0
+  amount_max: 500.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Adoption'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: court_order_registration-F07
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Judicial Order for Correction
+  amount_min: 200.0
+  amount_max: 200.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Judicial Order for Correction'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: court_order_registration-F08
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Per Guardianship of Custody of Minors
+  amount_min: 200.0
+  amount_max: 200.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Per Guardianship of Custody of Minors'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: court_order_registration-F09
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Per registration of Naturalization
+  amount_min: 500.0
+  amount_max: 500.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Per registration of Naturalization'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: court_order_registration-F10
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Registration of Aliases
+  amount_min: 200.0
+  amount_max: 200.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Registration of Aliases'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: court_order_registration-F11
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Voluntary Renunciation of Citizenship
+  amount_min: 500.0
+  amount_max: 500.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Voluntary Renunciation of Citizenship'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: court_order_registration-F12
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Emancipation of Minor
+  amount_min: 200.0
+  amount_max: 200.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Emancipation of Minor'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: court_order_registration-F13
+  service_id: court_order_registration
+  step_id: court_order_registration-S06
+  label: Presumptive Death
+  amount_min: 500.0
+  amount_max: 500.0
+  unit: null
+  note: null
+  condition_text: 'Fees required under local tax code: Presumptive Death'
+  condition_structured: false
+  variant_ids: []
+  review_status: needs_review
+  source: *id006
+  source_row: 270
+  flags:
+  - code: condition_not_structured
+    message: the type of court proceeding is not a modelled variant
+  - code: not_in_stated_total
+    message: listed as text in the agency action; not part of the stated total (₱220.00)
+- id: ausf_registration-F01
+  service_id: ausf_registration
+  step_id: ausf_registration-S02
+  label: null
+  amount_min: 540
+  amount_max: 540
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 304
+    - 325
+  source_row: 319
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 2: ''Advice for required fees (total
+      fees)'''
+- id: legal_instrument_other-F01
+  service_id: legal_instrument_other
+  step_id: legal_instrument_other-S02
+  label: null
+  amount_min: 300
+  amount_max: 300
+  unit: null
+  note: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 327
+    - 345
+  source_row: 339
+  flags:
+  - code: fee_label_null
+    message: 'the fee cell has no label; see the agency action of step 2: ''Advice for required fees (total
+      fees)'''

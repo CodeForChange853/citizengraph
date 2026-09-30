@@ -1,0 +1,2590 @@
+# Curated seed: steps. Every record is needs_review until a human checks it against
+# the spreadsheet (docs/seed_review.md). Nothing here was guessed: blanks are null + a flag.
+steps:
+- id: business_permit-S01
+  service_id: business_permit
+  order: 1
+  label: A.
+  citizen_step_group: 1
+  citizen_action: Approach receiving employee
+  agency_action: Acknowledge citizens securing business permits
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: Any authorized office personnel/staff
+  internal_person_raw: any authorized office personnel/staff
+  next_id: business_permit-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id001
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  source_row: 39
+  flags: []
+- id: business_permit-S02
+  service_id: business_permit
+  order: 2
+  label: B.
+  citizen_step_group: 2
+  citizen_action: Submit complete requirements with citizen’s signature & filled-out Mayor’s Permit application
+    form
+  agency_action: Receive, evaluate & record application form with complete requirements
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Nila Bernardo / Reina Sabenicio
+  next_id: business_permit-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 40
+  flags:
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 1; fees are listed on that step
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: business_permit-S03
+  service_id: business_permit
+  order: 3
+  label: C.
+  citizen_step_group: 3
+  citizen_action: Wait for the TOP
+  agency_action: Assess & prepare Tax Order of Payment
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Any authorized CTO staff
+  internal_person_raw: Evangeline Marte or any authorized CTO staff
+  next_id: business_permit-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 41
+  flags:
+  - code: charter_note
+    message: 'fees cell note: ALL FEES MUST BE SETTLED AT THE CTO'
+  - code: external_agency_unclear
+    message: the person responsible is CTO staff; this step may belong to the City Treasurer’s Office;
+      external_agency left null until confirmed
+- id: business_permit-S04
+  service_id: business_permit
+  order: 4
+  label: D.
+  citizen_step_group: 4
+  citizen_action: |-
+    Signs TOP
+    Release Book
+  agency_action: TOP is forwarded by an authorized One Stop Shop personnel to the BPLO main office for
+    approval
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 10
+    unit: minute
+    minutes_min: 5
+    minutes_max: 10
+    day_type: unknown
+    raw: 5-10 minutes
+  role: Any authorized CTO staff
+  internal_person_raw: Evangeline Marte or any authorized CTO staff
+  next_id: business_permit-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 42
+  flags:
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 3; fees are listed on that step
+  - code: external_agency_unclear
+    message: the person responsible is CTO staff; this step may belong to the City Treasurer’s Office;
+      external_agency left null until confirmed
+- id: business_permit-S05
+  service_id: business_permit
+  order: 5
+  label: E.
+  citizen_step_group: 5
+  citizen_action: Proceed to the City Treasurer’s Office for payment
+  agency_action: Receive payment & issue receipt based on the approved TOP
+  external_agency: City Treasurer’s Office
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: '- - -'
+  role: Any authorized City Treasurer’s Office collector
+  internal_person_raw: Any authorized City Treasurer’s Office collector
+  next_id: business_permit-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 43
+  flags:
+  - code: time_not_stated
+    message: the charter gives no processing time for this step
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 3; fees are listed on that step
+- id: business_permit-S06
+  service_id: business_permit
+  order: 6
+  label: F.1.
+  citizen_step_group: 6
+  citizen_action: Proceed to the BPLO main office with the proof of payment (official receipt) and complete
+    set of documents
+  agency_action: Receive, record and assign business plate numbers to approved/paid TOPs
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Emma Allequir
+  next_id: business_permit-S07
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 44
+  flags:
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 3; fees are listed on that step
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: business_permit-S07
+  service_id: business_permit
+  order: 7
+  label: F.2.
+  citizen_step_group: 6
+  citizen_action: null
+  agency_action: Prepare & print Business/Mayor’s Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Marie Sarmiento / Dabie Dyan So / Ma. Nila Bernardo
+  next_id: business_permit-S08
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 45
+  flags:
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 3; fees are listed on that step
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: business_permit-S08
+  service_id: business_permit
+  order: 8
+  label: F.3.
+  citizen_step_group: 6
+  citizen_action: null
+  agency_action: Approval of Business/Mayor’s Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 3
+    value_max: 5
+    unit: minute
+    minutes_min: 3
+    minutes_max: 5
+    day_type: unknown
+    raw: 3-5 minutes
+  role: BPLO Chief
+  internal_person_raw: BPLO Chief
+  next_id: business_permit-S09
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 46
+  flags:
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 3; fees are listed on that step
+- id: business_permit-S09
+  service_id: business_permit
+  order: 9
+  label: F.4.
+  citizen_step_group: 6
+  citizen_action: null
+  agency_action: Record and release approved Business/Mayor’s
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 3
+    unit: minute
+    minutes_min: 2
+    minutes_max: 3
+    day_type: unknown
+    raw: 2-3 minutes
+  role: Any authorized BPLO personnel & staff
+  internal_person_raw: Any authorized BPLO personnel & staff
+  next_id: business_permit-S10
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 47
+  flags:
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 3; fees are listed on that step
+- id: business_permit-S10
+  service_id: business_permit
+  order: 10
+  label: G.
+  citizen_step_group: 7
+  citizen_action: Receive permit & sign on the release record book
+  agency_action: Permit
+  external_agency: null
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: '- - -'
+  role: null
+  internal_person_raw: null
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id001
+  source_row: 48
+  flags:
+  - code: time_not_stated
+    message: the charter gives no processing time for this step
+  - code: person_missing
+    message: the charter names no one responsible; role left null
+  - code: agency_action_text_only_permit
+    message: the agency action reads only 'Permit'; time and person are also blank
+- id: occupational_permit-S01
+  service_id: occupational_permit
+  order: 1
+  label: A.
+  citizen_step_group: 1
+  citizen_action: Approach receiving employees
+  agency_action: Acknowledge citizens securing occupational permits
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: Any BPLO personnel or staff
+  internal_person_raw: Any BPLO personnel or staff
+  next_id: occupational_permit-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id002
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  source_row: 66
+  flags:
+  - code: charter_note
+    message: 'fees cell note: ALL FEES MUST BE SETTLED AT THE CTO'
+- id: occupational_permit-S02
+  service_id: occupational_permit
+  order: 2
+  label: B.
+  citizen_step_group: 2
+  citizen_action: Fill-out citizen logbook
+  agency_action: Inform citizen regarding fees and other requirements
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: Any BPLO authorized staff
+  internal_person_raw: Epiphany Marie Sarmiento / Letecia Espiritu / Rizalito Juan Daguman / Or any BPLO
+    authorized staff
+  next_id: occupational_permit-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id002
+  source_row: 67
+  flags:
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 1; fees are listed on that step
+- id: occupational_permit-S03
+  service_id: occupational_permit
+  order: 3
+  label: C.
+  citizen_step_group: 3
+  citizen_action: Proceed to the City Treasurer’s Office for payment
+  agency_action: Receive payment & issue official receipt
+  external_agency: City Treasurer’s Office
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: Any CTO Office authorized collector
+  internal_person_raw: Any CTO Office authorized collector
+  next_id: occupational_permit-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id002
+  source_row: 68
+  flags: []
+- id: occupational_permit-S04
+  service_id: occupational_permit
+  order: 4
+  label: D.
+  citizen_step_group: 4
+  citizen_action: Present proof of payment (official receipt) to BPLO along with other requirements
+  agency_action: Ask for the proof of payment and instruct citizen to fill-out the application form for
+    Occupational Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Any BPLO authorized staff
+  internal_person_raw: Any BPLO authorized staff
+  next_id: occupational_permit-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id002
+  source_row: 69
+  flags: []
+- id: occupational_permit-S05
+  service_id: occupational_permit
+  order: 5
+  label: E.1.
+  citizen_step_group: 5
+  citizen_action: Receive Permit and signs on the release record book
+  agency_action: Prepare & print Occupational Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Epiphany Marie Sarmiento / Ma. Nila Bernardo
+  next_id: occupational_permit-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id002
+  source_row: 70
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: occupational_permit-S06
+  service_id: occupational_permit
+  order: 6
+  label: E.2.
+  citizen_step_group: 5
+  citizen_action: null
+  agency_action: Approval of the Occupational Permits
+  external_agency: null
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: null
+  role: BPLO Chief
+  internal_person_raw: BPLO Chief
+  next_id: occupational_permit-S07
+  duration_shared_from: occupational_permit-S05
+  review_status: needs_review
+  source: *id002
+  source_row: 71
+  flags:
+  - code: merged_cell_shared
+    message: the time cell is merged with step 5 (E.1.) and covers steps 5-7; the value is counted once,
+      on step 5
+- id: occupational_permit-S07
+  service_id: occupational_permit
+  order: 7
+  label: E.3.
+  citizen_step_group: 5
+  citizen_action: null
+  agency_action: Release approved Occupational Permit
+  external_agency: null
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: null
+  role: null
+  internal_person_raw: Epiphany Marie Sarmiento / Ma. Nila Bernardo
+  next_id: null
+  duration_shared_from: occupational_permit-S05
+  review_status: needs_review
+  source: *id002
+  source_row: 72
+  flags:
+  - code: merged_cell_shared
+    message: the time cell is merged with step 5 (E.1.) and covers steps 5-7; the value is counted once,
+      on step 5
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: product_promotion_peddlers-S01
+  service_id: product_promotion_peddlers
+  order: 1
+  label: A.
+  citizen_step_group: 1
+  citizen_action: Citizen approach receiving employee
+  agency_action: Brief interview and inform citizen of requirements and fees
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 3
+    value_max: 3
+    unit: minute
+    minutes_min: 3
+    minutes_max: 3
+    day_type: unknown
+    raw: 3 minutes
+  role: Any authorized BPLO staff
+  internal_person_raw: Emma Allequir / or any authorized BPLO staff
+  next_id: product_promotion_peddlers-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id003
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 94
+    - 111
+  source_row: 106
+  flags:
+  - code: charter_note
+    message: 'fees cell note: ALL FEES MUST BE SETTLED AT THE CTO'
+- id: product_promotion_peddlers-S02
+  service_id: product_promotion_peddlers
+  order: 2
+  label: B.
+  citizen_step_group: 2
+  citizen_action: Proceed to CTO for payment
+  agency_action: Receive payment and issue official receipt
+  external_agency: City Treasurer’s Office
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: '- - -'
+  role: Any authorized CTO collector
+  internal_person_raw: Any authorized CTO collector
+  next_id: product_promotion_peddlers-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id003
+  source_row: 107
+  flags:
+  - code: time_not_stated
+    message: the charter gives no processing time for this step
+  - code: merged_cell_shared
+    message: the fees cell is merged with step 1; fees are listed on that step
+  - code: external_agency_from_abbreviation
+    message: the charter says 'CTO'; read as City Treasurer’s Office (BPLO-01 and BPLO-02 use the full
+      name)
+- id: product_promotion_peddlers-S03
+  service_id: product_promotion_peddlers
+  order: 3
+  label: C.
+  citizen_step_group: 3
+  citizen_action: Present proof of payment (official receipt) to BPLO along with other requirements
+  agency_action: Prepare & print Special Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Dabie Dyan So / Epiphany Sarmiento / Rizalito Juan Daguman
+  next_id: product_promotion_peddlers-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id003
+  source_row: 108
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: product_promotion_peddlers-S04
+  service_id: product_promotion_peddlers
+  order: 4
+  label: D.1.
+  citizen_step_group: 4
+  citizen_action: Receive Permit and signs on the release record book
+  agency_action: Approval of the Special Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: BPLO Chief
+  internal_person_raw: Ma. Nila Bernardo / BPLO Chief
+  next_id: product_promotion_peddlers-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id003
+  source_row: 109
+  flags:
+  - code: role_partial
+    message: the cell has a name and a role title; only the role title is kept
+- id: product_promotion_peddlers-S05
+  service_id: product_promotion_peddlers
+  order: 5
+  label: D.2
+  citizen_step_group: 4
+  citizen_action: null
+  agency_action: Release and record approved Special Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 3
+    value_max: 3
+    unit: minute
+    minutes_min: 3
+    minutes_max: 3
+    day_type: unknown
+    raw: 3 minutes
+  role: Any authorized BPLO staff
+  internal_person_raw: David Sarmiento / or any authorized BPLO staff
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id003
+  source_row: 110
+  flags: []
+- id: cockfight_permit-S01
+  service_id: cockfight_permit
+  order: 1
+  label: A.
+  citizen_step_group: 1
+  citizen_action: Approach receiving employee
+  agency_action: Brief interview
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Rizalito Juan Daguman
+  next_id: cockfight_permit-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id004
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  source_row: 125
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+  - code: charter_note
+    message: 'fees cell note: ALL FEES TO BE SETTLED AT THE CTO'
+- id: cockfight_permit-S02
+  service_id: cockfight_permit
+  order: 2
+  label: B.
+  citizen_step_group: 2
+  citizen_action: Proceeds to CTO for payment
+  agency_action: Receive payment and issue official receipt
+  external_agency: City Treasurer’s Office
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: '- - -'
+  role: Any authorized CTO collector
+  internal_person_raw: Any authorized CTO collector
+  next_id: cockfight_permit-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id004
+  source_row: 126
+  flags:
+  - code: time_not_stated
+    message: the charter gives no processing time for this step
+  - code: charter_note
+    message: 'fees cell note: ALL FEES MUST BE SETTLED AT THE CTO'
+  - code: external_agency_from_abbreviation
+    message: the charter says 'CTO'; read as City Treasurer’s Office (BPLO-01 and BPLO-02 use the full
+      name)
+- id: cockfight_permit-S03
+  service_id: cockfight_permit
+  order: 3
+  label: C.1.
+  citizen_step_group: 3
+  citizen_action: Present proof of payment (official receipt) to BPLO along with other requirements
+  agency_action: Prepare & print Cockfight Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Rizalito Juan Daguman / Ma. Nila Bernardo
+  next_id: cockfight_permit-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id004
+  source_row: 127
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: cockfight_permit-S04
+  service_id: cockfight_permit
+  order: 4
+  label: C.2.
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: Approval of Cockfight Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Any authorized BPLO staff
+  internal_person_raw: Epiphany Marie Sarmiento / or any authorized BPLO staff
+  next_id: cockfight_permit-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id004
+  source_row: 128
+  flags: []
+- id: cockfight_permit-S05
+  service_id: cockfight_permit
+  order: 5
+  label: D.
+  citizen_step_group: 4
+  citizen_action: Receive Permit and sign on the release record book
+  agency_action: Release and record approved Cockfight Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 3
+    value_max: 3
+    unit: minute
+    minutes_min: 3
+    minutes_max: 3
+    day_type: unknown
+    raw: 3 minutes
+  role: BPLO Chief
+  internal_person_raw: BPLO Chief
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id004
+  source_row: 129
+  flags: []
+- id: fishing_permit-S01
+  service_id: fishing_permit
+  order: 1
+  label: A.
+  citizen_step_group: 1
+  citizen_action: Proceed to the City Agriculture Office for assessment of fees
+  agency_action: Assessment based on applied permit
+  external_agency: City Agriculture Office
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 10
+    unit: minute
+    minutes_min: 5
+    minutes_max: 10
+    day_type: unknown
+    raw: 5 - 10 minutes
+  role: City Agriculture Office authorized personnel
+  internal_person_raw: City Agriculture Office authorized personnel
+  next_id: fishing_permit-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id005
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 149
+    - 165
+  source_row: 160
+  flags: []
+- id: fishing_permit-S02
+  service_id: fishing_permit
+  order: 2
+  label: B.
+  citizen_step_group: 2
+  citizen_action: Pay applicable fees at the City Agriculture Office
+  agency_action: |-
+    City Agriculture Office receives payment and issues an official
+    receipt
+  external_agency: City Agriculture Office
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: '- - -'
+  role: Any authorized City Agriculture Office collector
+  internal_person_raw: Any authorized City Agriculture Office collector
+  next_id: fishing_permit-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id005
+  source_row: 161
+  flags:
+  - code: time_not_stated
+    message: the charter gives no processing time for this step
+- id: fishing_permit-S03
+  service_id: fishing_permit
+  order: 3
+  label: C.1.
+  citizen_step_group: 3
+  citizen_action: Present proof of payment (official receipt) to BPLO along with other requirements
+  agency_action: Prepare & print Special Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Any authorized BPLO staff
+  internal_person_raw: Dabie Dyan So / Letecia Espiritu / David Sarmiento / Ma. Nila Bernardo or / any
+    authorized BPLO staff
+  next_id: fishing_permit-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id005
+  source_row: 162
+  flags: []
+- id: fishing_permit-S04
+  service_id: fishing_permit
+  order: 4
+  label: C.2.
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: Approval of the Special Permit
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 3
+    value_max: 5
+    unit: minute
+    minutes_min: 3
+    minutes_max: 5
+    day_type: unknown
+    raw: 3- 5 minutes
+  role: BPLO Chief
+  internal_person_raw: BPLO Chief
+  next_id: fishing_permit-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id005
+  source_row: 163
+  flags: []
+- id: fishing_permit-S05
+  service_id: fishing_permit
+  order: 5
+  label: C.3.
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: Release and record approved Special Permit to authorized City Agriculture Office staff
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 3
+    value_max: 5
+    unit: minute
+    minutes_min: 3
+    minutes_max: 5
+    day_type: unknown
+    raw: 3- 5 minutes
+  role: Any authorized BPLO staff
+  internal_person_raw: Emma Allequir or any authorized BPLO staff
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id005
+  source_row: 164
+  flags: []
+- id: birth_registration_timely-S01
+  service_id: birth_registration_timely
+  order: 1
+  label: 1.1.
+  citizen_step_group: 1
+  citizen_action: |-
+    Presentation / submission of
+    documents
+  agency_action: Examination and verification of completeness of documents presented
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 minutes
+  role: null
+  internal_person_raw: Rosabella Lauderes / Arlene Nacorda
+  next_id: birth_registration_timely-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id006
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 21
+    - 40
+  source_row: 32
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_timely-S02
+  service_id: birth_registration_timely
+  order: 2
+  label: '1.2'
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: in case when LCR personnel will accomplish/fill up the birth certificate form
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 minutes
+  role: null
+  internal_person_raw: Lovie Lyn Dy / Nengie Sta. Catalina / Maria Theresa Mateo
+  next_id: birth_registration_timely-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id006
+  source_row: 33
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_timely-S03
+  service_id: birth_registration_timely
+  order: 3
+  label: 1.3.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Review/Assessment of submitted documents
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: birth_registration_timely-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id006
+  source_row: 34
+  flags: []
+- id: birth_registration_timely-S04
+  service_id: birth_registration_timely
+  order: 4
+  label: 1.4.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Officially received by the City Civil Registrar
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: City Civil Registrar
+  internal_person_raw: City Civil Registrar
+  next_id: birth_registration_timely-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id006
+  source_row: 35
+  flags: []
+- id: birth_registration_timely-S05
+  service_id: birth_registration_timely
+  order: 5
+  label: '1.5'
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Officially enter the name in Register of Certificate of Live Birth
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Christine Resulta
+  next_id: birth_registration_timely-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id006
+  source_row: 36
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_timely-S06
+  service_id: birth_registration_timely
+  order: 6
+  label: 1.6.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Encode to computer for indexing purposes
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Dennis B. Ortiz
+  next_id: birth_registration_timely-S07
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id006
+  source_row: 37
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_timely-S07
+  service_id: birth_registration_timely
+  order: 7
+  label: 1.7.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Archiving/filing of registered birth certificate
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Roel T. Reyes
+  next_id: birth_registration_timely-S08
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id006
+  source_row: 38
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_timely-S08
+  service_id: birth_registration_timely
+  order: 8
+  label: '2.'
+  citizen_step_group: 2
+  citizen_action: Personally appear to receive the registered Civil Registry Document
+  agency_action: Issuance of registered birth certificate (owner’s copy)
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Rosabella Lauderes
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id006
+  source_row: 39
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_delayed-S01
+  service_id: birth_registration_delayed
+  order: 1
+  label: 1.1.
+  citizen_step_group: 1
+  citizen_action: Presentation / submission of documents
+  agency_action: Examination and verification of completeness of documents presented
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Nengie Sta. Catalina / Arlene Nacorda
+  next_id: birth_registration_delayed-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id007
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
+  source_row: 64
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_delayed-S02
+  service_id: birth_registration_delayed
+  order: 2
+  label: 1.2.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: in case when LCR personnel will accomplish/fill up the birth certificate form
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 minutes
+  role: null
+  internal_person_raw: Lovie Lyn Dy / Nengie Sta. Catalina / Arlene Nacorda / Maria Theresa Mateo
+  next_id: birth_registration_delayed-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id007
+  source_row: 65
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_delayed-S03
+  service_id: birth_registration_delayed
+  order: 3
+  label: 1.3.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Review/Assessment of submitted documents
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: birth_registration_delayed-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id007
+  source_row: 66
+  flags: []
+- id: birth_registration_delayed-S04
+  service_id: birth_registration_delayed
+  order: 4
+  label: 1.4.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Posting of Birth Certificate
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: day
+    minutes_min: 14400
+    minutes_max: 14400
+    day_type: unknown
+    raw: 10 days
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: birth_registration_delayed-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id007
+  source_row: 67
+  flags:
+  - code: day_type_unknown
+    message: '''10 days'' does not say calendar or working days (day_type left unknown); how a legally
+      required posting period interacts with RA 11032 processing limits is an open question (CLAUDE.md
+      open question 3)'
+- id: birth_registration_delayed-S05
+  service_id: birth_registration_delayed
+  order: 5
+  label: 1.5.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Officially received by the City Civil Registrar
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: City Civil Registrar
+  internal_person_raw: City Civil Registrar
+  next_id: birth_registration_delayed-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id007
+  source_row: 68
+  flags: []
+- id: birth_registration_delayed-S06
+  service_id: birth_registration_delayed
+  order: 6
+  label: 1.6.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Officially enter the name in Register of Certificate of Live Birth
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Christine Resulta
+  next_id: birth_registration_delayed-S07
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id007
+  source_row: 69
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_delayed-S07
+  service_id: birth_registration_delayed
+  order: 7
+  label: 1.7.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Encode to computer for indexing purposes
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Dennis B. Ortiz
+  next_id: birth_registration_delayed-S08
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id007
+  source_row: 70
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_delayed-S08
+  service_id: birth_registration_delayed
+  order: 8
+  label: 2.1.
+  citizen_step_group: 2
+  citizen_action: Personally appear to receive the registered Civil Registry Document
+  agency_action: Archiving/filing of registered birth certificate
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Roel T. Reyes
+  next_id: birth_registration_delayed-S09
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id007
+  source_row: 71
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: birth_registration_delayed-S09
+  service_id: birth_registration_delayed
+  order: 9
+  label: 2.2.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Issuance of registered birth certificate (owner’s copy)
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Rosabella Lauderes
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id007
+  source_row: 72
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: marriage_registration_timely-S01
+  service_id: marriage_registration_timely
+  order: 1
+  label: 1.1.
+  citizen_step_group: 1
+  citizen_action: Presentation / submission of documents
+  agency_action: Examination and verification of completeness of documents presented
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: marriage_registration_timely-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id008
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 106
+    - 124
+  source_row: 117
+  flags: []
+- id: marriage_registration_timely-S02
+  service_id: marriage_registration_timely
+  order: 2
+  label: 1.2.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Review/Assessment of submitted documents
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: marriage_registration_timely-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id008
+  source_row: 118
+  flags: []
+- id: marriage_registration_timely-S03
+  service_id: marriage_registration_timely
+  order: 3
+  label: 1.3.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Officially received by the City Civil Registrar
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: City Civil Registrar
+  internal_person_raw: City Civil Registrar
+  next_id: marriage_registration_timely-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id008
+  source_row: 119
+  flags: []
+- id: marriage_registration_timely-S04
+  service_id: marriage_registration_timely
+  order: 4
+  label: 1.4.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Officially enter the name in Register of Certificate of Marriage
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: marriage_registration_timely-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id008
+  source_row: 120
+  flags: []
+- id: marriage_registration_timely-S05
+  service_id: marriage_registration_timely
+  order: 5
+  label: 1.5.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Encode to computer for indexing purposes
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Dennis Ortiz
+  next_id: marriage_registration_timely-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id008
+  source_row: 121
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: marriage_registration_timely-S06
+  service_id: marriage_registration_timely
+  order: 6
+  label: 2.1.
+  citizen_step_group: 2
+  citizen_action: Personally appear to receive the registered Civil Registry Document
+  agency_action: Archiving/filing of registered marriage certificate
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Roel T. Reyes
+  next_id: marriage_registration_timely-S07
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id008
+  source_row: 122
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: marriage_registration_timely-S07
+  service_id: marriage_registration_timely
+  order: 7
+  label: 2.2.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Issuance of registered CRD (owner’s copy)
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id008
+  source_row: 123
+  flags: []
+- id: death_registration_timely-S01
+  service_id: death_registration_timely
+  order: 1
+  label: 1.1.
+  citizen_step_group: 1
+  citizen_action: Presentation / submission of documents
+  agency_action: Examination and verification of completeness of documents presented
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 minutes
+  role: null
+  internal_person_raw: Irmina B. Data
+  next_id: death_registration_timely-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id009
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 148
+    - 168
+  source_row: 160
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: death_registration_timely-S02
+  service_id: death_registration_timely
+  order: 2
+  label: '1.2'
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: In case when LCR personnel will accomplish/fill out the death certificate form
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 minutes
+  role: null
+  internal_person_raw: Irmina B. Data
+  next_id: death_registration_timely-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id009
+  source_row: 161
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: death_registration_timely-S03
+  service_id: death_registration_timely
+  order: 3
+  label: 1.3.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Review/Assessment of submitted documents
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Irmina B. Data
+  next_id: death_registration_timely-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id009
+  source_row: 162
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: death_registration_timely-S04
+  service_id: death_registration_timely
+  order: 4
+  label: 1.4.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Officially received by the City Civil Registrar
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: City Civil Registrar
+  internal_person_raw: City Civil Registrar
+  next_id: death_registration_timely-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id009
+  source_row: 163
+  flags: []
+- id: death_registration_timely-S05
+  service_id: death_registration_timely
+  order: 5
+  label: 1.5.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Officially enter the name in Register of Certificate of Death
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: null
+  internal_person_raw: Irmina B. Data
+  next_id: death_registration_timely-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id009
+  source_row: 164
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: death_registration_timely-S06
+  service_id: death_registration_timely
+  order: 6
+  label: 1.6.
+  citizen_step_group: 1
+  citizen_action: null
+  agency_action: Encode to computer for indexing purposes
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Dennis B. Ortiz
+  next_id: death_registration_timely-S07
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id009
+  source_row: 165
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: death_registration_timely-S07
+  service_id: death_registration_timely
+  order: 7
+  label: 2.1.
+  citizen_step_group: 2
+  citizen_action: Personally appear to receive the registered Civil Registry Document
+  agency_action: Archiving/filing of registered marriage certificate
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Roel T. Reyes
+  next_id: death_registration_timely-S08
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id009
+  source_row: 166
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+  - code: suspected_copy_paste
+    message: the step says 'registered marriage certificate' in a death registration service
+- id: death_registration_timely-S08
+  service_id: death_registration_timely
+  order: 8
+  label: 2.2.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Issuance of registered CRD (owner’s copy)
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: null
+  internal_person_raw: Irmina B. Data
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id009
+  source_row: 167
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+- id: certified_transcription-S01
+  service_id: certified_transcription
+  order: 1
+  label: '1.'
+  citizen_step_group: 1
+  citizen_action: Personally request for electronic endorsement
+  agency_action: Perform search in indices aided by computer
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: LCR Personnel
+  internal_person_raw: Dennis B. Ortiz / LCR Personnel
+  next_id: certified_transcription-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id010
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 210
+    - 227
+  source_row: 221
+  flags:
+  - code: role_partial
+    message: the cell has a name and a role title; only the role title is kept
+  - code: suspected_copy_paste
+    message: the citizen step says 'Personally request for electronic endorsement', which is LCRO-08's
+      step
+- id: certified_transcription-S02
+  service_id: certified_transcription
+  order: 2
+  label: 2.1.
+  citizen_step_group: 2
+  citizen_action: Pay required fees
+  agency_action: Prepare certified transcription
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 15
+    value_max: 15
+    unit: minute
+    minutes_min: 15
+    minutes_max: 15
+    day_type: unknown
+    raw: 15 minutes
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: certified_transcription-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id010
+  source_row: 222
+  flags: []
+- id: certified_transcription-S03
+  service_id: certified_transcription
+  order: 3
+  label: 2.2.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Prepare certified photocopy
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: LCR Personnel
+  internal_person_raw: Ma. Therese Mateo / LCR Personnel
+  next_id: certified_transcription-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id010
+  source_row: 223
+  flags:
+  - code: role_partial
+    message: the cell has a name and a role title; only the role title is kept
+- id: certified_transcription-S04
+  service_id: certified_transcription
+  order: 4
+  label: 2.3.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Sign the document
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: City Civil Registrar
+  internal_person_raw: City Civil Registrar
+  next_id: certified_transcription-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id010
+  source_row: 224
+  flags: []
+- id: certified_transcription-S05
+  service_id: certified_transcription
+  order: 5
+  label: 2.4.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Attach documentary Stamp
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: LCR Personnel
+  internal_person_raw: Nengie Sta. Catalina / LCR Personnel
+  next_id: certified_transcription-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id010
+  source_row: 225
+  flags:
+  - code: role_partial
+    message: the cell has a name and a role title; only the role title is kept
+- id: certified_transcription-S06
+  service_id: certified_transcription
+  order: 6
+  label: '3.'
+  citizen_step_group: 3
+  citizen_action: Personally receive the requested document
+  agency_action: Issuance of requested documents
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id010
+  source_row: 226
+  flags: []
+- id: court_order_registration-S01
+  service_id: court_order_registration
+  order: 1
+  label: '1.'
+  citizen_step_group: 1
+  citizen_action: Presentation of document
+  agency_action: Verification of completeness of document
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: court_order_registration-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id011
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
+  source_row: 265
+  flags: []
+- id: court_order_registration-S02
+  service_id: court_order_registration
+  order: 2
+  label: '2.1'
+  citizen_step_group: 2
+  citizen_action: Pay required fees
+  agency_action: Certification fee
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 15
+    value_max: 15
+    unit: minute
+    minutes_min: 15
+    minutes_max: 15
+    day_type: unknown
+    raw: 15 minutes
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: court_order_registration-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id011
+  source_row: 266
+  flags: []
+- id: court_order_registration-S03
+  service_id: court_order_registration
+  order: 3
+  label: '2.2'
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Certificate of Authenticity
+  external_agency: null
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: null
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: court_order_registration-S04
+  duration_shared_from: court_order_registration-S02
+  review_status: needs_review
+  source: *id011
+  source_row: 267
+  flags:
+  - code: merged_cell_shared
+    message: the time cell is merged with step 2 (2.1) and covers steps 2-6; the value is counted once,
+      on step 2
+- id: court_order_registration-S04
+  service_id: court_order_registration
+  order: 4
+  label: '2.3'
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Certified transcription (2 copies)
+  external_agency: null
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: null
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: court_order_registration-S05
+  duration_shared_from: court_order_registration-S02
+  review_status: needs_review
+  source: *id011
+  source_row: 268
+  flags:
+  - code: merged_cell_shared
+    message: the time cell is merged with step 2 (2.1) and covers steps 2-6; the value is counted once,
+      on step 2
+- id: court_order_registration-S05
+  service_id: court_order_registration
+  order: 5
+  label: '2.4'
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Certified photocopy of Court Order
+  external_agency: null
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: null
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: court_order_registration-S06
+  duration_shared_from: court_order_registration-S02
+  review_status: needs_review
+  source: *id011
+  source_row: 269
+  flags:
+  - code: merged_cell_shared
+    message: the time cell is merged with step 2 (2.1) and covers steps 2-6; the value is counted once,
+      on step 2
+- id: court_order_registration-S06
+  service_id: court_order_registration
+  order: 6
+  label: '2.5'
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: |-
+    Fees required under local tax code:
+    a. Annulment/Legal separation
+    - ₱500.00
+    b. Adoption - ₱500.00
+    c. Judicial Order for Correction
+    - ₱200.00
+    d. Per Guardianship of Custody of Minors - ₱200.00
+    e. Per registration of Naturalization - ₱500.00
+    f. Registration of Aliases - ₱200
+    g. Voluntary Renunciation of Citizenship - ₱500.00
+    h. Emancipation of Minor -
+    ₱200.00
+    i. Presumptive Death - ₱500.00
+  external_agency: null
+  duration:
+    status: not_stated
+    day_type: unknown
+    raw: null
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: court_order_registration-S07
+  duration_shared_from: court_order_registration-S02
+  review_status: needs_review
+  source: *id011
+  source_row: 270
+  flags:
+  - code: merged_cell_shared
+    message: the time cell is merged with step 2 (2.1) and covers steps 2-6; the value is counted once,
+      on step 2
+- id: court_order_registration-S07
+  service_id: court_order_registration
+  order: 7
+  label: 3.1.
+  citizen_step_group: 3
+  citizen_action: Personally receive the requested document
+  agency_action: Prepare civil registry document with annotation of Court Order
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 15
+    value_max: 15
+    unit: minute
+    minutes_min: 15
+    minutes_max: 15
+    day_type: unknown
+    raw: 15 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: court_order_registration-S08
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id011
+  source_row: 271
+  flags: []
+- id: court_order_registration-S08
+  service_id: court_order_registration
+  order: 8
+  label: 3.2.
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: Officially received by the City Civil Registrar
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: City Civil Registrar
+  internal_person_raw: City Civil Registrar
+  next_id: court_order_registration-S09
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id011
+  source_row: 272
+  flags: []
+- id: court_order_registration-S09
+  service_id: court_order_registration
+  order: 9
+  label: '3.3'
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: Officially entered in Register of Court Order
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: court_order_registration-S10
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id011
+  source_row: 273
+  flags: []
+- id: court_order_registration-S10
+  service_id: court_order_registration
+  order: 10
+  label: 3.4.
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: Issuance of documents
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: court_order_registration-S11
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id011
+  source_row: 274
+  flags: []
+- id: court_order_registration-S11
+  service_id: court_order_registration
+  order: 11
+  label: 3.5.
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: |-
+    Mailing of documents to PSA, Manila
+    Note: The client may opt for a
+    private courier, which has a corresponding service fee.
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 30
+    value_max: 30
+    unit: minute
+    minutes_min: 30
+    minutes_max: 30
+    day_type: unknown
+    raw: 30 minutes
+  role: null
+  internal_person_raw: Ma. Iriss Bañacia
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id011
+  source_row: 275
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+  - code: charter_note
+    message: 'fees cell note: private courier fees will apply'
+  - code: psa_destination_differs
+    message: the PSA mailing destination differs between services (Catbalogan LCRO-08; Tacloban LCRO-10/12/13/14;
+      Manila LCRO-11/15/16); confirm
+- id: ausf_registration-S01
+  service_id: ausf_registration
+  order: 1
+  label: '1.'
+  citizen_step_group: 1
+  citizen_action: Presentation of document
+  agency_action: Verification of completeness of document
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: ausf_registration-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id012
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 304
+    - 325
+  source_row: 318
+  flags: []
+- id: ausf_registration-S02
+  service_id: ausf_registration
+  order: 2
+  label: '2.'
+  citizen_step_group: 2
+  citizen_action: Pay required fees
+  agency_action: Advice for required fees (total fees)
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 15
+    value_max: 15
+    unit: minute
+    minutes_min: 15
+    minutes_max: 15
+    day_type: unknown
+    raw: 15 minutes
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: ausf_registration-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id012
+  source_row: 319
+  flags: []
+- id: ausf_registration-S03
+  service_id: ausf_registration
+  order: 3
+  label: 2.1.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Prepare documents for Legitimation. i.e. registration fee and certified transcription
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 15
+    value_max: 15
+    unit: minute
+    minutes_min: 15
+    minutes_max: 15
+    day_type: unknown
+    raw: 15 minutes
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: ausf_registration-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id012
+  source_row: 320
+  flags:
+  - code: suspected_copy_paste
+    message: the step says 'Prepare documents for Legitimation' in the AUSF service (LCRO-12's wording)
+- id: ausf_registration-S04
+  service_id: ausf_registration
+  order: 4
+  label: 2.2.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Officially received by the City Civil Registrar
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: City Civil Registrar
+  internal_person_raw: City Civil Registrar
+  next_id: ausf_registration-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id012
+  source_row: 321
+  flags: []
+- id: ausf_registration-S05
+  service_id: ausf_registration
+  order: 5
+  label: 2.3.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Officially enter the document in Register of Legal Instrument
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: ausf_registration-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id012
+  source_row: 322
+  flags: []
+- id: ausf_registration-S06
+  service_id: ausf_registration
+  order: 6
+  label: 2.4.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Issuance of requested documents
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: ausf_registration-S07
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id012
+  source_row: 323
+  flags: []
+- id: ausf_registration-S07
+  service_id: ausf_registration
+  order: 7
+  label: '3.'
+  citizen_step_group: 3
+  citizen_action: Personally receive the requested document
+  agency_action: |-
+    Mailing of documents to PSA, Tacloban City
+    Note: The client may opt for a private courier, which has a corresponding service fee.
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 30
+    value_max: 30
+    unit: minute
+    minutes_min: 30
+    minutes_max: 30
+    day_type: unknown
+    raw: 30 minutes
+  role: null
+  internal_person_raw: Ma. Iriss Bañacia
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id012
+  source_row: 324
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+  - code: charter_note
+    message: 'fees cell note: option for private courier'
+  - code: psa_destination_differs
+    message: the PSA mailing destination differs between services (Catbalogan LCRO-08; Tacloban LCRO-10/12/13/14;
+      Manila LCRO-11/15/16); confirm
+- id: legal_instrument_other-S01
+  service_id: legal_instrument_other
+  order: 1
+  label: '1.'
+  citizen_step_group: 1
+  citizen_action: Presentation of document
+  agency_action: Verification of completeness of document
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: legal_instrument_other-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source: &id013
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 327
+    - 345
+  source_row: 338
+  flags: []
+- id: legal_instrument_other-S02
+  service_id: legal_instrument_other
+  order: 2
+  label: '2.'
+  citizen_step_group: 2
+  citizen_action: Pay required fees
+  agency_action: Advice for required fees (total fees)
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 15
+    value_max: 15
+    unit: minute
+    minutes_min: 15
+    minutes_max: 15
+    day_type: unknown
+    raw: 15 minutes
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: legal_instrument_other-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id013
+  source_row: 339
+  flags: []
+- id: legal_instrument_other-S03
+  service_id: legal_instrument_other
+  order: 3
+  label: 2.1.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Prepare documents for Legal Instrument- other than Legitimation and AUSF
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 15
+    value_max: 15
+    unit: minute
+    minutes_min: 15
+    minutes_max: 15
+    day_type: unknown
+    raw: 15 minutes
+  role: LCR Personnel
+  internal_person_raw: LCR Personnel
+  next_id: legal_instrument_other-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id013
+  source_row: 340
+  flags: []
+- id: legal_instrument_other-S04
+  service_id: legal_instrument_other
+  order: 4
+  label: 2.2.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Officially received by the City Civil Registrar
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: City Civil Registrar
+  internal_person_raw: City Civil Registrar
+  next_id: legal_instrument_other-S05
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id013
+  source_row: 341
+  flags: []
+- id: legal_instrument_other-S05
+  service_id: legal_instrument_other
+  order: 5
+  label: 2.3.
+  citizen_step_group: 2
+  citizen_action: null
+  agency_action: Officially enter the document in Register of Legal Instrument
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: legal_instrument_other-S06
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id013
+  source_row: 342
+  flags: []
+- id: legal_instrument_other-S06
+  service_id: legal_instrument_other
+  order: 6
+  label: '3.1'
+  citizen_step_group: 3
+  citizen_action: Personally receive the requested document
+  agency_action: Issuance of requested documents
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 minutes
+  role: Registration Officer
+  internal_person_raw: Registration Officer
+  next_id: legal_instrument_other-S07
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id013
+  source_row: 343
+  flags: []
+- id: legal_instrument_other-S07
+  service_id: legal_instrument_other
+  order: 7
+  label: 3.2.
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: |-
+    Mailing of documents to PSA, Tacloban
+    Note: The client may opt for a private courier, which has a corresponding service fee.
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 30
+    value_max: 30
+    unit: minute
+    minutes_min: 30
+    minutes_max: 30
+    day_type: unknown
+    raw: 30 minutes
+  role: null
+  internal_person_raw: Ma. Iriss Bañacia
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source: *id013
+  source_row: 344
+  flags:
+  - code: role_not_given
+    message: the charter gives names only; role left null
+  - code: charter_note
+    message: 'fees cell note: option for private courier'
+  - code: psa_destination_differs
+    message: the PSA mailing destination differs between services (Catbalogan LCRO-08; Tacloban LCRO-10/12/13/14;
+      Manila LCRO-11/15/16); confirm

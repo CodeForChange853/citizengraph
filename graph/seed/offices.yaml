@@ -1,0 +1,83 @@
+# Curated seed: offices. Every record is needs_review until a human checks it against
+# the spreadsheet (docs/seed_review.md). Nothing here was guessed: blanks are null + a flag.
+offices:
+- id: bplo
+  name: Business Permits & Licensing Office
+  review_status: needs_review
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 94
+    - 111
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 149
+    - 165
+  flags:
+  - code: divisions_in_charter
+    message: the sheet names 'Assessment Division / Administrative Division' for BPLO-01 and 'Administrative
+      Division' for BPLO-02, 04, 05, 07; divisions are not modelled
+- id: lcro
+  name: Civil Registry Office
+  review_status: needs_review
+  sources:
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 21
+    - 40
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 106
+    - 124
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 148
+    - 168
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 210
+    - 227
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 304
+    - 325
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 327
+    - 345
+  flags:
+  - code: name_recased
+    message: the sheet writes 'CIVIL REGISTRY OFFICE' in capitals

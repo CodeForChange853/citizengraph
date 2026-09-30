@@ -1,0 +1,1185 @@
+# Curated seed: requirements. Every record is needs_review until a human checks it against
+# the spreadsheet (docs/seed_review.md). Nothing here was guessed: blanks are null + a flag.
+requirements:
+- id: business_permit-R01
+  service_id: business_permit
+  key: '1'
+  text: Duly accomplished Mayor’s Permit Application Form
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: One Stop Shop of the BPLO
+  review_status: needs_review
+  source: &id001
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  source_row: 19
+  flags: []
+- id: business_permit-R02
+  service_id: business_permit
+  key: '2'
+  text: Brgy. Business Clearance & Solid Waste Certification
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Barangay where the business is located
+  review_status: needs_review
+  source: *id001
+  source_row: 20
+  flags: []
+- id: business_permit-R03
+  service_id: business_permit
+  key: '3'
+  text: City Solid Waste Certification
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Solid Waste Management Office (CSWMO)
+  review_status: needs_review
+  source: *id001
+  source_row: 21
+  flags: []
+- id: business_permit-R04
+  service_id: business_permit
+  key: '4'
+  text: Single Proprietor – Owner’s Cedula Corporation – Corporation Cedula
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Barangay or City Treasurer’s Office
+  review_status: needs_review
+  source: *id001
+  source_row: 22
+  flags:
+  - code: merged_cell_text
+    message: one cell holds 'Single Proprietor – Owner’s Cedula' and 'Corporation – Corporation Cedula';
+      kept as written, not split into two requirements
+- id: business_permit-R05
+  service_id: business_permit
+  key: '5'
+  text: 'Single Proprietor:'
+  group: true
+  parent_id: null
+  min_required: null
+  condition_text: 'Single Proprietor:'
+  condition_structured: true
+  variant_ids:
+  - business_type:single_proprietor
+  secured_at: null
+  review_status: needs_review
+  source: *id001
+  source_row: 23
+  flags: []
+- id: business_permit-R06
+  service_id: business_permit
+  key: null
+  text: DTI Certification of Registration
+  group: false
+  parent_id: business_permit-R05
+  min_required: null
+  condition_text: 'Single Proprietor:'
+  condition_structured: true
+  variant_ids:
+  - business_type:single_proprietor
+  secured_at: Department of Trade and Industry (DTI)
+  review_status: needs_review
+  source: *id001
+  source_row: 24
+  flags: []
+- id: business_permit-R07
+  service_id: business_permit
+  key: null
+  text: 'Corporation:'
+  group: true
+  parent_id: null
+  min_required: null
+  condition_text: 'Corporation:'
+  condition_structured: true
+  variant_ids:
+  - business_type:corporation
+  secured_at: null
+  review_status: needs_review
+  source: *id001
+  source_row: 25
+  flags: []
+- id: business_permit-R08
+  service_id: business_permit
+  key: null
+  text: SEC Certificate of Incorporation
+  group: false
+  parent_id: business_permit-R07
+  min_required: null
+  condition_text: 'Corporation:'
+  condition_structured: true
+  variant_ids:
+  - business_type:corporation
+  secured_at: Security and Exchange Commission (SEC)
+  review_status: needs_review
+  source: *id001
+  source_row: 26
+  flags: []
+- id: business_permit-R09
+  service_id: business_permit
+  key: null
+  text: By-Laws (for new business)
+  group: false
+  parent_id: business_permit-R07
+  min_required: null
+  condition_text: 'Corporation: (for new business)'
+  condition_structured: true
+  variant_ids:
+  - business_type:corporation
+  - applicant_type:new
+  secured_at: null
+  review_status: needs_review
+  source: *id001
+  source_row: 27
+  flags:
+  - code: where_to_secure_missing
+    message: the charter gives no 'where to secure'; left null
+- id: business_permit-R10
+  service_id: business_permit
+  key: null
+  text: Articles of Incorporation (for new business)
+  group: false
+  parent_id: business_permit-R07
+  min_required: null
+  condition_text: 'Corporation: (for new business)'
+  condition_structured: true
+  variant_ids:
+  - business_type:corporation
+  - applicant_type:new
+  secured_at: null
+  review_status: needs_review
+  source: *id001
+  source_row: 28
+  flags:
+  - code: where_to_secure_missing
+    message: the charter gives no 'where to secure'; left null
+- id: business_permit-R11
+  service_id: business_permit
+  key: null
+  text: 'Association:'
+  group: true
+  parent_id: null
+  min_required: null
+  condition_text: 'Association:'
+  condition_structured: true
+  variant_ids:
+  - business_type:association
+  secured_at: null
+  review_status: needs_review
+  source: *id001
+  source_row: 29
+  flags: []
+- id: business_permit-R12
+  service_id: business_permit
+  key: null
+  text: SEC Certificate of Registration
+  group: false
+  parent_id: business_permit-R11
+  min_required: null
+  condition_text: 'Association:'
+  condition_structured: true
+  variant_ids:
+  - business_type:association
+  secured_at: Security and Exchange Commission (SEC)
+  review_status: needs_review
+  source: *id001
+  source_row: 30
+  flags: []
+- id: business_permit-R13
+  service_id: business_permit
+  key: null
+  text: 'Corporation:'
+  group: true
+  parent_id: null
+  min_required: null
+  condition_text: 'Corporation:'
+  condition_structured: false
+  variant_ids: []
+  secured_at: null
+  review_status: needs_review
+  source: *id001
+  source_row: 31
+  flags:
+  - code: heading_maybe_cooperative
+    message: the sheet repeats the heading 'Corporation:' above the CDA (Cooperative Development Authority)
+      certificate; docs/charter_data.md says it almost certainly means Cooperative. Not linked to any
+      variant until the LGU confirms
+  - code: condition_not_structured
+    message: condition kept as text only
+- id: business_permit-R14
+  service_id: business_permit
+  key: null
+  text: CDA Certificate of Registration
+  group: false
+  parent_id: business_permit-R13
+  min_required: null
+  condition_text: 'Corporation:'
+  condition_structured: false
+  variant_ids: []
+  secured_at: Cooperative Development Authority (CDA)
+  review_status: needs_review
+  source: *id001
+  source_row: 32
+  flags:
+  - code: heading_maybe_cooperative
+    message: the sheet repeats the heading 'Corporation:' above the CDA (Cooperative Development Authority)
+      certificate; docs/charter_data.md says it almost certainly means Cooperative. Not linked to any
+      variant until the LGU confirms
+  - code: condition_not_structured
+    message: condition kept as text only
+- id: business_permit-R15
+  service_id: business_permit
+  key: '6'
+  text: Fire Safety Inspection Certification
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Bureau of Fire Protection (BFP)
+  review_status: needs_review
+  source: *id001
+  source_row: 33
+  flags: []
+- id: business_permit-R16
+  service_id: business_permit
+  key: '7'
+  text: Sanitary Permit to Operate
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Health Office (CHO)
+  review_status: needs_review
+  source: *id001
+  source_row: 34
+  flags: []
+- id: business_permit-R17
+  service_id: business_permit
+  key: '8'
+  text: Employee’s Occupational Permit (proof of payment only)
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Business Permits and Licensing Office (BPLO)
+  review_status: needs_review
+  source: *id001
+  source_row: 35
+  flags: []
+- id: business_permit-R18
+  service_id: business_permit
+  key: '9'
+  text: Locational Clearance (subject to assessment of location)
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Planning and Development Office (CPDO)
+  review_status: needs_review
+  source: *id001
+  source_row: 36
+  flags: []
+- id: occupational_permit-R01
+  service_id: occupational_permit
+  key: '1'
+  text: Duly accomplished Occupational Permit Application Form
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Business Permits & Licensing Office (main office)
+  review_status: needs_review
+  source: &id002
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  source_row: 59
+  flags: []
+- id: occupational_permit-R02
+  service_id: occupational_permit
+  key: '2'
+  text: Barangay Clearance
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Barangay where applicant resides
+  review_status: needs_review
+  source: *id002
+  source_row: 60
+  flags: []
+- id: occupational_permit-R03
+  service_id: occupational_permit
+  key: '3'
+  text: 2 pcs. 2x2 ID
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Citizen option
+  review_status: needs_review
+  source: *id002
+  source_row: 61
+  flags: []
+- id: occupational_permit-R04
+  service_id: occupational_permit
+  key: '4'
+  text: Police Clearance
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: PNP Office
+  review_status: needs_review
+  source: *id002
+  source_row: 62
+  flags: []
+- id: occupational_permit-R05
+  service_id: occupational_permit
+  key: '5'
+  text: Medical Certificate
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Health Office
+  review_status: needs_review
+  source: *id002
+  source_row: 63
+  flags: []
+- id: product_promotion_peddlers-R01
+  service_id: product_promotion_peddlers
+  key: '1'
+  text: Letter request
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Requesting Company
+  review_status: needs_review
+  source: &id003
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 94
+    - 111
+  source_row: 102
+  flags: []
+- id: product_promotion_peddlers-R02
+  service_id: product_promotion_peddlers
+  key: '2'
+  text: Proof of payment (official receipt)
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Treasurer’s Office
+  review_status: needs_review
+  source: *id003
+  source_row: 103
+  flags: []
+- id: cockfight_permit-R01
+  service_id: cockfight_permit
+  key: '1'
+  text: Application Letter
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Requesting Party
+  review_status: needs_review
+  source: &id004
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  source_row: 121
+  flags: []
+- id: cockfight_permit-R02
+  service_id: cockfight_permit
+  key: '2'
+  text: Proof of payment (official receipt)
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Treasurer’s Office
+  review_status: needs_review
+  source: *id004
+  source_row: 122
+  flags: []
+- id: fishing_permit-R01
+  service_id: fishing_permit
+  key: '1'
+  text: Certification of Registration / Fishing Boat GEAR License
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Agriculture Office
+  review_status: needs_review
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 149
+    - 165
+  source_row: 157
+  flags: []
+- id: birth_registration_timely-R01
+  service_id: birth_registration_timely
+  key: null
+  text: Affidavit to Use Surname of the Father (AUSF) if the child was born illegitimate
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: if the child was born illegitimate
+  condition_structured: true
+  variant_ids:
+  - birth_status:non_marital
+  secured_at: Civil Registry Office / or Notary Public
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 21
+    - 40
+  source_row: 29
+  flags:
+  - code: variant_interpretation
+    message: the charter says 'illegitimate'; linked to birth_status:non_marital (the schema's word);
+      confirm
+- id: birth_registration_delayed-R01
+  service_id: birth_registration_delayed
+  key: A
+  text: Baptismal Certificate, Medical record, School Record or any 2 documents that state the name of
+    the child, parents, date of Birth and place of birth
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Corresponding private institution or Government Agencies concerned
+  review_status: needs_review
+  source: &id005
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
+  source_row: 50
+  flags:
+  - code: min_required_unclear
+    message: text says 'or any 2 documents that state ...'; it is not clear whether 'any 2' applies to
+      the three named documents. Kept as one requirement, min_required null
+- id: birth_registration_delayed-R02
+  service_id: birth_registration_delayed
+  key: B
+  text: PSA issued Negative result
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Philippine Statistics Authority / LCR Calbayog thru BREQS
+  review_status: needs_review
+  source: *id005
+  source_row: 51
+  flags:
+  - code: where_to_secure_normalized
+    message: 'the charter reads ''Philippine Statistic’s Authority / LCR Calbayog thru BREQS''; spelling/case
+      unified with the same agency in another service so both share one Agency: ''Philippine Statistics
+      Authority / LCR Calbayog thru BREQS'''
+- id: birth_registration_delayed-R03
+  service_id: birth_registration_delayed
+  key: C
+  text: Cedula
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Treasurer’s Office
+  review_status: needs_review
+  source: *id005
+  source_row: 52
+  flags: []
+- id: birth_registration_delayed-R04
+  service_id: birth_registration_delayed
+  key: D
+  text: Affidavit to Use Surname of the Father (if parents are not married at the time of birth)
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: if parents are not married at the time of birth
+  condition_structured: true
+  variant_ids:
+  - birth_status:non_marital
+  secured_at: Civil Registry Office / or Notary Public
+  review_status: needs_review
+  source: *id005
+  source_row: 53
+  flags: []
+- id: birth_registration_delayed-R05
+  service_id: birth_registration_delayed
+  key: E
+  text: Personal appearance of registrant before C/MCR;
+  group: true
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Civil Registry Office - Civil Registrar
+  review_status: needs_review
+  source: *id005
+  source_row: 54
+  flags:
+  - code: where_to_secure_shared
+    message: the charter gives one 'where to secure' for the whole item; the value is copied to each part
+      below
+- id: birth_registration_delayed-R06
+  service_id: birth_registration_delayed
+  key: '1'
+  text: 'For marital minors: Appearance of both parents'
+  group: false
+  parent_id: birth_registration_delayed-R05
+  min_required: null
+  condition_text: For marital minors
+  condition_structured: true
+  variant_ids:
+  - birth_status:marital
+  secured_at: Civil Registry Office - Civil Registrar
+  review_status: needs_review
+  source: *id005
+  source_row: 54
+  flags:
+  - code: variant_interpretation
+    message: the charter says 'marital minors'; linked to birth_status:marital; confirm
+- id: birth_registration_delayed-R07
+  service_id: birth_registration_delayed
+  key: '2'
+  text: 'For non-marital minors: Appearance only of mother'
+  group: false
+  parent_id: birth_registration_delayed-R05
+  min_required: null
+  condition_text: For non-marital minors
+  condition_structured: true
+  variant_ids:
+  - birth_status:non_marital
+  secured_at: Civil Registry Office - Civil Registrar
+  review_status: needs_review
+  source: *id005
+  source_row: 54
+  flags: []
+- id: birth_registration_delayed-R08
+  service_id: birth_registration_delayed
+  key: '3'
+  text: 'For out-of-town registration: Appearance mandatory before receiving C/MCR'
+  group: false
+  parent_id: birth_registration_delayed-R05
+  min_required: null
+  condition_text: For out-of-town registration
+  condition_structured: false
+  variant_ids: []
+  secured_at: Civil Registry Office - Civil Registrar
+  review_status: needs_review
+  source: *id005
+  source_row: 54
+  flags:
+  - code: condition_not_structured
+    message: out-of-town registration is not a modelled variant
+- id: birth_registration_delayed-R09
+  service_id: birth_registration_delayed
+  key: F
+  text: Barangay Certification issued by Punong Barangay as proof of residency
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Punong Barangay
+  review_status: needs_review
+  source: *id005
+  source_row: 55
+  flags: []
+- id: birth_registration_delayed-R10
+  service_id: birth_registration_delayed
+  key: G
+  text: National ID
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: PSA / Phil ID Kiosk
+  review_status: needs_review
+  source: *id005
+  source_row: 56
+  flags: []
+- id: birth_registration_delayed-R11
+  service_id: birth_registration_delayed
+  key: H
+  text: Any two (2) documentary evidence for identity of parents;
+  group: true
+  parent_id: null
+  min_required: 2
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Civil Registry Office / PSA / Government Officer
+  review_status: needs_review
+  source: *id005
+  source_row: 57
+  flags:
+  - code: min_required_conditional_children
+    message: '''Any two (2)'' of four documents, but two of them are conditional (''if married'', ''if
+      deceased''); confirm how the rule applies'
+  - code: where_to_secure_shared
+    message: the charter gives one 'where to secure' for the whole item; the value is copied to each part
+      below
+- id: birth_registration_delayed-R12
+  service_id: birth_registration_delayed
+  key: '1'
+  text: Certificate of live birth
+  group: false
+  parent_id: birth_registration_delayed-R11
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Civil Registry Office / PSA / Government Officer
+  review_status: needs_review
+  source: *id005
+  source_row: 57
+  flags: []
+- id: birth_registration_delayed-R13
+  service_id: birth_registration_delayed
+  key: '2'
+  text: Government-issued ID
+  group: false
+  parent_id: birth_registration_delayed-R11
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Civil Registry Office / PSA / Government Officer
+  review_status: needs_review
+  source: *id005
+  source_row: 57
+  flags: []
+- id: birth_registration_delayed-R14
+  service_id: birth_registration_delayed
+  key: '3'
+  text: Marriage Certificate (if married)
+  group: false
+  parent_id: birth_registration_delayed-R11
+  min_required: null
+  condition_text: if married
+  condition_structured: false
+  variant_ids: []
+  secured_at: Civil Registry Office / PSA / Government Officer
+  review_status: needs_review
+  source: *id005
+  source_row: 57
+  flags:
+  - code: condition_not_structured
+    message: marital status of the parents is not a modelled variant
+- id: birth_registration_delayed-R15
+  service_id: birth_registration_delayed
+  key: '4'
+  text: Certificate of Death (if deceased)
+  group: false
+  parent_id: birth_registration_delayed-R11
+  min_required: null
+  condition_text: if deceased
+  condition_structured: false
+  variant_ids: []
+  secured_at: Civil Registry Office / PSA / Government Officer
+  review_status: needs_review
+  source: *id005
+  source_row: 57
+  flags:
+  - code: condition_not_structured
+    message: '''if deceased'' is not a modelled variant'
+- id: birth_registration_delayed-R16
+  service_id: birth_registration_delayed
+  key: I
+  text: Unedited front-facing photo of registrant (2x2, white background, taken within 3 months)
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Citizen’s preference
+  review_status: needs_review
+  source: *id005
+  source_row: 58
+  flags: []
+- id: birth_registration_delayed-R17
+  service_id: birth_registration_delayed
+  key: J
+  text: If registrant is deceased, certificate of death of document owner is required
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: If registrant is deceased
+  condition_structured: false
+  variant_ids: []
+  secured_at: Civil Registry Office
+  review_status: needs_review
+  source: *id005
+  source_row: 59
+  flags:
+  - code: condition_not_structured
+    message: '''registrant is deceased'' is not a modelled variant'
+- id: birth_registration_delayed-R18
+  service_id: birth_registration_delayed
+  key: K
+  text: If a parent is a foreigner;
+  group: true
+  parent_id: null
+  min_required: null
+  condition_text: If a parent is a foreigner
+  condition_structured: true
+  variant_ids:
+  - foreign_parent:yes
+  secured_at: Civil Registry Office / Department of Foreign Affairs / Bureau of Immigration
+  review_status: needs_review
+  source: *id005
+  source_row: 60
+  flags:
+  - code: where_to_secure_shared
+    message: the charter gives one 'where to secure' for the whole item; the value is copied to each part
+      below
+- id: birth_registration_delayed-R19
+  service_id: birth_registration_delayed
+  key: '1'
+  text: Certificate of Marriage of parents (marital child)
+  group: false
+  parent_id: birth_registration_delayed-R18
+  min_required: null
+  condition_text: If a parent is a foreigner; (marital child)
+  condition_structured: true
+  variant_ids:
+  - foreign_parent:yes
+  - birth_status:marital
+  secured_at: Civil Registry Office / Department of Foreign Affairs / Bureau of Immigration
+  review_status: needs_review
+  source: *id005
+  source_row: 60
+  flags: []
+- id: birth_registration_delayed-R20
+  service_id: birth_registration_delayed
+  key: '2'
+  text: Birth certificate of parents
+  group: false
+  parent_id: birth_registration_delayed-R18
+  min_required: null
+  condition_text: If a parent is a foreigner
+  condition_structured: true
+  variant_ids:
+  - foreign_parent:yes
+  secured_at: Civil Registry Office / Department of Foreign Affairs / Bureau of Immigration
+  review_status: needs_review
+  source: *id005
+  source_row: 60
+  flags: []
+- id: birth_registration_delayed-R21
+  service_id: birth_registration_delayed
+  key: '3'
+  text: Valid passport or BI Clearance or ACR I-card of foreign parent
+  group: false
+  parent_id: birth_registration_delayed-R18
+  min_required: null
+  condition_text: If a parent is a foreigner
+  condition_structured: true
+  variant_ids:
+  - foreign_parent:yes
+  secured_at: Civil Registry Office / Department of Foreign Affairs / Bureau of Immigration
+  review_status: needs_review
+  source: *id005
+  source_row: 60
+  flags: []
+- id: birth_registration_delayed-R22
+  service_id: birth_registration_delayed
+  key: L
+  text: For non-marital children availing of RA 9255;
+  group: true
+  parent_id: null
+  min_required: null
+  condition_text: For non-marital children availing of RA 9255
+  condition_structured: false
+  variant_ids:
+  - birth_status:non_marital
+  secured_at: Civil Registry Office
+  review_status: needs_review
+  source: *id005
+  source_row: 61
+  flags:
+  - code: condition_not_structured
+    message: linked to birth_status:non_marital; 'availing of RA 9255' is not modelled
+  - code: where_to_secure_shared
+    message: the charter gives one 'where to secure' for the whole item; the value is copied to each part
+      below
+- id: birth_registration_delayed-R23
+  service_id: birth_registration_delayed
+  key: '1'
+  text: Affidavit of Admission of paternity, and/or Affidavit to Use the Surname of the Father (AUSF)
+  group: false
+  parent_id: birth_registration_delayed-R22
+  min_required: null
+  condition_text: For non-marital children availing of RA 9255
+  condition_structured: false
+  variant_ids:
+  - birth_status:non_marital
+  secured_at: Civil Registry Office
+  review_status: needs_review
+  source: *id005
+  source_row: 61
+  flags:
+  - code: condition_not_structured
+    message: linked to birth_status:non_marital; 'availing of RA 9255' is not modelled
+- id: birth_registration_delayed-R24
+  service_id: birth_registration_delayed
+  key: '2'
+  text: Affidavit of Acknowledgement in case of non- marital child born before August 3, 1988
+  group: false
+  parent_id: birth_registration_delayed-R22
+  min_required: null
+  condition_text: For non-marital children availing of RA 9255; in case of non- marital child born before
+    August 3, 1988
+  condition_structured: false
+  variant_ids:
+  - birth_status:non_marital
+  secured_at: Civil Registry Office
+  review_status: needs_review
+  source: *id005
+  source_row: 61
+  flags:
+  - code: condition_not_structured
+    message: linked to birth_status:non_marital; 'availing of RA 9255' and the 1988 date are not modelled
+- id: marriage_registration_timely-R01
+  service_id: marriage_registration_timely
+  key: null
+  text: Marriage Certificate duly signed by the solemnizing officer
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Judicial Court or religious sector who solemnized the marriage
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 106
+    - 124
+  source_row: 114
+  flags:
+  - code: where_to_secure_normalized
+    message: 'the charter reads ''Judicial court or Religious sector who solemnized the marriage''; spelling/case
+      unified with the same agency in another service so both share one Agency: ''Judicial Court or religious
+      sector who solemnized the marriage'''
+- id: death_registration_timely-R01
+  service_id: death_registration_timely
+  key: A
+  text: Affidavit of Delayed Registration of Marriage certificate
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Civil Registry Office / or Notary Public
+  review_status: needs_review
+  source: &id006
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 148
+    - 168
+  source_row: 156
+  flags:
+  - code: suspected_copy_paste
+    message: this checklist is the delayed marriage registration checklist word for word (docs/charter_data.md,
+      draft README finding 3); real death-registration requirements are needed before this is shown to
+      citizens
+- id: death_registration_timely-R02
+  service_id: death_registration_timely
+  key: B
+  text: Marriage Certificate duly signed by the solemnizing officer
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Judicial Court or religious sector who solemnized the marriage
+  review_status: needs_review
+  source: *id006
+  source_row: 157
+  flags:
+  - code: suspected_copy_paste
+    message: this checklist is the delayed marriage registration checklist word for word (docs/charter_data.md,
+      draft README finding 3); real death-registration requirements are needed before this is shown to
+      citizens
+- id: certified_transcription-R01
+  service_id: certified_transcription
+  key: null
+  text: Duly registered Birth, Marriage, or Death certificate
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Civil Registry Office
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 210
+    - 227
+  source_row: 218
+  flags: []
+- id: court_order_registration-R01
+  service_id: court_order_registration
+  key: '1'
+  text: Certified true copy of Court Order
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Judicial Court
+  review_status: needs_review
+  source: &id007
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
+  source_row: 258
+  flags: []
+- id: court_order_registration-R02
+  service_id: court_order_registration
+  key: '2'
+  text: Certificate of Finality
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Judicial Court
+  review_status: needs_review
+  source: *id007
+  source_row: 259
+  flags:
+  - code: where_to_secure_shared
+    message: '''where to secure'' is a merged cell shared with requirement 1 (row 258); the value is copied
+      to each row; confirm the merge is intended'
+- id: court_order_registration-R03
+  service_id: court_order_registration
+  key: '3'
+  text: Certificate of Authenticity
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Judicial Court
+  review_status: needs_review
+  source: *id007
+  source_row: 260
+  flags:
+  - code: where_to_secure_shared
+    message: '''where to secure'' is a merged cell shared with requirement 1 (row 258); the value is copied
+      to each row; confirm the merge is intended'
+- id: court_order_registration-R04
+  service_id: court_order_registration
+  key: '4'
+  text: Decree of adoption (in case adoption proceedings)
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: in case adoption proceedings
+  condition_structured: false
+  variant_ids: []
+  secured_at: Judicial Court
+  review_status: needs_review
+  source: *id007
+  source_row: 261
+  flags:
+  - code: where_to_secure_shared
+    message: '''where to secure'' is a merged cell shared with requirement 1 (row 258); the value is copied
+      to each row; confirm the merge is intended'
+  - code: condition_not_structured
+    message: type of court proceeding is not a modelled variant
+- id: court_order_registration-R05
+  service_id: court_order_registration
+  key: '5'
+  text: Decree of nullity of marriage (in case of annulment proceedings)
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: in case of annulment proceedings
+  condition_structured: false
+  variant_ids: []
+  secured_at: Judicial Court
+  review_status: needs_review
+  source: *id007
+  source_row: 262
+  flags:
+  - code: where_to_secure_shared
+    message: '''where to secure'' is a merged cell shared with requirement 1 (row 258); the value is copied
+      to each row; confirm the merge is intended'
+  - code: condition_not_structured
+    message: type of court proceeding is not a modelled variant
+- id: ausf_registration-R01
+  service_id: ausf_registration
+  key: '1'
+  text: Birth certificate of the child
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Philippine Statistics Authority / LCR Calbayog thru BREQS
+  review_status: needs_review
+  source: &id008
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 304
+    - 325
+  source_row: 312
+  flags: []
+- id: ausf_registration-R02
+  service_id: ausf_registration
+  key: '2'
+  text: Affidavit to Use Surname of the Father
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Notary Public / or LCR Office
+  review_status: needs_review
+  source: *id008
+  source_row: 313
+  flags: []
+- id: ausf_registration-R03
+  service_id: ausf_registration
+  key: '3'
+  text: Cedula
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Treasurer’s Office
+  review_status: needs_review
+  source: *id008
+  source_row: 314
+  flags: []
+- id: ausf_registration-R04
+  service_id: ausf_registration
+  key: '4'
+  text: Admission/Affidavit of Paternity
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Notary Public / or LCR Office
+  review_status: needs_review
+  source: *id008
+  source_row: 315
+  flags: []
+- id: legal_instrument_other-R01
+  service_id: legal_instrument_other
+  key: null
+  text: Legal Instrument or Affidavit duly notarized by notary public
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Notary Public
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 327
+    - 345
+  source_row: 335
+  flags: []

@@ -1,0 +1,308 @@
+# Curated seed: services. Every record is needs_review until a human checks it against
+# the spreadsheet (docs/seed_review.md). Nothing here was guessed: blanks are null + a flag.
+services:
+- id: business_permit
+  office_id: bplo
+  charter_ref: BPLO-01
+  name: Business Permit
+  classification: SIMPLE
+  transaction_type: Government to Business
+  who_may_avail: Business Owners (New & Renewals)
+  total_fee_text: ₱235.50
+  total_time_text: 37 mins (under normal condition)
+  description: All businesses must secure a Business License and Mayor’s Permit before operating a new
+    business or to continue operating an existing one.
+  review_status: needs_review
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  total_source_row: 49
+  flags: []
+- id: occupational_permit
+  office_id: bplo
+  charter_ref: BPLO-02
+  name: Occupational Permit
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: Individuals seeking private employment
+  total_fee_text: |-
+    ₱215.00 (company)
+    ₱310.00 (individual)
+  total_time_text: 13 mins (under normal condition)
+  description: An occupational permit, also known as a Mayor's Permit, is a requirement for individuals
+    or businesses to operate legally within the jurisdiction of Calbayog City.
+  review_status: needs_review
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  total_source_row: 73
+  flags: []
+- id: product_promotion_peddlers
+  office_id: bplo
+  charter_ref: BPLO-04
+  name: Product Promotion & Peddlers
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: null
+  total_fee_text: ₱250.00
+  total_time_text: 16 mins (under normal condition)
+  description: Product promotion and peddlers.
+  review_status: needs_review
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 94
+    - 111
+  total_source_row: 111
+  flags:
+  - code: who_may_avail_blank
+    message: '''who may avail'' is blank in the sheet; left null'
+- id: cockfight_permit
+  office_id: bplo
+  charter_ref: BPLO-05
+  name: Cockfight Permit
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: Open to all cockfight enthusiasts
+  total_fee_text: |-
+    MD - ₱1,000/cock
+    Derby - ₱1,500/cock
+    2C - ₱3,000
+    3C - ₱4,500
+    4C - ₱6,000
+    5C - ₱7,500
+  total_time_text: 18 mins (under normal condition)
+  description: Special cockfight permit.
+  review_status: needs_review
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 113
+    - 130
+  total_source_row: 130
+  flags: []
+- id: fishing_permit
+  office_id: bplo
+  charter_ref: BPLO-07
+  name: Fishing Permits
+  classification: SIMPLE
+  transaction_type: Government to Citizen
+  who_may_avail: null
+  total_fee_text: '- - -'
+  total_time_text: 25mins (under normal condition)
+  description: Fishing permits.
+  review_status: needs_review
+  source:
+    file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 149
+    - 165
+  total_source_row: 165
+  flags:
+  - code: who_may_avail_blank
+    message: '''who may avail'' is blank in the sheet; left null'
+  - code: fee_not_stated
+    message: the charter lists no fees (assessed by the City Agriculture Office) and the stated total
+      fee is '- - -'; validation could not compare fees
+- id: birth_registration_timely
+  office_id: lcro
+  charter_ref: LCRO-01
+  name: Registration of Birth Certificate (Timely Registration)
+  classification: SIMPLE
+  transaction_type: G2C (Government to Citizen)
+  who_may_avail: Parents or attendant at birth
+  total_fee_text: none
+  total_time_text: 38 minutes (under normal conditions)
+  description: Timely Registrations are registrations of birth within the reglementary period of 30 days
+    from the time of birth.
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 21
+    - 40
+  total_source_row: 40
+  flags:
+  - code: name_from_title
+    message: name taken from the section title; the name cell reads 'REGISTRATION OF BIRTH CERTIFICATE
+      (TIMELY)'
+  - code: checklist_only_conditional
+    message: the checklist has a single conditional item (AUSF if illegitimate) and no unconditional document;
+      confirm with the LGU that the list is complete
+- id: birth_registration_delayed
+  office_id: lcro
+  charter_ref: LCRO-02
+  name: Registration of Birth Certificate (Delayed Registration)
+  classification: COMPLEX
+  transaction_type: G2C (Government to Citizen)
+  who_may_avail: Document owner and parents or nearest kin
+  total_fee_text: none
+  total_time_text: 10 days, 33 minutes (under normal conditions)
+  description: Delayed Registration lapses the reglementary period of 30 days from the time of birth.
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
+  total_source_row: 73
+  flags:
+  - code: name_from_title
+    message: name taken from the section title; the name cell reads 'REGISTRATION OF BIRTH CERTIFICATE
+      (DELAYED)'
+- id: marriage_registration_timely
+  office_id: lcro
+  charter_ref: LCRO-04
+  name: Registration of Marriage Certificate (Timely Registration)
+  classification: SIMPLE
+  transaction_type: G2C (Government to Citizen)
+  who_may_avail: Religious sector or Judicial Court that solemnizes the marriage
+  total_fee_text: none
+  total_time_text: 31 minutes (under normal conditions)
+  description: |-
+    Registration of Marriage Certificate (with marriage license) within the reglementary period of 15 days.
+    Registration of Marriage Certificate (Article 34) – within the reglementary period of 30 days.
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 106
+    - 124
+  total_source_row: 124
+  flags:
+  - code: name_from_title
+    message: name taken from the section title; the name cell reads 'REGISTRATION OF MARRIAGE CERTIFICATE
+      (TIMELY)'
+  - code: description_two_periods
+    message: the description gives two reglementary periods (15 days with a marriage license, 30 days
+      under Article 34); not modelled
+- id: death_registration_timely
+  office_id: lcro
+  charter_ref: LCRO-06
+  name: Registration of Death Certificate (Timely Registration)
+  classification: SIMPLE
+  transaction_type: G2C (Government to Citizen)
+  who_may_avail: 1. Spouse (if married); 2. Children; 3. Or anybody who has knowledge of the incident
+  total_fee_text: none
+  total_time_text: 38 minutes (under normal conditions)
+  description: Timely Registration of death certificate within the reglementary period of 30 days from
+    the time of death.
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 148
+    - 168
+  total_source_row: 168
+  flags:
+  - code: name_from_title
+    message: name taken from the section title; the name cell reads 'REGISTRATION OF DEATH CERTIFICATE
+      (TIMELY)'
+  - code: suspected_copy_paste
+    message: requirements and step 2.1 are the marriage registration wording; probably copied; real death-registration
+      requirements are needed
+- id: certified_transcription
+  office_id: lcro
+  charter_ref: LCRO-09
+  name: Issuance of Certified Transcription of Certificate of Live Birth, Death, Marriage, Legal Instruments
+    and other Certifications issued by City Civil Registrar
+  classification: SIMPLE
+  transaction_type: G2C (Government to Citizen)
+  who_may_avail: Document owner or parents or authorized representative
+  total_fee_text: ₱110.00
+  total_time_text: 28 minutes (under normal conditions)
+  description: Issuance of Certified Transcription of Certificate of Live Birth, Death, Marriage, Legal
+    Instruments and other Certifications issued by City Civil Registrar.
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 210
+    - 227
+  total_source_row: 227
+  flags:
+  - code: name_from_title
+    message: name taken from the section title; the name cell reads 'ISSUANCE OF CERTIFIED TRANSCRIPTION
+      OF COLB, COD, COM, LI AND OTHER CERTIFICATIONS ISSUED BY CCR'
+- id: court_order_registration
+  office_id: lcro
+  charter_ref: LCRO-11
+  name: Registration of Court Order
+  classification: SIMPLE
+  transaction_type: G2C (Government to Citizen)
+  who_may_avail: Petitioner who successfully undergo court proceeding
+  total_fee_text: ₱220.00
+  total_time_text: 1 hour, 14 minutes (under normal conditions)
+  description: Registration of Court Order
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 250
+    - 276
+  total_source_row: 276
+  flags:
+  - code: name_from_title
+    message: name taken from the section title; the name cell reads 'REGISTRATION OF COURT ORDER'
+- id: ausf_registration
+  office_id: lcro
+  charter_ref: LCRO-13
+  name: Registration of Legal Instrument – Affidavit to Use Surname of the Father (AUSF)
+  classification: SIMPLE
+  transaction_type: G2C (Government to Citizen)
+  who_may_avail: Person who executed the Legal Instrument mentioned above.
+  total_fee_text: ₱540.00
+  total_time_text: 1 hours, 14 minutes (under normal conditions)
+  description: |-
+    Legal Instrument are sworn statement in a form of affidavit which affect the civil status of persons. These acts are executed without an order from the Court.
+    Examples of Legal Instruments: Affidavit of Acknowledgment, Affidavit of Paternity,
+    Affidavit of Legitimation, Affidavit to Use Surname of the Father, Affidavit of Reappearance and Marriage Settlement.
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 304
+    - 325
+  total_source_row: 325
+  flags:
+  - code: name_from_title
+    message: name taken from the section title; the name cell reads 'REGISTRATION OF LEGAL INSTRUMENT
+      - AFFIDAVIT TO USE SURNAME OF THE FATHER (AUSF)'
+- id: legal_instrument_other
+  office_id: lcro
+  charter_ref: LCRO-14
+  name: Registration of Legal Instrument – Instrument other than Legitimation and AUSF
+  classification: SIMPLE
+  transaction_type: G2C (Government to Citizen)
+  who_may_avail: Person who executed the Legal Instrument mentioned above.
+  total_fee_text: ₱300.00
+  total_time_text: 1 hours, 14 minutes (under normal conditions)
+  description: Registration of Legal Instrument – Instrument other than Legitimation and AUSF
+  review_status: needs_review
+  source:
+    file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 327
+    - 345
+  total_source_row: 345
+  flags:
+  - code: name_from_title
+    message: name taken from the section title; the name cell reads 'REGISTRATION OF LEGAL INSTRUMENT
+      - OTHER THAN LEGITIMATION AND AUSF'
