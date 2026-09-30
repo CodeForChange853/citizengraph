@@ -53,6 +53,7 @@ class TestDuplicateIds:
             ("steps", "svc-S01"),
             ("fees", "svc-F01"),
             ("variants", "taxpayer:company"),
+            ("links", "link-01"),
         ],
     )
     def test_duplicate_id_within_a_file(self, kind, rec_id):
@@ -244,6 +245,93 @@ def test_agency_and_role_names_that_collapse_to_one_id_are_rejected():
     find(raw, "requirements", "svc-R01")["secured_at"] = "City Treasurer's Office"
     find(raw, "requirements", "svc-R05")["secured_at"] = "City Treasurers Office"
     assert "duplicate_slug" in codes(raw)
+
+
+def second_service(raw):
+    raw["services"].append({**raw["services"][0], "id": "other", "charter_ref": "T-02"})
+    raw["steps"].append(
+        {**find(raw, "steps", "svc-S01"), "id": "other-S01", "service_id": "other", "next_id": None}
+    )
+
+
+def satisfied_by(raw, **over):
+    raw["links"].append(
+        {
+            "id": "link-02",
+            "kind": "requirement_satisfied_by",
+            "requirement_id": "svc-R01",
+            "agency": None,
+            "service_id": "other",
+            "office_id": None,
+            "review_status": "needs_review",
+            "flags": [],
+            "sources": [{"file": "TEST.xlsx", "sheet": "T", "rows": [10, 40]}],
+            **over,
+        }
+    )
+
+
+class TestLinks:
+    def test_a_valid_cross_service_link(self):
+        raw = minimal_seed_raw()
+        second_service(raw)
+        satisfied_by(raw)
+        assert codes(raw) == set()
+
+    def test_requirement_must_exist(self):
+        raw = minimal_seed_raw()
+        second_service(raw)
+        satisfied_by(raw, requirement_id="svc-R99")
+        assert "unknown_requirement" in codes(raw)
+
+    def test_target_service_must_exist(self):
+        raw = minimal_seed_raw()
+        satisfied_by(raw, service_id="ghost")
+        assert "unknown_service" in codes(raw)
+
+    def test_a_requirement_cannot_be_satisfied_by_its_own_service(self):
+        raw = minimal_seed_raw()
+        satisfied_by(raw, service_id="svc")
+        assert "link_self" in codes(raw)
+
+    def test_target_office_must_exist(self):
+        raw = minimal_seed_raw()
+        raw["links"][0]["office_id"] = "ghost"
+        assert "unknown_office" in codes(raw)
+
+    def test_agency_must_be_named_by_some_requirement(self):
+        raw = minimal_seed_raw()
+        raw["links"][0]["agency"] = "Nobody At All"
+        assert "unknown_agency" in codes(raw)
+
+    def test_agency_wording_is_matched_after_collapsing_whitespace_only(self):
+        raw = minimal_seed_raw()
+        raw["links"][0]["agency"] = "  Some   Agency "
+        assert codes(raw) == set()
+        raw["links"][0]["agency"] = "some agency"
+        assert "unknown_agency" in codes(raw)
+
+    def test_context_requirement_must_be_secured_at_that_agency(self):
+        raw = minimal_seed_raw()
+        raw["links"][0]["requirement_id"] = "svc-R03"  # secured at "Other Agency"
+        assert "agency_context_mismatch" in codes(raw)
+
+    def test_one_agency_cannot_be_two_offices(self):
+        raw = minimal_seed_raw()
+        raw["offices"].append({**raw["offices"][0], "id": "o2", "name": "Second Office"})
+        raw["links"].append({**raw["links"][0], "id": "link-02", "office_id": "o2"})
+        assert "agency_two_offices" in codes(raw)
+
+    def test_the_same_link_twice_is_a_duplicate(self):
+        raw = minimal_seed_raw()
+        raw["links"].append({**raw["links"][0], "id": "link-02"})
+        assert "duplicate_link" in codes(raw)
+
+    def test_link_sources_must_be_service_blocks_of_the_seed(self):
+        raw = minimal_seed_raw()
+        second_service(raw)
+        satisfied_by(raw, sources=[{"file": "TEST.xlsx", "sheet": "T", "rows": [90, 99]}])
+        assert "source_mismatch" in codes(raw)
 
 
 class TestFiles:

@@ -1453,3 +1453,153 @@ requirements:
     - 345
   source_row: 335
   flags: []
+- id: cswdo_referrals-R01
+  service_id: cswdo_referrals
+  key: '1'
+  text: Brgy Certification as to residence
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Brgy Hall
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 13
+  flags: []
+- id: cswdo_referrals-R02
+  service_id: cswdo_referrals
+  key: '2'
+  text: Certification from Assessor's Office that client does not own real property
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: City Assessor's Office
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 14
+  flags:
+  - code: requirement_fragment_glued
+    message: row 15 continues requirement 2 (row 14); the wrapped text was joined into this requirement
+- id: cswdo_referrals-R03
+  service_id: cswdo_referrals
+  key: '3'
+  text: Certification from BPLO that the client has no existing business
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: BPLO
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 16
+  flags:
+  - code: requirement_fragment_glued
+    message: row 17 continues requirement 3 (row 16); the wrapped text was joined into this requirement
+- id: cswdo_referrals-R04
+  service_id: cswdo_referrals
+  key: '4'
+  text: Medical Abstract
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: null
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 18
+  flags:
+  - code: where_to_secure_missing
+    message: the charter gives no 'where to secure'; left null
+- id: cswdo_referrals-R05
+  service_id: cswdo_referrals
+  key: '5'
+  text: Death Certificate
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: null
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 19
+  flags:
+  - code: where_to_secure_missing
+    message: the charter gives no 'where to secure'; left null
+- id: cho_sanitary_permit-R01
+  service_id: cho_sanitary_permit
+  key: null
+  text: Application Form
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 119
+    - 130
+  source_row: 125
+  flags:
+  - code: where_to_secure_na
+    message: the sheet says N/A for 'where to secure'; left null
+- id: cho_post_mortem_examination-R01
+  service_id: cho_post_mortem_examination
+  key: null
+  text: Request to conduct a Post-Mortem Examination
+  group: false
+  parent_id: null
+  min_required: null
+  condition_text: null
+  condition_structured: null
+  variant_ids: []
+  secured_at: Philippine National Police
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 157
+    - 168
+  source_row: 163
+  flags: []

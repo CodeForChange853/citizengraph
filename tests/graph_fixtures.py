@@ -36,6 +36,17 @@ def minimal_seed_raw() -> dict[str, list[dict[str, Any]]]:
     """Return a fresh copy each call so tests can mutate it freely."""
     raw: dict[str, list[dict[str, Any]]] = {
         "offices": [_common(id="o1", name="Test Office", sources=[SRC])],
+        "links": [
+            _common(
+                id="link-01",
+                kind="agency_is_office",
+                requirement_id=None,
+                agency="Some Agency",
+                service_id=None,
+                office_id="o1",
+                sources=[SRC],
+            )
+        ],
         "variants": [
             _common(id="taxpayer:company", dimension="taxpayer", value="company", sources=[SRC]),
             _common(

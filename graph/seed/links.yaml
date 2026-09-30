@@ -1,0 +1,164 @@
+# Curated seed: links. Cross-office and cross-service links, all suggestions (link_suggested)
+# until a person marks them reviewed; the loader holds unreviewed links back.
+links:
+- id: link-01
+  review_status: needs_review
+  kind: requirement_satisfied_by
+  requirement_id: business_permit-R16
+  agency: null
+  service_id: cho_sanitary_permit
+  office_id: null
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  flags:
+  - code: link_suggested
+    message: BPLO-01 requirement 7 'Sanitary Permit to Operate' is secured at the City Health Office;
+      CHO-10 'Issuance of Sanitary Permit' is the matching service (its who may avail is business owners
+      seeking business permits). A person must confirm
+- id: link-02
+  review_status: needs_review
+  kind: requirement_satisfied_by
+  requirement_id: business_permit-R17
+  agency: null
+  service_id: occupational_permit
+  office_id: null
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  flags:
+  - code: link_suggested
+    message: BPLO-01 requirement 8 'Employee’s Occupational Permit (proof of payment only)' is secured
+      at BPLO and matches BPLO-02; a link inside one office. A person must confirm, including what 'proof
+      of payment only' means
+- id: link-03
+  review_status: needs_review
+  kind: requirement_satisfied_by
+  requirement_id: occupational_permit-R05
+  agency: null
+  service_id: cho_medical_certificate
+  office_id: null
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  flags:
+  - code: link_suggested
+    message: BPLO-02 requirement 5 'Medical Certificate' is secured at the City Health Office; CHO-15
+      'Issuance of Medial Certificates for employment' charges P30.00 and the BPLO-02 fee list has 'Medical
+      Health P30.00'. Whether they are the same service is for the LGU to say
+- id: link-04
+  review_status: needs_review
+  kind: agency_is_office
+  requirement_id: cswdo_referrals-R03
+  agency: BPLO
+  service_id: null
+  office_id: bplo
+  sources:
+  - file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  flags:
+  - code: link_suggested
+    message: CSWDO-01 requirement 3 asks BPLO for a certification that the client has no existing business;
+      the agency 'BPLO' is the BPLO office
+  - code: no_bplo_service_issues_this
+    message: none of the BPLO services issues this certification (docs/charter_data.md cross-office links);
+      raise with the LGU
+- id: link-05
+  review_status: needs_review
+  kind: agency_is_office
+  requirement_id: null
+  agency: Business Permits and Licensing Office (BPLO)
+  service_id: null
+  office_id: bplo
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  flags:
+  - code: agency_name_matches_office
+    message: the agency name is the BPLO office's name; pointing at the Office node
+- id: link-06
+  review_status: needs_review
+  kind: agency_is_office
+  requirement_id: null
+  agency: Business Permits & Licensing Office (main office)
+  service_id: null
+  office_id: bplo
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  flags:
+  - code: agency_name_matches_office
+    message: the agency name is the BPLO office's name; pointing at the Office node
+  - code: agency_qualified
+    message: the agency reads '(main office)'; taken as the BPLO office
+- id: link-07
+  review_status: needs_review
+  kind: agency_is_office
+  requirement_id: null
+  agency: City Health Office (CHO)
+  service_id: null
+  office_id: cho
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 11
+    - 49
+  flags:
+  - code: agency_name_matches_office
+    message: the agency name is the CHO office's name; pointing at the Office node
+- id: link-08
+  review_status: needs_review
+  kind: agency_is_office
+  requirement_id: null
+  agency: City Health Office
+  service_id: null
+  office_id: cho
+  sources:
+  - file: BPLO-CC.xlsx
+    sheet: BPLO
+    rows:
+    - 51
+    - 73
+  flags:
+  - code: agency_name_matches_office
+    message: the agency name is the CHO office's name; pointing at the Office node
+- id: link-09
+  review_status: needs_review
+  kind: agency_is_office
+  requirement_id: null
+  agency: Civil Registry Office
+  service_id: null
+  office_id: lcro
+  sources:
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 42
+    - 73
+  - file: LCRO-CC.xlsx
+    sheet: CRO
+    rows:
+    - 210
+    - 227
+  flags:
+  - code: agency_name_matches_office
+    message: the agency name is the LCRO office's name; pointing at the Office node

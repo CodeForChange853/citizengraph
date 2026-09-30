@@ -12,6 +12,7 @@ from pydantic import ValidationError
 from citizengraph.graph.models import (
     Duration,
     Fee,
+    Link,
     Office,
     Requirement,
     Service,
@@ -34,6 +35,7 @@ def first(kind: str) -> dict[str, Any]:
         ("steps", Step),
         ("fees", Fee),
         ("variants", Variant),
+        ("links", Link),
     ],
 )
 def test_valid_records_parse_and_unknown_keys_are_rejected(kind, model):
@@ -52,6 +54,7 @@ def test_valid_records_parse_and_unknown_keys_are_rejected(kind, model):
         ("steps", Step),
         ("fees", Fee),
         ("variants", Variant),
+        ("links", Link),
     ],
 )
 def test_review_status_is_required_and_limited(kind, model):
@@ -110,7 +113,7 @@ class TestDuration:
 
     def test_unit_and_day_type_are_closed_sets(self):
         with pytest.raises(ValidationError):
-            Duration(status="stated", value_min=1, value_max=1, unit="week")
+            Duration(status="stated", value_min=1, value_max=1, unit="fortnight")
         with pytest.raises(ValidationError):
             Duration(status="not_stated", day_type="business")
         Duration(status="not_stated", day_type="working")
@@ -178,3 +181,52 @@ class TestStaffNamesStayInternal:
     def test_steps_need_a_positive_order(self):
         with pytest.raises(ValidationError):
             Step.model_validate({**first("steps"), "order": 0})
+
+
+class TestLink:
+    def satisfied_by(self, **over):
+        rec = {
+            "id": "link-02",
+            "kind": "requirement_satisfied_by",
+            "requirement_id": "svc-R01",
+            "agency": None,
+            "service_id": "other",
+            "office_id": None,
+            "review_status": "needs_review",
+            "flags": [{"code": "link_suggested", "message": "a person must confirm"}],
+            "sources": [{"file": "T.xlsx", "sheet": "T", "rows": [1, 9]}],
+        }
+        return {**rec, **over}
+
+    def test_requirement_satisfied_by_a_service(self):
+        link = Link.model_validate(self.satisfied_by())
+        assert link.service_id == "other"
+
+    def test_satisfied_by_needs_a_requirement_and_a_service_and_nothing_else(self):
+        for bad in (
+            {"requirement_id": None},
+            {"service_id": None},
+            {"agency": "X"},
+            {"office_id": "o1"},
+        ):
+            with pytest.raises(ValidationError):
+                Link.model_validate(self.satisfied_by(**bad))
+
+    def test_agency_is_office_needs_an_agency_and_an_office_and_no_service(self):
+        base = first("links")
+        Link.model_validate(base)
+        for bad in ({"agency": None}, {"office_id": None}, {"service_id": "svc"}):
+            with pytest.raises(ValidationError):
+                Link.model_validate({**base, **bad})
+
+    def test_agency_link_may_name_the_requirement_it_came_from(self):
+        Link.model_validate({**first("links"), "requirement_id": "svc-R01"})
+
+    def test_unknown_kind_is_rejected(self):
+        with pytest.raises(ValidationError):
+            Link.model_validate(self.satisfied_by(kind="related_to"))
+
+
+def test_weeks_are_a_duration_unit_of_their_own():
+    d = Duration(status="stated", value_min=1, value_max=1, unit="week", raw="1 week")
+    assert d.unit == "week"

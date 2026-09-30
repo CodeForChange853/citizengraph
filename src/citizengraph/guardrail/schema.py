@@ -30,6 +30,9 @@ OFFICIAL_SCHEMA = Schema(
             "NEXT",
             "PERFORMED_BY",
             "HAS_FEE",
+            "CHARGES",
+            "SATISFIED_BY",
+            "IS_OFFICE",
             "KNOWN_AS",
         }
     ),

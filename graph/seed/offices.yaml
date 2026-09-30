@@ -81,3 +81,81 @@ offices:
   flags:
   - code: name_recased
     message: the sheet writes 'CIVIL REGISTRY OFFICE' in capitals
+- id: cho
+  name: City Health Office
+  review_status: needs_review
+  sources:
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 2
+    - 13
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 15
+    - 26
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 28
+    - 38
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 79
+    - 91
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 93
+    - 104
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 106
+    - 117
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 119
+    - 130
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 132
+    - 141
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 143
+    - 155
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 157
+    - 168
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 170
+    - 182
+  - file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 184
+    - 195
+  flags: []
+- id: cswdo
+  name: City Social Welfare Development Office
+  review_status: needs_review
+  sources:
+  - file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  flags:
+  - code: name_differs_from_docs
+    message: the sheet reads 'City Social Welfare Development Office'; docs call it 'City Social Welfare
+      and Development Office (CSWDO)'; kept as the sheet has it

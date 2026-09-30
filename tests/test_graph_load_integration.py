@@ -81,8 +81,8 @@ def test_second_run_changes_nothing(loaded):
 
 def test_node_and_relationship_counts_match_the_seed(loaded):
     seed, (nodes, rels), _ = loaded
-    assert nodes["Service"] == 13
-    assert nodes["Office"] == 2
+    assert nodes["Service"] == 26
+    assert nodes["Office"] == 4
     assert nodes["Requirement"] == len(seed.requirements)
     assert nodes["Step"] == len(seed.steps)
     assert nodes["Fee"] == len(seed.fees)
@@ -91,6 +91,8 @@ def test_node_and_relationship_counts_match_the_seed(loaded):
     assert rels["NEXT"] == len(seed.steps) - len(seed.services)
     assert rels["REQUIRES"] == len(seed.requirements)
     assert rels["HAS_FEE"] == len(seed.fees)
+    assert rels["CHARGES"] == len(seed.fees)
+    assert "SATISFIED_BY" not in rels and "IS_OFFICE" not in rels  # suggestions held back
 
 
 def test_constraints_exist(driver, loaded):

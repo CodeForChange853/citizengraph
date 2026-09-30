@@ -16,7 +16,8 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
 
-from citizengraph.graph.models import Fee, Office, Requirement, Seed, Service, Step
+from citizengraph.graph.ids import clean_name
+from citizengraph.graph.models import Fee, Link, Office, Requirement, Seed, Service, Step
 
 VariantSelection = Mapping[str, "str | Iterable[str]"]
 
@@ -56,6 +57,10 @@ class InMemoryGraph:
         self._fees_of: dict[str, list[Fee]] = defaultdict(list)
         for f in seed.fees:
             self._fees_of[f.service_id].append(f)
+        self._fees_of_step: dict[str, list[Fee]] = defaultdict(list)
+        for f in seed.fees:
+            if f.step_id:
+                self._fees_of_step[f.step_id].append(f)
         by_id = {st.id: st for st in seed.steps}
         self._steps_of: dict[str, list[Step]] = {}
         for sid in self._services:
@@ -114,6 +119,39 @@ class InMemoryGraph:
         self.service(service_id)
         wanted = _wanted(variants)
         return [f for f in self._fees_of[service_id] if _matches(f.variant_ids, wanted)]
+
+    def fees_of_step(self, step_id: str) -> list[Fee]:
+        """The fee rows charged at one step (the `CHARGES` relationship)."""
+        if step_id not in {st.id for st in self.seed.steps}:
+            raise KeyError(step_id)
+        return list(self._fees_of_step.get(step_id, []))
+
+    # cross-office links (suggestions until a person reviews them; see Link.review_status)
+
+    def links(self, kind: str | None = None) -> list[Link]:
+        return [link for link in self.seed.links if kind in (None, link.kind)]
+
+    def satisfied_by(self, requirement_id: str) -> list[Service]:
+        """Services whose output satisfies the requirement (suggested links included)."""
+        return [
+            self._services[link.service_id]
+            for link in self.seed.links
+            if link.kind == "requirement_satisfied_by"
+            and link.requirement_id == requirement_id
+            and link.service_id is not None
+        ]
+
+    def office_for_agency(self, agency: str) -> Office | None:
+        """The scoped Office an Agency name stands for, when it is exactly one (else None)."""
+        wanted = clean_name(agency)
+        for link in self.seed.links:
+            if (
+                link.kind == "agency_is_office"
+                and link.office_id
+                and clean_name(link.agency or "") == wanted
+            ):
+                return self._offices[link.office_id]
+        return None
 
     def condition_unresolved(self, requirement_id: str) -> bool:
         """True when the requirement, or a group it is part of, has a condition the seed could

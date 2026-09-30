@@ -2998,3 +2998,1269 @@ steps:
   - code: psa_destination_differs
     message: the PSA mailing destination differs between services (Catbalogan LCRO-08; Tacloban LCRO-10/12/13/14;
       Manila LCRO-11/15/16); confirm
+- id: cswdo_referrals-S01
+  service_id: cswdo_referrals
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Present required document
+  agency_action: Intake interview necessary information regarding the client and family are adduced
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 30
+    value_max: 30
+    unit: minute
+    minutes_min: 30
+    minutes_max: 30
+    day_type: unknown
+    raw: 30 min/s
+  role: Personel in charge / Emergency Welfare Program implementer
+  internal_person_raw: Personel in charge / Emergency Welfare Program implementer
+  next_id: cswdo_referrals-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 21
+  flags:
+  - code: orphan_row_glued
+    message: rows 22-23 had no fee or time; their text was appended to this step (the sheet wraps text
+      over rows)
+- id: cswdo_referrals-S02
+  service_id: cswdo_referrals
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Clients referred to LTO for transportation assisstance / PCSO for financial (Medical)
+    assistance / Missionaries of Charity for temporary placement / SOS for long term residential care
+  agency_action: Preparation of Social Case Study Report / Certificate of Indigency
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 1
+    value_max: 1
+    unit: week
+    minutes_min: 10080
+    minutes_max: 10080
+    day_type: unknown
+    raw: 1 week
+  role: Personel in charge / Emergency Welfare Program implementer
+  internal_person_raw: Personel in charge / Emergency Welfare Program implementer
+  next_id: cswdo_referrals-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 24
+  flags:
+  - code: day_type_unknown
+    message: '''1 week'' does not say calendar or working days (day_type left unknown)'
+  - code: orphan_row_glued
+    message: rows 25-31 had no fee or time; their text was appended to this step (the sheet wraps text
+      over rows)
+  - code: referral_alternatives_unclear
+    message: four referral destinations (LTO, PCSO, Missionaries of Charity, SOS) are in one cell; the
+      sheet does not say whether they are alternatives or a sequence, or what decides which one applies.
+      Kept exactly as written; ask the LGU
+- id: cswdo_referrals-S03
+  service_id: cswdo_referrals
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Receive the needed documents
+  agency_action: Release of needed documents (SCSR / Certificate of Indigency / Referral Letter)
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 min/s
+  role: Personel in charge / Emergency Welfare Program implementer
+  internal_person_raw: Personel in charge / Emergency Welfare Program implementer
+  next_id: cswdo_referrals-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 32
+  flags:
+  - code: orphan_row_glued
+    message: rows 33-34 had no fee or time; their text was appended to this step (the sheet wraps text
+      over rows)
+- id: cswdo_referrals-S04
+  service_id: cswdo_referrals
+  order: 4
+  label: null
+  citizen_step_group: 3
+  citizen_action: null
+  agency_action: Monitoring
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 1
+    value_max: 1
+    unit: hour
+    minutes_min: 60
+    minutes_max: 60
+    day_type: unknown
+    raw: 1 hour (Once a month)
+  role: Personel in charge / Emergency Welfare Program implementer
+  internal_person_raw: Personel in charge / Emergency Welfare Program implementer
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_SOCIALWELFARE.xlsx
+    sheet: CSWDO
+    rows:
+    - 3
+    - 38
+  source_row: 35
+  flags:
+  - code: orphan_row_glued
+    message: rows 36-37 had no fee or time; their text was appended to this step (the sheet wraps text
+      over rows)
+  - code: recurring_monitoring
+    message: 'the charter says ''1 hour (Once a month)'': a monthly follow-up. It is counted once in the
+      stated total (30 + 10 + 60 minutes); unclear whether monitoring is part of the service time or a
+      recurring follow-up'
+- id: cho_routine_immunization-S01
+  service_id: cho_routine_immunization
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving
+  agency_action: |-
+    • Client is taken in, mother baby book prepared and old record retrieved
+    • Client details entered in recording logbook
+    • Client weighed and vital signs taken and recorded in baby booklet
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_routine_immunization-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 2
+    - 13
+  source_row: 10
+  flags: []
+- id: cho_routine_immunization-S02
+  service_id: cho_routine_immunization
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Immunization
+  agency_action: |-
+    • Client is assessed
+    • Physical assessment done, condition of the baby checked
+    • Health history taken
+    • Vaccinated
+    • Health education and counselling conducted
+    • Supplements provided
+    • Set for the next appointment
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 20
+    value_max: 20
+    unit: minute
+    minutes_min: 20
+    minutes_max: 20
+    day_type: unknown
+    raw: 20 min
+  role: Nurse incharge
+  internal_person_raw: Nurse incharge
+  next_id: cho_routine_immunization-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 2
+    - 13
+  source_row: 11
+  flags: []
+- id: cho_routine_immunization-S03
+  service_id: cho_routine_immunization
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Log in the dispensary
+  agency_action: Supplies are logged in the dispensary
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 mins
+  role: Person incharge
+  internal_person_raw: Person incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 2
+    - 13
+  source_row: 12
+  flags: []
+- id: cho_prenatal_consultation-S01
+  service_id: cho_prenatal_consultation
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving
+  agency_action: |-
+    • Client is taken in, mother baby book prepared and old record retrieved
+    • Client details entered in recording logbook
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_prenatal_consultation-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 15
+    - 26
+  source_row: 23
+  flags: []
+- id: cho_prenatal_consultation-S02
+  service_id: cho_prenatal_consultation
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Client consultation
+  agency_action: |-
+    • Client is assessed, vital signs taken
+    • Physical assessment done, condition of the baby checked
+    • Health history taken
+    • Referral issued for diagnostic examination or for further management or in higher center if needed
+    • Health education, birth planning and counselling conducted
+    • Supplements provided
+    • Set for the next appointment
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 20
+    value_max: 20
+    unit: minute
+    minutes_min: 20
+    minutes_max: 20
+    day_type: unknown
+    raw: 20 min
+  role: Nurse incharge
+  internal_person_raw: Nurse incharge
+  next_id: cho_prenatal_consultation-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 15
+    - 26
+  source_row: 24
+  flags: []
+- id: cho_prenatal_consultation-S03
+  service_id: cho_prenatal_consultation
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Log in the dispensary
+  agency_action: Supplies are logged in the dispensary
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 mins
+  role: Person incharge
+  internal_person_raw: Person incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 15
+    - 26
+  source_row: 25
+  flags: []
+- id: cho_family_planning-S01
+  service_id: cho_family_planning
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving
+  agency_action: |-
+    • Client is taken in, old record retrieved and intake form prepared
+    • Client details entered in recording logbook
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_family_planning-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 28
+    - 38
+  source_row: 36
+  flags: []
+- id: cho_family_planning-S02
+  service_id: cho_family_planning
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Client consultation
+  agency_action: |-
+    • Client is assessed
+    • Health history taken
+    • Health education and counselling conducted
+    • Family planning commodity given, if implant and ligation is preferred by client, schedule of procedure will be arranged
+    • Set for next appointment
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 20
+    value_max: 20
+    unit: minute
+    minutes_min: 20
+    minutes_max: 20
+    day_type: unknown
+    raw: 20 mins
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 28
+    - 38
+  source_row: 37
+  flags: []
+- id: cho_pharmacy_services-S01
+  service_id: cho_pharmacy_services
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving
+  agency_action: |-
+    • Client is taken in, prescription received
+    • Prescription given to pharmacist
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 min
+  role: Assistant
+  internal_person_raw: Assistant
+  next_id: cho_pharmacy_services-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 79
+    - 91
+  source_row: 88
+  flags: []
+- id: cho_pharmacy_services-S02
+  service_id: cho_pharmacy_services
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Medicine prepared and dispensed
+  agency_action: |-
+    • Medicine are retrieved from the shelf
+    • Instruction written in the wrappings if prescription is kept in the pharmacy
+    • Medicines is given to the client with proper instruction for administration
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Pharmacist
+  internal_person_raw: Pharmacist
+  next_id: cho_pharmacy_services-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 79
+    - 91
+  source_row: 89
+  flags: []
+- id: cho_pharmacy_services-S03
+  service_id: cho_pharmacy_services
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Log in the dispensary
+  agency_action: Logged in the dispensary and client asked to sign in the dispensary
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 2
+    value_max: 2
+    unit: minute
+    minutes_min: 2
+    minutes_max: 2
+    day_type: unknown
+    raw: 2 min
+  role: Assistant
+  internal_person_raw: Assistant
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 79
+    - 91
+  source_row: 90
+  flags: []
+- id: cho_death_certificate-S01
+  service_id: cho_death_certificate
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving
+  agency_action: Client is taken in, death certificate issued by the LCR is received Referred to the MOD
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_death_certificate-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 93
+    - 104
+  source_row: 101
+  flags:
+  - code: two_actions_one_line
+    message: the agency action (row 101) holds two actions on one line, separated by spaces and not bullets;
+      not split
+- id: cho_death_certificate-S02
+  service_id: cho_death_certificate
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Assessment of cause of death
+  agency_action: |-
+    • Client is interviewed as to the circumstances leading to the death of the deceased
+    • Once determined, probable causes of death are entered into the death certificate and signed by the MOD
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_death_certificate-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 93
+    - 104
+  source_row: 102
+  flags: []
+- id: cho_death_certificate-S03
+  service_id: cho_death_certificate
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Releasing of death certificate
+  agency_action: Certificate released after proper recording and signature of family member obtained to
+    prove receipt Copy is filed
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 93
+    - 104
+  source_row: 103
+  flags:
+  - code: two_actions_one_line
+    message: the agency action (row 103) holds two actions on one line, separated by spaces and not bullets;
+      not split
+- id: cho_cadaver_transfer_permit-S01
+  service_id: cho_cadaver_transfer_permit
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving
+  agency_action: Client is taken in, information taken as to cadaver concerned
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_cadaver_transfer_permit-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 106
+    - 117
+  source_row: 114
+  flags: []
+- id: cho_cadaver_transfer_permit-S02
+  service_id: cho_cadaver_transfer_permit
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Assessment
+  agency_action: |-
+    • Client is interviewed as to purpose of transfer, cause of death and destination
+    • Once determined to be compliant to the sanitation code, permit is prepared
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_cadaver_transfer_permit-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 106
+    - 117
+  source_row: 115
+  flags: []
+- id: cho_cadaver_transfer_permit-S03
+  service_id: cho_cadaver_transfer_permit
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Releasing of permit to transfer
+  agency_action: |-
+    • Permit released after proper recording
+    • Copy is filed
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 106
+    - 117
+  source_row: 116
+  flags: []
+- id: cho_sanitary_permit-S01
+  service_id: cho_sanitary_permit
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving
+  agency_action: |-
+    • Client is taken in, information
+    • Application form is accepted and checked
+    • Requirements are given and client is billed
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_sanitary_permit-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 119
+    - 130
+  source_row: 127
+  flags:
+  - code: billed_no_fee_stated
+    message: the agency action says the client is billed, but the fee cell says 'None' and no fee is stated
+      in the sheet
+- id: cho_sanitary_permit-S02
+  service_id: cho_sanitary_permit
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Inspection
+  agency_action: |-
+    • Client is scheduled for inspection
+    • Establishment visited and inspected
+    • Inspection result discussed and instructions for compliance to standards given
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 3
+    value_max: 3
+    unit: day
+    minutes_min: 4320
+    minutes_max: 4320
+    day_type: unknown
+    raw: 3 days
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_sanitary_permit-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 119
+    - 130
+  source_row: 128
+  flags:
+  - code: day_type_unknown
+    message: '''3 days'' does not say calendar or working days (day_type left unknown)'
+- id: cho_sanitary_permit-S03
+  service_id: cho_sanitary_permit
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Releasing of Sanitary Permit
+  agency_action: Permit released after compliance of minimal requirements
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 119
+    - 130
+  source_row: 129
+  flags: []
+- id: cho_dental_services-S01
+  service_id: cho_dental_services
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving and vital signs taking
+  agency_action: |-
+    • Client is taken in, client intake forms are filled-in and vital sign taken
+    • Client history is taken
+    • Dental cavity prepared
+    • Extraction done
+    • Medicine prescription given
+    • Health education and instruction for proper medication given
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 40
+    value_max: 40
+    unit: minute
+    minutes_min: 40
+    minutes_max: 40
+    day_type: unknown
+    raw: 40 min
+  role: Dentist
+  internal_person_raw: Person responsible Dentist
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 132
+    - 141
+  source_row: 140
+  flags:
+  - code: person_cell_has_heading
+    message: the person cell reads 'Person responsible / Dentist' (the column heading pasted before the
+      role); only the role 'Dentist' is kept
+- id: cho_animal_bite_center-S01
+  service_id: cho_animal_bite_center
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving
+  agency_action: Client is taken in, records retrieved and vital signs and complaints are recorded in
+    the individual treatment record
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Nurse on duty
+  internal_person_raw: Nurse on duty
+  next_id: cho_animal_bite_center-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 143
+    - 155
+  source_row: 151
+  flags: []
+- id: cho_animal_bite_center-S02
+  service_id: cho_animal_bite_center
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Consultation with physician
+  agency_action: |-
+    • Physical examination, medical history, history of present illness taken
+    • Request for diagnostic examination given
+    • Diagnostic is given and health education provided
+    • Medicine prescription given
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 min
+  role: Physician on duty
+  internal_person_raw: Physician on duty
+  next_id: cho_animal_bite_center-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 143
+    - 155
+  source_row: 152
+  flags: []
+- id: cho_animal_bite_center-S03
+  service_id: cho_animal_bite_center
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Treatment/Vacci nation
+  agency_action: Wounds are treated, vaccines inoculated, vaccination cards prepared and instructions
+    given
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Nurse on duty
+  internal_person_raw: Nurse on duty
+  next_id: cho_animal_bite_center-S04
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 143
+    - 155
+  source_row: 153
+  flags: []
+- id: cho_animal_bite_center-S04
+  service_id: cho_animal_bite_center
+  order: 4
+  label: null
+  citizen_step_group: 4
+  citizen_action: Dispensing of Medicine
+  agency_action: |-
+    • Medicines prescribed are retrieved and given to the client with instructions on proper administration
+    • Medicines given are recorded in the dispensary and client asked to signed
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 min
+  role: Nurse on duty
+  internal_person_raw: Nurse on duty
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 143
+    - 155
+  source_row: 154
+  flags: []
+- id: cho_post_mortem_examination-S01
+  service_id: cho_post_mortem_examination
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving and assignment of medical examiner
+  agency_action: |-
+    • Request is received and recorded
+    • Medical examiner in-charge is called and briefed on the case
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_post_mortem_examination-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 157
+    - 168
+  source_row: 165
+  flags: []
+- id: cho_post_mortem_examination-S02
+  service_id: cho_post_mortem_examination
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Post-mortem examination
+  agency_action: |-
+    • Medical examiner goes to the funeral parlor to examine the cadaver
+    • Report is made and signed
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 30
+    value_max: 30
+    unit: minute
+    minutes_min: 30
+    minutes_max: 30
+    day_type: unknown
+    raw: 30 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_post_mortem_examination-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 157
+    - 168
+  source_row: 166
+  flags: []
+- id: cho_post_mortem_examination-S03
+  service_id: cho_post_mortem_examination
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Releasing and recording
+  agency_action: |-
+    • Report is recorded, copies retained and released with client signing in the release logbook
+    • Copies files
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 157
+    - 168
+  source_row: 167
+  flags: []
+- id: cho_medico_legal_consultation-S01
+  service_id: cho_medico_legal_consultation
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving and vital signs taking
+  agency_action: |-
+    • Clients name is takes, forms are filled-in and vital signs taken
+    • Request is taken and recorded
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Personnel incharge
+  internal_person_raw: Personnel incharge
+  next_id: cho_medico_legal_consultation-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 170
+    - 182
+  source_row: 178
+  flags: []
+- id: cho_medico_legal_consultation-S02
+  service_id: cho_medico_legal_consultation
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Consultation with physician
+  agency_action: |-
+    • Physical examination, medical history taken
+    • Physical condition/status determined
+
+    Report made and signed.
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 20
+    value_max: 20
+    unit: minute
+    minutes_min: 20
+    minutes_max: 20
+    day_type: unknown
+    raw: 20 min
+  role: Physician
+  internal_person_raw: Physician
+  next_id: cho_medico_legal_consultation-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 170
+    - 182
+  source_row: 179
+  flags:
+  - code: orphan_row_glued
+    message: row 180 ('Report made and signed.') has no step label, fee, time or person; it was appended
+      to this step as its last list item and may instead be a separate step without a time
+- id: cho_medico_legal_consultation-S03
+  service_id: cho_medico_legal_consultation
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Releasing and recording
+  agency_action: |-
+    Report is recorded, copies retained and released with client signing in the release logbook
+    Copies files
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Person incharge
+  internal_person_raw: Person incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 170
+    - 182
+  source_row: 181
+  flags: []
+- id: cho_medical_certificate-S01
+  service_id: cho_medical_certificate
+  order: 1
+  label: null
+  citizen_step_group: 1
+  citizen_action: Receiving and vital signs taking
+  agency_action: |-
+    • Clients name is taken, forms are filled-in and vital signs
+    taken
+    • Purpose for certification is taken
+    • Billing is given to the patient for payment at the treasurer’s
+    office
+    • Request for diagnostic exams required given
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Nurse on duty
+  internal_person_raw: Nurse on duty
+  next_id: cho_medical_certificate-S02
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 184
+    - 195
+  source_row: 192
+  flags:
+  - code: payment_at_treasurer_no_step
+    message: the agency action says billing is given for payment at the treasurer’s office; the sheet
+      has no separate payment step. external_agency is left null because the step is otherwise the City
+      Health Office’s own
+- id: cho_medical_certificate-S02
+  service_id: cho_medical_certificate
+  order: 2
+  label: null
+  citizen_step_group: 2
+  citizen_action: Consultation with physician
+  agency_action: |-
+    • Physical examination, medical history taken
+    • Physical condition/status determined
+    • Certificate signed.
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 10
+    value_max: 10
+    unit: minute
+    minutes_min: 10
+    minutes_max: 10
+    day_type: unknown
+    raw: 10 min
+  role: Physician
+  internal_person_raw: Physician
+  next_id: cho_medical_certificate-S03
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 184
+    - 195
+  source_row: 193
+  flags: []
+- id: cho_medical_certificate-S03
+  service_id: cho_medical_certificate
+  order: 3
+  label: null
+  citizen_step_group: 3
+  citizen_action: Releasing and recording
+  agency_action: Certificate information is recorded, copies retained and released with client signing
+    in the release logbook
+  external_agency: null
+  duration:
+    status: stated
+    value_min: 5
+    value_max: 5
+    unit: minute
+    minutes_min: 5
+    minutes_max: 5
+    day_type: unknown
+    raw: 5 min
+  role: Person incharge
+  internal_person_raw: Person incharge
+  next_id: null
+  duration_shared_from: null
+  review_status: needs_review
+  source:
+    file: CYPCC_HEALTH.xlsx
+    sheet: HEALTH
+    rows:
+    - 184
+    - 195
+  source_row: 194
+  flags: []

@@ -128,6 +128,43 @@ class TestFees:
         assert graph.fee_condition_unresolved("svc-F02") is False
 
 
+class TestFeesOfStep:
+    def test_fees_are_tied_to_their_step(self, graph):
+        assert ids(graph.fees_of_step("svc-S01")) == ["svc-F01"]
+        assert ids(graph.fees_of_step("svc-S02")) == ["svc-F02", "svc-F03", "svc-F04"]
+        assert graph.fees_of_step("svc-S03") == []
+
+    def test_unknown_step_raises(self, graph):
+        with pytest.raises(KeyError):
+            graph.fees_of_step("svc-S99")
+
+
+class TestLinks:
+    def test_agency_links_and_office_lookup(self, graph):
+        assert [link.id for link in graph.links("agency_is_office")] == ["link-01"]
+        assert graph.links("requirement_satisfied_by") == []
+        assert graph.office_for_agency("Some Agency").id == "o1"
+        assert graph.office_for_agency("  Some   Agency ").id == "o1"
+        assert graph.office_for_agency("Other Agency") is None
+
+    def test_requirement_satisfied_by_services(self):
+        raw = minimal_seed_raw()
+        raw["services"].append({**raw["services"][0], "id": "other", "charter_ref": "T-02"})
+        raw["steps"].append(
+            {**next(s for s in raw["steps"] if s["id"] == "svc-S01"), "id": "other-S01",
+             "service_id": "other", "next_id": None}
+        )
+        raw["links"].append(
+            {"id": "link-02", "kind": "requirement_satisfied_by", "requirement_id": "svc-R01",
+             "agency": None, "service_id": "other", "office_id": None,
+             "review_status": "needs_review", "flags": [],
+             "sources": [{"file": "TEST.xlsx", "sheet": "T", "rows": [10, 40]}]}
+        )
+        graph = InMemoryGraph(parse_seed(raw))
+        assert [s.id for s in graph.satisfied_by("svc-R01")] == ["other"]
+        assert graph.satisfied_by("svc-R05") == []
+
+
 class TestNothingPrivateLeaks:
     def test_no_helper_output_contains_staff_names(self, graph):
         dumped = " ".join(

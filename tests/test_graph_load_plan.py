@@ -89,8 +89,8 @@ class FakeDriver:
 class TestPlan:
     def test_node_rows_match_the_seed(self, seed, plan):
         n = {b.name: len(b.rows) for b in plan}
-        assert n["node:Office"] == 2
-        assert n["node:Service"] == 13
+        assert n["node:Office"] == 4
+        assert n["node:Service"] == 26
         assert n["node:Requirement"] == len(seed.requirements)
         assert n["node:Step"] == len(seed.steps)
         assert n["node:Fee"] == len(seed.fees)
@@ -109,6 +109,7 @@ class TestPlan:
         assert n["rel:NEXT"] == len(seed.steps) - len(seed.services)
         assert n["rel:PERFORMED_BY"] == len([s for s in seed.steps if s.role])
         assert n["rel:HAS_FEE"] == len(seed.fees)
+        assert n["rel:CHARGES"] == len([f for f in seed.fees if f.step_id])
         assert n["rel:APPLIES_WHEN:Fee"] == sum(len(f.variant_ids) for f in seed.fees)
 
     def test_nodes_are_written_before_the_relationships_that_need_them(self, plan):
@@ -143,6 +144,49 @@ class TestPlan:
         for name in ("node:Service", "node:Requirement", "node:Step", "node:Fee"):
             for row in by_name(plan)[name].rows:
                 assert row["props"]["review_status"] == "needs_review"
+
+
+class TestStepToFee:
+    def test_every_fee_row_is_tied_to_its_step(self, seed, plan):
+        rows = by_name(plan)["rel:CHARGES"].rows
+        assert {(r["a"], r["b"]) for r in rows} == {(f.step_id, f.id) for f in seed.fees}
+        assert "(a)-[:CHARGES]->(b)" in by_name(plan)["rel:CHARGES"].cypher
+        assert "MATCH (a:Step " in by_name(plan)["rel:CHARGES"].cypher
+        assert "MATCH (b:Fee " in by_name(plan)["rel:CHARGES"].cypher
+
+
+class TestCrossOfficeLinks:
+    def test_suggested_links_are_not_written_by_default(self, seed, plan):
+        assert seed.links and {link.review_status for link in seed.links} == {"needs_review"}
+        assert by_name(plan)["rel:SATISFIED_BY"].rows == []
+        assert by_name(plan)["rel:IS_OFFICE"].rows == []
+
+    def test_they_can_be_included_on_request(self, seed):
+        plan = by_name(loadmod.build_plan(seed, include_unreviewed_links=True))
+        satisfied = [x for x in seed.links if x.kind == "requirement_satisfied_by"]
+        agency = [x for x in seed.links if x.kind == "agency_is_office"]
+        assert len(plan["rel:SATISFIED_BY"].rows) == len(satisfied) == 3
+        assert len(plan["rel:IS_OFFICE"].rows) == len(agency)
+        assert {(r["a"], r["b"]) for r in plan["rel:SATISFIED_BY"].rows} == {
+            (x.requirement_id, x.service_id) for x in satisfied
+        }
+        assert "(a)-[:SATISFIED_BY]->(b)" in plan["rel:SATISFIED_BY"].cypher
+        assert "MATCH (a:Requirement " in plan["rel:SATISFIED_BY"].cypher
+        assert "MATCH (b:Service " in plan["rel:SATISFIED_BY"].cypher
+        assert "(a)-[:IS_OFFICE]->(b)" in plan["rel:IS_OFFICE"].cypher
+        agency_ids = {r["id"] for r in plan["node:Agency"].rows}
+        assert {r["a"] for r in plan["rel:IS_OFFICE"].rows} <= agency_ids
+
+    def test_a_reviewed_link_is_written_by_default(self, seed):
+        reviewed = [x.model_copy(update={"review_status": "reviewed"}) for x in seed.links]
+        plan = by_name(loadmod.build_plan(seed.model_copy(update={"links": reviewed})))
+        assert len(plan["rel:SATISFIED_BY"].rows) == 3
+        assert plan["rel:IS_OFFICE"].rows
+
+    def test_write_seed_passes_the_switch_through(self, seed):
+        driver = FakeDriver()
+        report = loadmod.write_seed(driver, seed, include_unreviewed_links=True)
+        assert report.counts["rel:SATISFIED_BY"] == 3
 
 
 class TestStatementHygiene:
@@ -245,8 +289,15 @@ class TestCli:
     def test_dry_run_validates_and_prints_counts_without_connecting(self):
         done = self.run("--dry-run", env=_base_env())
         assert done.returncode == 0, done.stderr
-        assert "13 services" in done.stdout
+        assert "26 services" in done.stdout
+        assert "4 offices" in done.stdout
+        assert "suggested links held back" in done.stdout
         assert "dry run" in done.stdout.lower()
+
+    def test_dry_run_can_include_suggested_links(self):
+        done = self.run("--dry-run", "--include-suggested-links", env=_base_env())
+        assert done.returncode == 0, done.stderr
+        assert "suggested links included" in done.stdout
 
     def test_refuses_to_run_without_a_password(self):
         env = _base_env()
