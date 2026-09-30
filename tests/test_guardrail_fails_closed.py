@@ -40,7 +40,9 @@ def accepted(query: str) -> None:
 # --------------------------------------------------------------------------- fail closed
 
 
-@pytest.mark.parametrize("bad", [None, 42, 3.5, b"MATCH (s:Service) RETURN s LIMIT 1", [], {}, object()])
+@pytest.mark.parametrize(
+    "bad", [None, 42, 3.5, b"MATCH (s:Service) RETURN s LIMIT 1", [], {}, object()]
+)
 def test_non_string_input_is_rejected_not_raised(bad):
     rejected(bad, "string")
 
@@ -225,8 +227,27 @@ def test_named_attack_queries(query, word):
 
 @pytest.mark.parametrize(
     "keyword",
-    ["UNION", "USE", "EXPLAIN", "PROFILE", "CYPHER", "START", "FINISH", "SHOW", "TERMINATE",
-     "ALTER", "GRANT", "DENY", "REVOKE", "YIELD", "USING", "INSERT", "ON", "INDEX", "CONSTRAINT"],
+    [
+        "UNION",
+        "USE",
+        "EXPLAIN",
+        "PROFILE",
+        "CYPHER",
+        "START",
+        "FINISH",
+        "SHOW",
+        "TERMINATE",
+        "ALTER",
+        "GRANT",
+        "DENY",
+        "REVOKE",
+        "YIELD",
+        "USING",
+        "INSERT",
+        "ON",
+        "INDEX",
+        "CONSTRAINT",
+    ],
 )
 def test_clauses_outside_allow_list_are_rejected(keyword):
     rejected(f"{BASE}{keyword} x RETURN s LIMIT 5")
@@ -471,8 +492,10 @@ def test_unicode_digits_in_limit_are_rejected():
 
 
 def test_non_ascii_text_inside_string_literals_is_allowed():
-    accepted("MATCH (s:Service) WHERE s.name CONTAINS 'Pagpaparehistro ng Kapanganakan ñ é' "
-             "RETURN s LIMIT 5")
+    accepted(
+        "MATCH (s:Service) WHERE s.name CONTAINS 'Pagpaparehistro ng Kapanganakan ñ é' "
+        "RETURN s LIMIT 5"
+    )
     accepted("MATCH (s:Service) WHERE s.name = 'СREATE ​' RETURN s LIMIT 5")
 
 
@@ -514,7 +537,9 @@ def test_limit_in_intermediate_with_does_not_satisfy_final_limit():
 
 
 def test_limit_in_subquery_or_brackets_does_not_count():
-    rejected("MATCH (s:Service) WHERE EXISTS { MATCH (t:Service) RETURN t LIMIT 1 } RETURN s", "limit")
+    rejected(
+        "MATCH (s:Service) WHERE EXISTS { MATCH (t:Service) RETURN t LIMIT 1 } RETURN s", "limit"
+    )
     rejected("MATCH (s:Service) RETURN [x IN [1,2,3] | x] AS l", "limit")
 
 
@@ -546,9 +571,38 @@ def test_invalid_max_limit_argument_fails_closed(bad_max):
 
 @pytest.mark.parametrize(
     "lit",
-    ["0", "-1", "-5", "+5", "05", "007", "0x10", "0b11", "0o7", "1_0", "5.0", "5.5", "1e1", "1E1",
-     "0.5", ".5", "5.", "$n", "$1", "s.id", "size(s.name)", "1+1", "(5)", "'5'", "null", "true",
-     "5 + 5", "10 * 100", "toInteger('5')", "count(s)"],
+    [
+        "0",
+        "-1",
+        "-5",
+        "+5",
+        "05",
+        "007",
+        "0x10",
+        "0b11",
+        "0o7",
+        "1_0",
+        "5.0",
+        "5.5",
+        "1e1",
+        "1E1",
+        "0.5",
+        ".5",
+        "5.",
+        "$n",
+        "$1",
+        "s.id",
+        "size(s.name)",
+        "1+1",
+        "(5)",
+        "'5'",
+        "null",
+        "true",
+        "5 + 5",
+        "10 * 100",
+        "toInteger('5')",
+        "count(s)",
+    ],
 )
 def test_limit_must_be_a_plain_positive_decimal_integer(lit):
     rejected(f"MATCH (s:Service) RETURN s LIMIT {lit}", "limit")
@@ -571,14 +625,30 @@ def test_limit_does_not_apply_when_inside_string_or_after_semicolon():
 # --------------------------------------------------------------------------- schema
 
 
-@pytest.mark.parametrize("label", ["Person", "User", "Citizen", "Application", "service", "SERVICE",
-                                   "Services", "Staff", "Employee", "Node", "_Service", "Service2"])
+@pytest.mark.parametrize(
+    "label",
+    [
+        "Person",
+        "User",
+        "Citizen",
+        "Application",
+        "service",
+        "SERVICE",
+        "Services",
+        "Staff",
+        "Employee",
+        "Node",
+        "_Service",
+        "Service2",
+    ],
+)
 def test_unknown_node_label_is_rejected(label):
     rejected(f"MATCH (n:{label}) RETURN n LIMIT 5", "label", label)
 
 
-@pytest.mark.parametrize("rel", ["OWNS", "AT_STEP", "requires", "REQUIRE", "HAS_STAFF", "KNOWS",
-                                 "Requires", "HAS_STEPS"])
+@pytest.mark.parametrize(
+    "rel", ["OWNS", "AT_STEP", "requires", "REQUIRE", "HAS_STAFF", "KNOWS", "Requires", "HAS_STEPS"]
+)
 def test_unknown_relationship_type_is_rejected(rel):
     rejected(f"MATCH (s:Service)-[:{rel}]->(x) RETURN x LIMIT 5", "relationship", rel)
 
@@ -600,8 +670,21 @@ def test_unknown_label_in_alternative_and_where_forms(label):
     rejected(f"OPTIONAL MATCH (n:{label}) RETURN n LIMIT 5", label)
 
 
-@pytest.mark.parametrize("prop", ["password", "staff_name", "staff", "email", "ID", "Name", "secret",
-                                  "created_at", "__typename", "amount"])
+@pytest.mark.parametrize(
+    "prop",
+    [
+        "password",
+        "staff_name",
+        "staff",
+        "email",
+        "ID",
+        "Name",
+        "secret",
+        "created_at",
+        "__typename",
+        "amount",
+    ],
+)
 def test_unknown_property_is_rejected(prop):
     rejected(f"MATCH (s:Service) RETURN s.{prop} LIMIT 5", "property", prop)
     rejected(f"MATCH (s:Service) WHERE s.{prop} = 'x' RETURN s LIMIT 5", prop)
@@ -620,7 +703,9 @@ def test_unknown_property_in_relationship_map():
 
 def test_unknown_property_deep_in_expressions():
     rejected("MATCH (s:Service) WHERE toLower(s.secret) = 'x' RETURN s LIMIT 5", "secret")
-    rejected("MATCH (s:Service) RETURN CASE WHEN s.secret = 1 THEN 1 ELSE 0 END AS c LIMIT 5", "secret")
+    rejected(
+        "MATCH (s:Service) RETURN CASE WHEN s.secret = 1 THEN 1 ELSE 0 END AS c LIMIT 5", "secret"
+    )
     rejected("MATCH (s:Service) WHERE NOT (s.a = 1) RETURN s LIMIT 5", "property")
 
 
@@ -664,8 +749,14 @@ def test_map_projection_with_schema_properties_only_is_still_checked():
 
 @pytest.mark.parametrize(
     "fn",
-    ["apoc.text.join(['a'], ',')", "apoc.cypher.runFirstColumn('x', {})", "db.labels()",
-     "dbms.components()", "custom.fn(1)", "a.b.c(1)"],
+    [
+        "apoc.text.join(['a'], ',')",
+        "apoc.cypher.runFirstColumn('x', {})",
+        "db.labels()",
+        "dbms.components()",
+        "custom.fn(1)",
+        "a.b.c(1)",
+    ],
 )
 def test_namespaced_function_calls_are_rejected(fn):
     rejected(f"MATCH (s:Service) RETURN {fn} AS x LIMIT 5", "function")
@@ -678,15 +769,20 @@ def test_schema_is_case_sensitive_and_exact():
 
 def test_workflow_labels_are_not_in_the_official_schema():
     # docs/specs.md section 1: workflow data never mixes with the official graph.
-    rejected("MATCH (a:Application)-[:AT_STEP]->(st:Step) RETURN a LIMIT 5", "Application", "AT_STEP")
+    rejected(
+        "MATCH (a:Application)-[:AT_STEP]->(st:Step) RETURN a LIMIT 5", "Application", "AT_STEP"
+    )
     rejected("MATCH (s:Service) RETURN s.submitted_at LIMIT 5", "property")
 
 
 def test_custom_schema_can_be_supplied():
     from citizengraph.guardrail.schema import Schema
 
-    custom = Schema(labels=frozenset({"Thing"}), relationship_types=frozenset({"REL"}),
-                    properties=frozenset({"x"}))
+    custom = Schema(
+        labels=frozenset({"Thing"}),
+        relationship_types=frozenset({"REL"}),
+        properties=frozenset({"x"}),
+    )
     assert validate_cypher("MATCH (t:Thing) RETURN t.x LIMIT 5", schema=custom).ok is True
     assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 5", schema=custom).ok is False
 
@@ -695,16 +791,62 @@ def test_default_schema_matches_specs_section_1():
     from citizengraph.guardrail.schema import OFFICIAL_SCHEMA
 
     assert OFFICIAL_SCHEMA.labels == {
-        "Office", "Service", "Requirement", "Agency", "Step", "Role", "Fee", "Variant", "Alias"}
+        "Office",
+        "Service",
+        "Requirement",
+        "Agency",
+        "Step",
+        "Role",
+        "Fee",
+        "Variant",
+        "Alias",
+    }
     assert OFFICIAL_SCHEMA.relationship_types == {
-        "OFFERS", "REQUIRES", "SECURED_AT", "APPLIES_WHEN", "PART_OF", "HAS_STEP", "NEXT",
-        "PERFORMED_BY", "HAS_FEE", "KNOWN_AS"}
+        "OFFERS",
+        "REQUIRES",
+        "SECURED_AT",
+        "APPLIES_WHEN",
+        "PART_OF",
+        "HAS_STEP",
+        "NEXT",
+        "PERFORMED_BY",
+        "HAS_FEE",
+        "KNOWN_AS",
+    }
     assert OFFICIAL_SCHEMA.properties == {
-        "id", "name", "classification", "transaction_type", "who_may_avail", "total_fee_text",
-        "total_time_text", "description", "text", "group", "parent_id", "min_required",
-        "condition_text", "order", "citizen_action", "agency_action", "external_agency", "dur_min",
-        "dur_max", "dur_unit", "minutes_min", "minutes_max", "day_type", "title", "label",
-        "amount_min", "amount_max", "unit", "note", "dimension", "value", "lang"}
+        "id",
+        "name",
+        "classification",
+        "transaction_type",
+        "who_may_avail",
+        "total_fee_text",
+        "total_time_text",
+        "description",
+        "text",
+        "group",
+        "parent_id",
+        "min_required",
+        "condition_text",
+        "order",
+        "citizen_action",
+        "agency_action",
+        "external_agency",
+        "dur_min",
+        "dur_max",
+        "dur_unit",
+        "minutes_min",
+        "minutes_max",
+        "day_type",
+        "title",
+        "label",
+        "amount_min",
+        "amount_max",
+        "unit",
+        "note",
+        "dimension",
+        "value",
+        "lang",
+    }
 
 
 def test_reasons_are_all_collected():
@@ -772,16 +914,34 @@ def kinds(text):
 
 def test_lexer_basic_tokens():
     assert kinds("MATCH (s:Service {id: $x}) RETURN s.id LIMIT 5") == [
-        ("WORD", "MATCH"), ("PUNCT", "("), ("WORD", "s"), ("PUNCT", ":"), ("WORD", "Service"),
-        ("PUNCT", "{"), ("WORD", "id"), ("PUNCT", ":"), ("PARAM", "x"), ("PUNCT", "}"),
-        ("PUNCT", ")"), ("WORD", "RETURN"), ("WORD", "s"), ("PUNCT", "."), ("WORD", "id"),
-        ("WORD", "LIMIT"), ("NUMBER", "5"),
+        ("WORD", "MATCH"),
+        ("PUNCT", "("),
+        ("WORD", "s"),
+        ("PUNCT", ":"),
+        ("WORD", "Service"),
+        ("PUNCT", "{"),
+        ("WORD", "id"),
+        ("PUNCT", ":"),
+        ("PARAM", "x"),
+        ("PUNCT", "}"),
+        ("PUNCT", ")"),
+        ("WORD", "RETURN"),
+        ("WORD", "s"),
+        ("PUNCT", "."),
+        ("WORD", "id"),
+        ("WORD", "LIMIT"),
+        ("NUMBER", "5"),
     ]
 
 
 def test_lexer_drops_comments_and_keeps_strings_whole():
     assert kinds("a // CREATE\nb /* DELETE */ c 'SET x' \"MERGE\"") == [
-        ("WORD", "a"), ("WORD", "b"), ("WORD", "c"), ("STRING", "SET x"), ("STRING", "MERGE")]
+        ("WORD", "a"),
+        ("WORD", "b"),
+        ("WORD", "c"),
+        ("STRING", "SET x"),
+        ("STRING", "MERGE"),
+    ]
 
 
 def test_lexer_string_escapes():
