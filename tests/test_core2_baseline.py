@@ -41,8 +41,9 @@ def test_b1_any_timestamp_issue_stops_at_a_flag():
 
 def test_b2_completed():
     n = len(__import__("core2_helpers").graph().steps("occupational_permit"))
-    res, _ = run([make_app("occupational_permit", chain(dt(3, 9), [1] * n, open_last=False))],
-                 dt(3, 12))  # fmt: skip
+    res, _ = run(
+        [make_app("occupational_permit", chain(dt(3, 9), [1] * n, open_last=False))], dt(3, 12)
+    )
     assert only(res)["status"] == "completed"
 
 
@@ -70,10 +71,11 @@ def test_b4_posting_is_waiting():
 def test_b5_suspension_pause():
     stamps = [(dt(2, 8), dt(2, 8, 5)), (dt(2, 9), None)]
     res, _ = run(
-        [make_app("cho_sanitary_permit", stamps)], dt(6, 10),
+        [make_app("cho_sanitary_permit", stamps)],
+        dt(6, 10),
         calendar=fixture_calendar(suspensions=[dt(3).date(), dt(4).date()]),
         day_types={"cho_sanitary_permit": "working"},
-    )  # fmt: skip
+    )
     a = only(res)
     assert (a["status"], a["alerts"]) == ("paused_by_suspension", [])
 
@@ -121,8 +123,13 @@ def test_several_applications_are_each_assessed():
     a = make_app(
         BP, chain(dt(3, 10, 10), [2, 2, 3]), app_id="A1", ref="CG-SIM-0001", citizen="CIT-1"
     )
-    b = make_app(BP, chain(dt(3, 9), [2, 2, 5, 8, 20, 5, 5, 30]), app_id="A2", ref="CG-SIM-0002",
-                 citizen="CIT-1")  # fmt: skip
+    b = make_app(
+        BP,
+        chain(dt(3, 9), [2, 2, 5, 8, 20, 5, 5, 30]),
+        app_id="A2",
+        ref="CG-SIM-0002",
+        citizen="CIT-1",
+    )
     res = RuleBasedAgent().run(
         Task(kind="status", now="2026-03-03T10:17", ref="CIT-1"),
         toolbox([a, b], now=dt(3, 10, 17)),

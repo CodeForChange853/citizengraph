@@ -194,9 +194,12 @@ class TestGetStepSla:
         )
         wrong = tb.call(
             "get_step_sla",
-            {"service_id": "occupational_permit", "step_id": "occupational_permit-S01",
-             "app_id": "A1"},
-        )  # fmt: skip
+            {
+                "service_id": "occupational_permit",
+                "step_id": "occupational_permit-S01",
+                "app_id": "A1",
+            },
+        )
         assert wrong["error"] == "app_service_mismatch"
 
     def test_output_is_compact(self):
@@ -269,9 +272,12 @@ class TestListOverdue:
             BP, chain(dt(3, 9), [2, 2, 5, 8, 200]), app_id="A3", ref="CG-SIM-0003", citizen="CIT-3"
         )  # waiting at the treasurer: never an LGU delay
         health = make_app(
-            "cho_dental_services", chain(dt(3, 9), [200]), app_id="A4", ref="CG-SIM-0004",
+            "cho_dental_services",
+            chain(dt(3, 9), [200]),
+            app_id="A4",
+            ref="CG-SIM-0004",
             citizen="CIT-4",
-        )  # fmt: skip
+        )
         return [late, ok, ext, health]
 
     def test_lists_only_lgu_overdue_in_the_office(self):
@@ -307,10 +313,15 @@ class TestListOverdue:
 
     def test_row_limit(self):
         apps = [
-            make_app(BP, chain(dt(3, 9), [2, 2, 5, 8, 20, 5, 5, 30]), app_id=f"A{i}",
-                     ref=f"CG-SIM-{i:04d}", citizen=f"CIT-{i}")
+            make_app(
+                BP,
+                chain(dt(3, 9), [2, 2, 5, 8, 20, 5, 5, 30]),
+                app_id=f"A{i}",
+                ref=f"CG-SIM-{i:04d}",
+                citizen=f"CIT-{i}",
+            )
             for i in range(1, 15)
-        ]  # fmt: skip
+        ]
         out = toolbox(apps, now=NOW).call(
             "list_overdue", {"office_id": "bplo", "as_of": "2026-03-03T10:17"}
         )
@@ -360,9 +371,14 @@ class TestDraftAlert:
         assert "RA 11032" not in by["citizen_delay_notice"].text_fil
 
     @pytest.mark.parametrize(
-        "kind", ["citizen_delay_notice", "department_head_escalation", "external_wait_notice",
-                 "missing_data_flag"],
-    )  # fmt: skip
+        "kind",
+        [
+            "citizen_delay_notice",
+            "department_head_escalation",
+            "external_wait_notice",
+            "missing_data_flag",
+        ],
+    )
     def test_alert_that_the_facts_do_not_support_is_refused(self, kind):
         on_time = make_app(BP, chain(dt(3, 9), [2, 2, 3]))
         alerts = AlertStore()

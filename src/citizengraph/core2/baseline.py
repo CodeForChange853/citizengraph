@@ -56,14 +56,22 @@ class RuleBasedAgent:
             final = self._answer(task, rec)
         except _StepCap:
             return AgentResult(
-                task=task, final=safe_fallback(), trace=rec.trace, steps=rec.calls,
-                stopped_reason="step_cap", runner=self.name,
-            )  # fmt: skip
+                task=task,
+                final=safe_fallback(),
+                trace=rec.trace,
+                steps=rec.calls,
+                stopped_reason="step_cap",
+                runner=self.name,
+            )
         rec.trace.append(TraceStep(n=rec.calls + 1, kind="final", action={"final": final}))
         return AgentResult(
-            task=task, final=final, trace=rec.trace, steps=rec.calls + 1,
-            stopped_reason="final", runner=self.name,
-        )  # fmt: skip
+            task=task,
+            final=final,
+            trace=rec.trace,
+            steps=rec.calls + 1,
+            stopped_reason="final",
+            runner=self.name,
+        )
 
     def _answer(self, task: Task, rec: _Recorder) -> dict[str, Any]:
         if task.kind == "working_days":
@@ -102,8 +110,12 @@ class RuleBasedAgent:
                 alerts.append(kind)
 
         def result(status: str, reasons: list[str]) -> dict[str, Any]:
-            return {"app_id": app_id, "status": status, "reasons": reasons,
-                    "alerts": sorted(set(alerts))}  # fmt: skip
+            return {
+                "app_id": app_id,
+                "status": status,
+                "reasons": reasons,
+                "alerts": sorted(set(alerts)),
+            }
 
         if state.get("issues"):  # B1
             draft("missing_data_flag")

@@ -577,8 +577,13 @@ class Toolbox:
             created_at=self.now,
         )
         created = self.alerts.add(alert)
-        return {"alert_id": alert.alert_id, "app_id": app_id, "kind": kind,
-                "audience": alert.audience, "created": created}  # fmt: skip
+        return {
+            "alert_id": alert.alert_id,
+            "app_id": app_id,
+            "kind": kind,
+            "audience": alert.audience,
+            "created": created,
+        }
 
     def _context(self, app, state, charter, statutory) -> AlertContext:
         service = self.graph.service(app.service_id)

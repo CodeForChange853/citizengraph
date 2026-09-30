@@ -30,8 +30,11 @@ def build(specs, seed=1, as_of=AS_OF, calendar=None):
 def outcome(sim, app_id):
     """What the exact tools say about one simulated application (independent of any agent)."""
     tb = toolbox(
-        sim.store.all(), now=sim.as_of, calendar=sim.calendar, day_types=sim.day_types,
-    )  # fmt: skip
+        sim.store.all(),
+        now=sim.as_of,
+        calendar=sim.calendar,
+        day_types=sim.day_types,
+    )
     tb.store = sim.store
     state = tb.call("get_workflow_state", {"app_id": app_id})
     if state["complete"]:
@@ -124,9 +127,14 @@ class TestSituationsMatchTheExactTools:
     def test_truth_table(self):
         t = {
             s: next(iter(build([AppSpec("business_permit", situation=s)]).truth.values()))
-            for s in ("on_time", "minor_delay", "over_charter", "overdue_statutory",
-                      "suspension_pause")
-        }  # fmt: skip
+            for s in (
+                "on_time",
+                "minor_delay",
+                "over_charter",
+                "overdue_statutory",
+                "suspension_pause",
+            )
+        }
         assert (t["on_time"].status, t["on_time"].alerts) == ("on_track", frozenset())
         assert t["minor_delay"].status == "minor_delay" and t["minor_delay"].alerts == frozenset()
         assert t["over_charter"].status == "delayed"
@@ -141,8 +149,16 @@ class TestSituationsMatchTheExactTools:
 
 class TestInjections:
     def test_role_unavailable_marks_the_current_role_absent_and_adds_escalation(self):
-        sim = build([AppSpec("business_permit", at_step=8, situation="over_charter",
-                             inject=("role_unavailable",))])  # fmt: skip
+        sim = build(
+            [
+                AppSpec(
+                    "business_permit",
+                    at_step=8,
+                    situation="over_charter",
+                    inject=("role_unavailable",),
+                )
+            ]
+        )
         assert sim.store.absence("BPLO Chief", AS_OF) is not None
         (truth,) = sim.truth.values()
         assert truth.alerts == {"citizen_delay_notice", "department_head_escalation"}
@@ -159,16 +175,29 @@ class TestInjections:
         assert (truth.status, truth.alerts) == ("cannot_determine", {"missing_data_flag"})
 
     def test_missing_earlier_timestamp_keeps_the_current_step_assessable(self):
-        sim = build([AppSpec("business_permit", at_step=8, situation="on_time",
-                             inject=("missing_earlier",))])  # fmt: skip
+        sim = build(
+            [
+                AppSpec(
+                    "business_permit", at_step=8, situation="on_time", inject=("missing_earlier",)
+                )
+            ]
+        )
         state, check = outcome(sim, "A0001")
         assert state["issues"] and check["charter"]["verdict"] == "within"
         (truth,) = sim.truth.values()
         assert (truth.status, truth.alerts) == ("on_track", {"missing_data_flag"})
 
     def test_extra_suspension_days_are_declared_in_the_calendar(self):
-        sim = build([AppSpec("business_permit", at_step=8, situation="overdue_statutory",
-                             inject=("extra_suspension",))])  # fmt: skip
+        sim = build(
+            [
+                AppSpec(
+                    "business_permit",
+                    at_step=8,
+                    situation="overdue_statutory",
+                    inject=("extra_suspension",),
+                )
+            ]
+        )
         assert len(sim.calendar.suspensions) >= 1
         _, check = outcome(sim, "A0001")
         assert check["statutory"]["verdict"] == "over"  # suspension does not rescue this one
@@ -180,17 +209,20 @@ class TestInjections:
 
     def test_base_calendar_is_kept(self):
         base = fixture_calendar(holidays=[dt(3).date()])
-        sim = build([AppSpec("business_permit", at_step=8, situation="suspension_pause")],
-                    calendar=base)  # fmt: skip
+        sim = build(
+            [AppSpec("business_permit", at_step=8, situation="suspension_pause")], calendar=base
+        )
         assert dt(3).date() in sim.calendar.holidays
 
 
 class TestSeveralApplications:
     def test_one_citizen_can_have_several_applications(self):
-        sim = build([
-            AppSpec("business_permit", situation="on_time", citizen_ref="CIT-0100"),
-            AppSpec("cho_dental_services", situation="over_charter", citizen_ref="CIT-0100"),
-        ])  # fmt: skip
+        sim = build(
+            [
+                AppSpec("business_permit", situation="on_time", citizen_ref="CIT-0100"),
+                AppSpec("cho_dental_services", situation="over_charter", citizen_ref="CIT-0100"),
+            ]
+        )
         found = sim.store.find("CIT-0100")
         assert len(found) == 2
         assert len({a.ref for a in found}) == 2
@@ -214,5 +246,13 @@ class TestTimelines:
     def test_population_covers_every_situation(self):
         pop = Simulator(graph(), seed=11).population(300, AS_OF)
         statuses = {t.status for t in pop.truth.values()}
-        assert {"on_track", "minor_delay", "delayed", "overdue_statutory", "external_waiting",
-                "paused_by_suspension", "cannot_determine", "completed"} <= statuses  # fmt: skip
+        assert {
+            "on_track",
+            "minor_delay",
+            "delayed",
+            "overdue_statutory",
+            "external_waiting",
+            "paused_by_suspension",
+            "cannot_determine",
+            "completed",
+        } <= statuses

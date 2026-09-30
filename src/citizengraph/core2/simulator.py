@@ -356,10 +356,15 @@ class Simulator:
         """``n`` applications across all curated services, a mix of every situation."""
         rng = random.Random(f"pop-{self.seed}")
         situations = [
-            ("on_time", 25), ("minor_delay", 10), ("over_charter", 15), ("overdue_statutory", 8),
-            ("suspension_pause", 5), ("external_waiting", 6), ("external_over", 4),
+            ("on_time", 25),
+            ("minor_delay", 10),
+            ("over_charter", 15),
+            ("overdue_statutory", 8),
+            ("suspension_pause", 5),
+            ("external_waiting", 6),
+            ("external_over", 4),
             ("completed", 8),
-        ]  # fmt: skip
+        ]
         names, weights = zip(*situations, strict=True)
         service_ids = [s.id for s in self.graph.services()]
         specs: list[AppSpec] = []
@@ -383,8 +388,12 @@ class Simulator:
                     if not specs or rng.random() > 0.25:
                         citizen += 1
                     specs.append(
-                        AppSpec(service_id, situation, inject=tuple(inject),
-                                citizen_ref=f"CIT-{citizen:04d}")
-                    )  # fmt: skip
+                        AppSpec(
+                            service_id,
+                            situation,
+                            inject=tuple(inject),
+                            citizen_ref=f"CIT-{citizen:04d}",
+                        )
+                    )
                     break
         return self.build(specs, as_of, calendar)

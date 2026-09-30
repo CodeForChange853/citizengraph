@@ -55,21 +55,30 @@ def allowance(step: Step, day_type: str, weekend_len: int = 2) -> Allowance:
     common = {"unit": d.unit, "value_min": d.value_min, "value_max": d.value_max}
     if d.unit in _UNIT_MINUTES:
         return Allowance(
-            True, None, "clock", day_type=day_type, **common,
+            True,
+            None,
+            "clock",
+            day_type=day_type,
+            **common,
             allowed_minutes=d.value_max * _UNIT_MINUTES[d.unit],
-        )  # fmt: skip
+        )
     if day_type not in ("working", "calendar"):
-        return Allowance(False, "day_type_unknown", None, common["unit"], d.value_min,
-                         d.value_max, day_type)  # fmt: skip
+        return Allowance(
+            False, "day_type_unknown", None, common["unit"], d.value_min, d.value_max, day_type
+        )
     days = (
         d.value_max
         if d.unit == "day"
         else d.value_max * (7 if day_type == "calendar" else 7 - weekend_len)
     )
     return Allowance(
-        True, None, "working_days" if day_type == "working" else "calendar_days",
-        day_type=day_type, **common, allowed_days=float(days),
-    )  # fmt: skip
+        True,
+        None,
+        "working_days" if day_type == "working" else "calendar_days",
+        day_type=day_type,
+        **common,
+        allowed_days=float(days),
+    )
 
 
 # ------------------------------------------------------------------------------------ workflow state
@@ -186,8 +195,17 @@ def check_step(
     end = (entry.completed_at if entry and entry.completed_at else as_of) if entry else as_of
 
     def blocked(reason: str) -> StepCheck:
-        return StepCheck(step.id, "not_comparable", reason, allow.kind, None, None, None,
-                         entered, end if entered else None)  # fmt: skip
+        return StepCheck(
+            step.id,
+            "not_comparable",
+            reason,
+            allow.kind,
+            None,
+            None,
+            None,
+            entered,
+            end if entered else None,
+        )
 
     if entered is None:
         return blocked("missing_timestamp")
@@ -199,22 +217,48 @@ def check_step(
     ratio = config.minor_delay_ratio
     if allow.kind == "clock":
         assert allow.allowed_minutes is not None
-        return StepCheck(step.id, _verdict(elapsed_min, allow.allowed_minutes, ratio), None,
-                         "clock", allow.allowed_minutes, elapsed_min, elapsed_min, entered, end)  # fmt: skip
+        return StepCheck(
+            step.id,
+            _verdict(elapsed_min, allow.allowed_minutes, ratio),
+            None,
+            "clock",
+            allow.allowed_minutes,
+            elapsed_min,
+            elapsed_min,
+            entered,
+            end,
+        )
     assert allow.allowed_days is not None
     if allow.kind == "calendar_days":
         measured = round(elapsed_min / 1440.0, 2)
-        return StepCheck(step.id, _verdict(measured, allow.allowed_days, ratio), None,
-                         "calendar_days", allow.allowed_days, measured, elapsed_min, entered, end)  # fmt: skip
+        return StepCheck(
+            step.id,
+            _verdict(measured, allow.allowed_days, ratio),
+            None,
+            "calendar_days",
+            allow.allowed_days,
+            measured,
+            elapsed_min,
+            entered,
+            end,
+        )
     days = working_days_elapsed(entered, end, calendar)
     days_free = working_days_elapsed(entered, end, calendar.without_suspensions())
     verdict = _verdict(days, allow.allowed_days, ratio)
     verdict_free = _verdict(days_free, allow.allowed_days, ratio)
     return StepCheck(
-        step.id, verdict, None, "working_days", allow.allowed_days, float(days), elapsed_min,
-        entered, end, suspension_effect=RANK[verdict_free] > RANK[verdict],
+        step.id,
+        verdict,
+        None,
+        "working_days",
+        allow.allowed_days,
+        float(days),
+        elapsed_min,
+        entered,
+        end,
+        suspension_effect=RANK[verdict_free] > RANK[verdict],
         suspension_days=_suspension_days_between(entered, end, calendar),
-    )  # fmt: skip
+    )
 
 
 # ----------------------------------------------------------------------------------- statutory check
