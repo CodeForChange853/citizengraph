@@ -1,0 +1,89 @@
+# Charter data notes
+
+Read this when working on the parser, `graph/seed/*.yaml`, the loader, or anything that depends on charter content.
+
+The source spreadsheets are human-formatted documents, not tables. Workflow: a parser produces a rough draft, then the team **hand-curates** `graph/seed/*.yaml`, which becomes the source of truth. Never edit `data/raw/`.
+
+## 1. Sources
+
+| File | Office | Sheet | Services |
+|---|---|---|---|
+| `data/raw/BPLO-CC.xlsx` | Business Permits & Licensing Office, Calbayog City | `BPLO` (~165 rows) | 7 |
+| `data/raw/LCRO-CC.xlsx` | Civil Registry Office, Calbayog City | `CRO` (~421 rows) | 17 |
+| (pending) | Health domain (City Health Office or as advised) | | ? |
+
+Each service block has: name, office, classification (SIMPLE/COMPLEX), transaction type, who may avail, a requirements checklist with "where to secure", a steps table (citizen step, agency action, fees, processing time, person responsible), and a stated TOTAL (fees and time).
+
+## 2. Mapping to Chapter 1 domains
+
+| Chapter 1 domain | Charter services |
+|---|---|
+| Business permit | BPLO 1 (Business Permit, new and renewal) |
+| Birth certificate | LCRO 1 (timely registration), 2 (delayed registration), 9 (certified transcript), 17 (BREQS / PSA copies), 8 (endorsement to PSA) |
+| Marriage certificate | LCRO 3 (marriage license), 4 (timely registration), 5 (delayed registration) |
+| Healthcare eligibility | pending |
+
+Chapter 1 says "issuance"; the charters mostly describe *registration*, with issuance appearing in LCRO 9 and 17. Adviser to confirm. Recommendation: load all services from both offices (cheap), and report metrics per domain.
+
+### BPLO services (7)
+1 Business Permit, 2 Occupational Permit, 3 Special Mayor's Permit (Streamers & Tarpaulins), 4 Product Promotion & Peddlers, 5 Cockfight Permit, 6 Indigency Certification, 7 Fishing Permits. All SIMPLE.
+
+### LCRO services (17)
+Classification and stated totals (fee / time), in charter order:
+
+| # | Service | Class | Total fee | Total time |
+|---|---|---|---|---|
+| 1 | Birth registration (timely) | SIMPLE | none | 38 min |
+| 2 | Birth registration (delayed) | COMPLEX | none | 10 days, 33 min |
+| 3 | Marriage license application | SIMPLE | P300 | 1 h 6 min |
+| 4 | Marriage registration (timely) | SIMPLE | none | 31 min |
+| 5 | Marriage registration (delayed) | COMPLEX | none | 10 days, 28 min |
+| 6 | Death registration (timely) | SIMPLE | none | 38 min |
+| 7 | Death registration (delayed) | COMPLEX | none | 10 days, 38 min |
+| 8 | Electronic endorsement to PSA | SIMPLE | P200 | 36 min |
+| 9 | Certified transcript of civil registry documents | SIMPLE | P110 | 28 min |
+| 10 | Supplemental report | SIMPLE | P300 | 22 h 51 min |
+| 11 | Registration of court order | SIMPLE | P220 (plus local-tax-code fees) | 1 h 14 min |
+| 12 | Legitimation | SIMPLE | P580 | 59 min |
+| 13 | Affidavit to Use Surname of the Father (AUSF) | SIMPLE | P540 | 1 h 14 min |
+| 14 | Other legal instruments | SIMPLE | P300 | 1 h 14 min |
+| 15 | Petition for change of first name / clerical error (RA 9048 / 10172) | COMPLEX | P1,000 to P3,000 | 10 days, 1 h 54 min |
+| 16 | Facilitate requests and queries | COMPLEX | none | 59 min |
+| 17 | BREQS processing (PSA) | SIMPLE | P255 to P295 | 7-10 days, 26 min |
+
+These totals are the charter's own claims. Services 6 to 17 have not been checked line by line yet; the loader must validate them (section 4).
+
+## 3. Parsing rules
+
+- **Durations** appear as minutes, hours, days, ranges and combinations: `10 minutes`, `3 hours`, `10 days`, `7 - 10 days`, `1 hour and 6 minutes`, `1 hours, 14 minutes` (grammar varies), `10 days, 33 minutes`. `- - -` or blank means not stated. Parse to `{value_min, value_max, unit}` per component and also a derived `minutes_min/minutes_max` (for benchmarking only). Day-based durations have `day_type` = unknown by default (see open issue below).
+- **Fees** appear as `none`, `- - -`, single amounts, ranges, `per copy`, per-cock or per-category tiers, and multi-item lists inside one cell. Model as fee rows with `amount_min/amount_max`, `unit`, `label` and optional variant conditions. Fee lines can exist without a time.
+- **Requirements** are lettered (A to L) or numbered with sub-items (6.1, 6.2, 6.3). Some say "any 2 documents" or "any two documentary evidence": store `min_required` on the group. Many are conditional ("if the child was born illegitimate", "if a parent is a foreigner", "for foreigners", "if applicable", "for marital minors"). Store structured conditions as `Variant` links, and keep the original condition text in `condition_text` for anything not yet structured. Hand-curate all of these.
+- **Where to secure** can be missing (LCRO 3, requirement 2 "Birth Certificate") or shared across lines. Store null; do not guess.
+- **Who may avail** is blank for BPLO 3 to 7. Store null.
+- **Steps** can have multiple agency actions (1.1, 1.2 ...) inside one citizen step, and some steps belong to another agency (Treasurer's Office payment, POPCOM/CHO/CSWDO seminar, PSA issuance). Mark such steps `external_agency` so Core 2 does not blame the LGU for them.
+- **Staff names** ("person responsible") are stored as `Role` (e.g. "City Civil Registrar", "BPLO Chief", "authorized CTO collector"). Names may be kept in a non-exposed property and must never appear in citizen-facing text.
+- **Currency** uses the peso sign; store numbers, not strings.
+
+## 4. Loader validation (required)
+
+The loader must, for every service, compare the stated TOTAL against the sum of the parsed step fees and times (taking the max of ranges) and write every mismatch to `docs/charter_data.md` section 5 (or a generated report). Do not auto-correct.
+
+## 5. Known data issues (confirm with the LGU; do not silently fix)
+
+BPLO:
+- Streamers & Tarpaulins states a total of P215/P310, identical to the Occupational Permit, while the fee step says "as determined by the CSWMO". Likely copy-paste.
+- Indigency Certification states 16 minutes but its steps sum to 13.
+- Fishing Permits list no fees (assessed by the City Agriculture Office); total time 25 min matches the upper bounds.
+- Business Permit requirements 4 and 5 are merged-cell text; "Corporation: CDA" almost certainly means Cooperative.
+- Fee variants: Occupational tax P120 (company) vs P215 (individual); cockfight fees by category (MD P1,000/cock, Derby P1,500/cock, 2C P3,000, 3C P4,500, 4C P6,000, 5C P7,500).
+
+LCRO:
+- Posting steps of "10 days" (delayed birth, marriage and death registration; petition under RA 9048/10172) and PSA issuance of "7 - 10 days" are not specified as calendar or working days.
+- The 10-day posting step exceeds the usual working-day limits, even for services classed COMPLEX. Ask how the statutory cap treats legally required posting periods.
+- Marriage license: step 5.3 "Posting of Notice of Marriage" has no time; step 5.2 has no responsible person; the seminar step (3 hours) belongs to POPCOM/CHO/CSWDO.
+- Requirement 2 (Birth Certificate) in the marriage license checklist has no "where to secure"; requirement 6 has nested sub-items 6.1 to 6.3 with different applicant conditions (Filipino vs foreigner).
+- Service 11 has a long free-text list of local-tax-code fees (annulment P500, adoption P500, judicial correction P200, guardianship/custody P200, and more); hand-curate from the spreadsheet, since the list is long.
+- Service 15 has two fee variants (clerical error P1,000; change of first name P3,000) but a single range total.
+- Grammar in durations ("1 hours") is inconsistent; the parser must tolerate it.
+
+Add a dated line under each issue when the LGU or adviser resolves it.

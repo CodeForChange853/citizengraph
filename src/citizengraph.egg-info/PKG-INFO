@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: citizengraph
+Version: 0.1.0
+Summary: CITIZEN GRAPH: dual-core Text-to-Cypher assistant and SLA agent for LGU services
+Requires-Python: >=3.11
+Requires-Dist: fastapi>=0.110
+Requires-Dist: uvicorn[standard]>=0.29
+Requires-Dist: pydantic>=2.6
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: neo4j>=5.19
+Requires-Dist: rapidfuzz>=3.6
+Requires-Dist: openpyxl>=3.1
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: httpx>=0.27; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+Provides-Extra: llm
+Requires-Dist: llama-cpp-python>=0.2.70; extra == "llm"

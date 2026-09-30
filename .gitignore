@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+*.gguf
+*.safetensors
+*.bin
+node_modules/
+dist/
+.pytest_cache/
+.ruff_cache/
+# never commit real citizen data or model artifacts
+data/private/
+models/
+alerts.db
+*.jsonl.log

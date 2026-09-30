@@ -1,0 +1,12 @@
+# Input and prompt limits. Tune with real data.
+gateway:
+  max_chars: 500            # hard cap on accepted message length
+  rate_limit_per_minute: 10 # per session
+prompt:
+  context_tokens: 2048
+  max_prompt_tokens: 1000
+core1:
+  max_retries: 3
+  cypher_limit_max: 50
+core2:
+  max_steps: 8

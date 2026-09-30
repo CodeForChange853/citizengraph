@@ -1,0 +1,3 @@
+# Holidays and declared work suspensions (typhoons, etc.). Dates are ISO strings.
+holidays: []
+work_suspensions: []

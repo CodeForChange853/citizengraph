@@ -1,0 +1,9 @@
+# Statutory processing limits (RA 11032), in WORKING days from receipt.
+# TODO(verify): confirm against the text of RA 11032 before relying on these.
+# TODO(verify): how legally required posting periods (e.g. 10-day posting in delayed
+#               registrations) count toward the cap. Ask the adviser / LGU.
+statutory_working_days:
+  SIMPLE: 3      # unverified
+  COMPLEX: 7     # unverified
+  HIGHLY_TECHNICAL: 20  # unverified, not used by the current charters
+charter_day_type_default: unknown   # working | calendar | unknown

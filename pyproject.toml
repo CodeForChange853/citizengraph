@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "citizengraph"
+version = "0.1.0"
+description = "CITIZEN GRAPH: dual-core Text-to-Cypher assistant and SLA agent for LGU services"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.29",
+  "pydantic>=2.6",
+  "pyyaml>=6.0",
+  "neo4j>=5.19",
+  "rapidfuzz>=3.6",
+  "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "httpx>=0.27", "ruff>=0.4"]
+llm = ["llama-cpp-python>=0.2.70"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: needs a real Neo4j or a real model file (skipped by default)"]
+addopts = "-m 'not integration'"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
