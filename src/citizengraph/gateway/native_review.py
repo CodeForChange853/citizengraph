@@ -37,13 +37,16 @@ def collect(directory: Path | None = None, seed_dir: Path | None = None) -> list
             by_target.setdefault(row["target"], []).append(row["text"])
     for target, texts in by_target.items():
         out.append(_section(f"graph/seed/aliases.yaml, Filipino aliases of `{target}`", texts))
-    cues = [
-        f"{s['id']}: {cue}" for s in aliases["services"] for cue in s.get("cues_fil", [])
-    ]
+    cues = [f"{s['id']}: {cue}" for s in aliases["services"] for cue in s.get("cues_fil", [])]
     out.append(_section("graph/seed/aliases.yaml, `cues_fil`", cues))
 
     sms = read_yaml("sms.yaml", lex)["sms_fil"]
-    out.append(_section("lexicon/sms.yaml, `sms_fil` (typed -> canonical)", [f"{k} -> {v}" for k, v in sms.items()]))
+    out.append(
+        _section(
+            "lexicon/sms.yaml, `sms_fil` (typed -> canonical)",
+            [f"{k} -> {v}" for k, v in sms.items()],
+        )
+    )
 
     vocab = read_yaml("vocab.yaml", lex)
     for key in ("fil_function", "fil_common"):
@@ -67,9 +70,17 @@ def collect(directory: Path | None = None, seed_dir: Path | None = None) -> list
                     )
 
     spam = read_yaml("spam.yaml", lex)
-    out.append(_section("lexicon/spam.yaml, `injection.fil` patterns (regex)", spam["injection"]["fil"]))
-    out.append(_section("lexicon/spam.yaml, `mutation.strong.fil` verbs", spam["mutation"]["strong"]["fil"]))
-    out.append(_section("lexicon/spam.yaml, `mutation.weak.fil` verbs", spam["mutation"]["weak"]["fil"]))
+    out.append(
+        _section("lexicon/spam.yaml, `injection.fil` patterns (regex)", spam["injection"]["fil"])
+    )
+    out.append(
+        _section(
+            "lexicon/spam.yaml, `mutation.strong.fil` verbs", spam["mutation"]["strong"]["fil"]
+        )
+    )
+    out.append(
+        _section("lexicon/spam.yaml, `mutation.weak.fil` verbs", spam["mutation"]["weak"]["fil"])
+    )
     return [(title, items) for title, items in out if items]
 
 

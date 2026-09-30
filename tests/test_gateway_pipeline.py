@@ -128,7 +128,9 @@ def test_marriage_license_is_held_back_because_the_service_is_not_in_the_graph()
         assert result.sub_requests == []
         (missing,) = result.unavailable
         assert (missing.service_id, missing.office_id, missing.reason) == (
-            "LCRO-03", "lcro", "not_in_graph"
+            "LCRO-03",
+            "lcro",
+            "not_in_graph",
         )
         assert missing.name == "Application for Marriage License"
         assert missing.office_name == "Civil Registry Office"
@@ -285,7 +287,10 @@ AMBIGUOUS = [
     ("death certificate", {"death_registration_timely", "LCRO-07", "cho_death_certificate", TRANS}),
     ("marriage certificate", {"marriage_registration_timely", "LCRO-05", TRANS}),
     ("sertipiko ng kapanganakan", {BTIM, BDEL, TRANS}),
-    ("ano ang kailangan sa sertipiko ng kamatayan", {"death_registration_timely", "LCRO-07", "cho_death_certificate", TRANS}),
+    (
+        "ano ang kailangan sa sertipiko ng kamatayan",
+        {"death_registration_timely", "LCRO-07", "cho_death_certificate", TRANS},
+    ),
     ("fees for permit", {BP, OP, CP, FP, SAN, "cho_cadaver_transfer_permit", "BPLO-03"}),
 ]
 
@@ -363,27 +368,76 @@ def test_an_office_alone_asks_which_of_its_services():
 CONDITIONAL = [
     (
         "delayed birth registration, one parent is a foreigner, requirements",
-        BDEL, "requirements", {"foreign_parent": "yes"},
+        BDEL,
+        "requirements",
+        {"foreign_parent": "yes"},
     ),
-    ("requirements for delayed registration of birth of an illegitimate child", BDEL, "requirements", {"birth_status": "non_marital"}),
-    ("delayed birth registration requirements parents are not married", BDEL, "requirements", {"birth_status": "non_marital"}),
+    (
+        "requirements for delayed registration of birth of an illegitimate child",
+        BDEL,
+        "requirements",
+        {"birth_status": "non_marital"},
+    ),
+    (
+        "delayed birth registration requirements parents are not married",
+        BDEL,
+        "requirements",
+        {"birth_status": "non_marital"},
+    ),
     ("late birth registration fees for foreigner parent", BDEL, "fees", {"foreign_parent": "yes"}),
-    ("requirements for business permit for corporation", BP, "requirements", {"business_type": "corporation"}),
-    ("requirements for business permit for a new business", BP, "requirements", {"applicant_type": "new"}),
-    ("business permit requirements single proprietor", BP, "requirements", {"business_type": "single_proprietor"}),
-    ("business permit requirements for an association", BP, "requirements", {"business_type": "association"}),
+    (
+        "requirements for business permit for corporation",
+        BP,
+        "requirements",
+        {"business_type": "corporation"},
+    ),
+    (
+        "requirements for business permit for a new business",
+        BP,
+        "requirements",
+        {"applicant_type": "new"},
+    ),
+    (
+        "business permit requirements single proprietor",
+        BP,
+        "requirements",
+        {"business_type": "single_proprietor"},
+    ),
+    (
+        "business permit requirements for an association",
+        BP,
+        "requirements",
+        {"business_type": "association"},
+    ),
     ("occupational permit fee for company", OP, "fees", {"taxpayer": "company"}),
     ("occupational permit fee for individual", OP, "fees", {"taxpayer": "individual"}),
     ("cockfight permit fee for derby", CP, "fees", {"cockfight_category": "Derby"}),
     ("cockfight permit fee for 3c", CP, "fees", {"cockfight_category": "3C"}),
     ("cockfight permit fees MD", CP, "fees", {"cockfight_category": "MD"}),
-    ("requirements ng delayed birth registration dayuhan ang tatay", BDEL, "requirements", {"foreign_parent": "yes"}),
-    ("requirements ng business permit bagong negosyo", BP, "requirements", {"applicant_type": "new"}),
-    ("requirements for timely birth registration illegitimate", BTIM, "requirements", {"birth_status": "non_marital"}),
+    (
+        "requirements ng delayed birth registration dayuhan ang tatay",
+        BDEL,
+        "requirements",
+        {"foreign_parent": "yes"},
+    ),
+    (
+        "requirements ng business permit bagong negosyo",
+        BP,
+        "requirements",
+        {"applicant_type": "new"},
+    ),
+    (
+        "requirements for timely birth registration illegitimate",
+        BTIM,
+        "requirements",
+        {"birth_status": "non_marital"},
+    ),
 ]
 
 
-@pytest.mark.parametrize(("message", "service", "intent", "variants"), CONDITIONAL, ids=lambda v: str(v)[:40])
+@pytest.mark.parametrize(
+    ("message", "service", "intent", "variants"), CONDITIONAL, ids=lambda v: str(v)[:40]
+)
 def test_variants_are_extracted_only_when_the_graph_has_them(message, service, intent, variants):
     result = ask(message)
     assert result.status == "ok", result
@@ -440,8 +494,18 @@ def test_unknown_topics_are_out_of_scope_not_guessed():
 
 
 EXCLUDED = [
-    ("requirements for indigency certificate", "BPLO-06", "bplo", "Business Permits & Licensing Office"),
-    ("fees for special mayors permit for streamers and tarpaulins", "BPLO-03", "bplo", "Business Permits & Licensing Office"),
+    (
+        "requirements for indigency certificate",
+        "BPLO-06",
+        "bplo",
+        "Business Permits & Licensing Office",
+    ),
+    (
+        "fees for special mayors permit for streamers and tarpaulins",
+        "BPLO-03",
+        "bplo",
+        "Business Permits & Licensing Office",
+    ),
     ("how much is a PSA copy of birth certificate", "LCRO-17", "lcro", "Civil Registry Office"),
     ("requirements for change of first name", "LCRO-15", "lcro", "Civil Registry Office"),
     ("ano ang kailangan sa lisensya sa kasal", "LCRO-03", "lcro", "Civil Registry Office"),
@@ -453,14 +517,18 @@ EXCLUDED = [
 ]
 
 
-@pytest.mark.parametrize(("message", "service_id", "office", "office_name"), EXCLUDED, ids=lambda v: str(v)[:30])
+@pytest.mark.parametrize(
+    ("message", "service_id", "office", "office_name"), EXCLUDED, ids=lambda v: str(v)[:30]
+)
 def test_services_not_in_the_graph_say_so_with_the_office(message, service_id, office, office_name):
     result = ask(message)
     assert result.status == "out_of_scope"
     assert result.sub_requests == []
     (missing,) = result.unavailable
     assert (missing.service_id, missing.office_id, missing.office_name) == (
-        service_id, office, office_name
+        service_id,
+        office,
+        office_name,
     )
     assert missing.reason == "not_in_graph" and missing.name
 
@@ -779,7 +847,9 @@ def test_the_clock_can_be_a_datetime():
     from datetime import UTC, datetime
 
     gateway = default_gateway()
-    result = gateway.process("fees for business permit", SessionState(), datetime(2026, 9, 30, 9, tzinfo=UTC))
+    result = gateway.process(
+        "fees for business permit", SessionState(), datetime(2026, 9, 30, 9, tzinfo=UTC)
+    )
     assert result.status == "ok"
 
 
@@ -915,7 +985,9 @@ def test_a_500_character_message_is_fast():
     message = noise(450, seed=11) + " requirements for business permit"
     assert 480 <= len(message) <= 500
     gateway = default_gateway()
-    best = min(_time_ms(lambda i=i: gateway.process(message, SessionState(), 1.0 + i)) for i in range(5))
+    best = min(
+        _time_ms(lambda i=i: gateway.process(message, SessionState(), 1.0 + i)) for i in range(5)
+    )
     assert best < 250, f"{best:.1f} ms"  # typically a few ms; the bound is generous on purpose
 
 

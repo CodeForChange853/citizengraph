@@ -9,7 +9,7 @@ Lang = Literal["en", "fil"]
 
 class ChatRequest(BaseModel):
     message: str = Field(..., max_length=2000)  # gateway enforces the real cap
-    lang: Lang = "en"                           # reply language (UI toggle)
+    lang: Lang = "en"  # reply language (UI toggle)
     session_id: str | None = None
 
 

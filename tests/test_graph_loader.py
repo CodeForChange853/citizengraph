@@ -97,8 +97,12 @@ class TestReferences:
         raw = minimal_seed_raw()
         raw["services"].append({**raw["services"][0], "id": "other", "charter_ref": "T-02"})
         raw["steps"].append(
-            {**find(raw, "steps", "svc-S01"), "id": "other-S01", "service_id": "other",
-             "next_id": None}
+            {
+                **find(raw, "steps", "svc-S01"),
+                "id": "other-S01",
+                "service_id": "other",
+                "next_id": None,
+            }
         )
         find(raw, "fees", "svc-F01")["step_id"] = "other-S01"
         assert "step_other_service" in codes(raw)
@@ -119,12 +123,20 @@ class TestRequirementTree:
         raw = minimal_seed_raw()
         raw["services"].append({**raw["services"][0], "id": "other", "charter_ref": "T-02"})
         raw["steps"].append(
-            {**find(raw, "steps", "svc-S01"), "id": "other-S01", "service_id": "other",
-             "next_id": None}
+            {
+                **find(raw, "steps", "svc-S01"),
+                "id": "other-S01",
+                "service_id": "other",
+                "next_id": None,
+            }
         )
         raw["requirements"].append(
-            {**find(raw, "requirements", "svc-R01"), "id": "other-R01", "service_id": "other",
-             "parent_id": "svc-R02"}
+            {
+                **find(raw, "requirements", "svc-R01"),
+                "id": "other-R01",
+                "service_id": "other",
+                "parent_id": "svc-R02",
+            }
         )
         assert "parent_other_service" in codes(raw)
 

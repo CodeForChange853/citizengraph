@@ -126,3 +126,16 @@ def test_any_percentage_is_accepted(level):
 def test_anything_else_is_rejected(level):
     with pytest.raises(ValueError):
         N.add_noise(TEXT, level, rng())
+
+
+def test_protected_words_keep_their_letters_whatever_the_casing():
+    protect = frozenset({"business", "permit", "magkano"})
+    changed_elsewhere = 0
+    for seed in range(200):
+        out = N.add_noise(FIL, 30, rng(seed), protect).lower().split()
+        for original, noisy in zip(FIL.split(), out, strict=True):
+            if original in protect:
+                assert noisy == original
+            else:
+                changed_elsewhere += noisy != original
+    assert changed_elsewhere > 100  # the other words are still perturbed

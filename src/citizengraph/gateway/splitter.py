@@ -51,7 +51,9 @@ def _segments(
         gap = range(prev.end, nxt.start)
         strong = [i for i in gap if tokens[i].text in STRONG_SEPARATORS]
         joiners = [
-            i for i in gap if tokens[i].text in JOINING_MARKS or tokens[i].text in lexicon.conjunctions
+            i
+            for i in gap
+            if tokens[i].text in JOINING_MARKS or tokens[i].text in lexicon.conjunctions
         ]
         if strong:
             cuts.append((strong[-1], strong[-1] + 1))
@@ -76,7 +78,7 @@ def _merge_adjacent(
     intents: Sequence[IntentHit],
     lexicon: Lexicon,
 ) -> tuple[list[Mention], bool]:
-    """"change of first name in birth certificate" names two services in ONE request. When two
+    """ "change of first name in birth certificate" names two services in ONE request. When two
     mentions are joined only by a few stop words (no joining word, no mark, no intent between
     them) and either both mean the same service ("business permit for a new business"), one says
     more than the other ("birth certificate newborn"), or exactly one is ambiguous and a word sits
@@ -113,11 +115,7 @@ def _phrase(
     """Cleaned words of the part, limited to a window around the mention."""
     lo = max(lo, mention.start - PHRASE_WINDOW_WORDS)
     hi = min(hi, mention.end + PHRASE_WINDOW_WORDS)
-    words = [
-        t.text
-        for t in norm.tokens[lo:hi]
-        if t.is_word and (t.known or not drop_unknown)
-    ]
+    words = [t.text for t in norm.tokens[lo:hi] if t.is_word and (t.known or not drop_unknown)]
     out = ""
     for w in words:
         candidate = f"{out} {w}".strip()

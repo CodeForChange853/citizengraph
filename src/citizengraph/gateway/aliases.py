@@ -131,7 +131,9 @@ def parse_aliases(
         cues: dict[str, tuple[str, ...]] = {}
         for lang in ("cues_en", "cues_fil"):
             value = row.get(lang, [])
-            if not isinstance(value, list) or not all(isinstance(v, str) and v.strip() for v in value):
+            if not isinstance(value, list) or not all(
+                isinstance(v, str) and v.strip() for v in value
+            ):
                 bad("schema", f"{where}: {lang} must be a list of non-empty strings")
                 value = []
             cues[lang] = tuple(value)
@@ -156,15 +158,27 @@ def parse_aliases(
         for sid, entry in services.items():
             if entry.in_graph:
                 if sid not in graph_services:
-                    bad("unknown_service", f"services[{sid}]: in_graph is true but the graph has no such service")
+                    bad(
+                        "unknown_service",
+                        f"services[{sid}]: in_graph is true but the graph has no such service",
+                    )
                 else:
                     g_ref, g_office = graph_services[sid]
                     if entry.charter_ref != g_ref:
-                        bad("graph_mismatch", f"services[{sid}]: charter_ref {entry.charter_ref} != graph {g_ref}")
+                        bad(
+                            "graph_mismatch",
+                            f"services[{sid}]: charter_ref {entry.charter_ref} != graph {g_ref}",
+                        )
                     if entry.office_id != g_office:
-                        bad("graph_mismatch", f"services[{sid}]: office_id {entry.office_id} != graph {g_office}")
+                        bad(
+                            "graph_mismatch",
+                            f"services[{sid}]: office_id {entry.office_id} != graph {g_office}",
+                        )
             elif sid in graph_services:
-                bad("graph_mismatch", f"services[{sid}]: in_graph is false but the graph has this service")
+                bad(
+                    "graph_mismatch",
+                    f"services[{sid}]: in_graph is false but the graph has this service",
+                )
         for sid in graph_services:
             if sid not in services:
                 bad("missing_service", f"graph service {sid} has no row in services:")
@@ -176,7 +190,12 @@ def parse_aliases(
         if not isinstance(row, dict):
             bad("schema", f"{where}: expected a mapping")
             continue
-        target, lang, text, kind = row.get("target"), row.get("lang"), row.get("text"), row.get("kind")
+        target, lang, text, kind = (
+            row.get("target"),
+            row.get("lang"),
+            row.get("text"),
+            row.get("kind"),
+        )
         if not isinstance(text, str) or not _norm_key(text):
             bad("empty_text", f"{where} (target {target!r}): text is empty")
             continue
@@ -196,12 +215,13 @@ def parse_aliases(
             bad("schema", f"{where}: only Filipino rows carry needs_native_review")
         key = (str(target), str(lang), _norm_key(text))
         if key in seen:
-            bad("duplicate_alias", f"{where}: same as aliases[{seen[key]}] (target {target}, lang {lang})")
+            bad(
+                "duplicate_alias",
+                f"{where}: same as aliases[{seen[key]}] (target {target}, lang {lang})",
+            )
         else:
             seen[key] = i
-        aliases.append(
-            Alias(str(target), str(lang), text.strip(), str(kind), review is True)
-        )
+        aliases.append(Alias(str(target), str(lang), text.strip(), str(kind), review is True))
     if issues:
         raise AliasError(issues)
     return AliasTable(services=services, aliases=tuple(aliases), office_ids=offices)

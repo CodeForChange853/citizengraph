@@ -41,7 +41,10 @@ def test_fold(raw, folded):
     ("folded", "tokens"),
     [
         ("business permit", ["business", "permit"]),
-        ("fees, business permit & cockfight permit!", ["fees", ",", "business", "permit", "&", "cockfight", "permit", "!"]),
+        (
+            "fees, business permit & cockfight permit!",
+            ["fees", ",", "business", "permit", "&", "cockfight", "permit", "!"],
+        ),
         ("pleaseeee help", ["please", "help"]),
         ("hellooo", ["hello"]),
         ("good", ["good"]),  # a double letter stays
@@ -151,10 +154,14 @@ def test_real_words_are_never_repaired(normalize, word):
 @pytest.mark.parametrize(
     "word",
     [
-        "xyz", "abc", "fee",  # shorter than 5 letters: never repaired
-        "b1rth5", "p3rmit",  # digits: never repaired
+        "xyz",
+        "abc",
+        "fee",  # shorter than 5 letters: never repaired
+        "b1rth5",
+        "p3rmit",  # digits: never repaired
         "magtanong",  # two substitutions from "magsabong": a different word, left alone
-        "qwertyu", "qxzvkj",
+        "qwertyu",
+        "qxzvkj",
     ],
 )
 def test_words_that_should_stay_unknown_stay(normalize, word):

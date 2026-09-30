@@ -1,28 +1,39 @@
-"""Deterministic training-data generator for Core 1 (Text-to-Cypher).
+"""Deterministic training-data generator for Core 1 (Text-to-Cypher), redesigned in session 5b.
 
 Run from the repo root:
 
     python -m training.generate_dataset --seed 0
 
-Everything is produced by our own code: phrase templates (``phrasebook.yaml``), noise injection
-(``noise.py``), gold Cypher from ``core1/templates.py`` and model input from ``core1/prompt.py``.
-No LLM or API is called, ``eval/heldout/`` is never read, and examples contain only questions and
+Everything is produced by our own code: phrase templates (``phrasebook*.yaml``), noise injection
+(``noise.py``), gold Cypher from ``core1/templates.py``, model input from ``core1/prompt.py``. No
+LLM or API is called, ``eval/heldout/`` is never read, and examples hold only questions and
 Cypher: no answer text from the charters. The allowed labels, relationship types and properties
-are read from ``guardrail/schema.py`` at runtime (through the templates and the schema slice).
+are read from ``guardrail/schema.py`` at runtime.
 
-One example = (service x intent/shape x variant combination) x language x noise level:
+What changed from session 5. The model used to be given the intent and the variants, so its output
+was a function of the prompt and fine-tuning would have taught a lookup table (17 distinct
+queries). Now (prompt v2) it receives only the linked TARGETS (service, office, agency, document),
+the language and the cleaned phrase. It has to work out from the wording:
 
-* service, intent, variant combination: every curated service in ``graph/seed/`` with every
-  combination of its variant dimensions that exists in the seed (one value or none per dimension);
-  derived shapes (count, per_step, go_first) only where the data for them exists;
-* the gold completion is the canonical query for the shape the wording asks for, with ids left
-  as ``$sid`` / ``$variant_ids`` (see ``core1/templates.py``);
-* the user message is ``build_prompt`` over the slots (service_id, intent, variants, language and
-  the noisy phrase), exactly as at inference.
+* the INTENT (and whether the question asks for two things at once: "magkano at gaano katagal"),
+* the query SHAPE (38 canonical queries: lists, counts, totals, comparisons, reverse lookups,
+  office listings, cross-office prerequisites, ...),
+* the VARIANTS the citizen stated (``business_type:corporation``), which become the filter,
+* and which target fills which parameter (``$sid`` / ``$sid2`` / ``$oid`` / ``$aid`` / ``$doc``).
 
-Splits (``train``, ``validation``, ``test_synthetic``) are by phrase-template family: a family is
-a group of paraphrases that stays together, so no family appears in two splits. Some variant
-combinations are also withheld from ``train`` and appear only in validation and test.
+The completion is three header lines (intent, shape, variants) and the Cypher (``core1/output.py``).
+The same examples are also written with the intent and variants GIVEN in the prompt
+(``out/slots_given/``): the "slots given" side of the ablation.
+
+One example = cell (shape x targets x variants stated) x language x noise level x family. The phrase
+is built from a template family, given noise at 0, 10 or 30 percent, and then cleaned the way the
+gateway cleans text (lower case, ASCII words, no punctuation, at most 160 characters). Entity words
+(names of services, offices, agencies, documents and variants) are not given noise: the gateway's
+lexicon repairs those before the model sees them.
+
+Splits (``train``, ``validation``, ``test_synthetic``) are by phrase-template family: no family is
+in two splits. Some variant combinations are withheld from train. Two rare shapes (``office_who``,
+``compare_time``) are held out entirely as ``test_unseen_shape``.
 """
 
 from __future__ import annotations
@@ -31,347 +42,152 @@ import argparse
 import hashlib
 import json
 import random
-import re
 import sys
 import time
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from itertools import product
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 from citizengraph.core1 import templates as T
+from citizengraph.core1.output import format_completion
 from citizengraph.core1.prompt import (
+    MAX_PHRASE_CHARS_V2,
     MAX_PROMPT_TOKENS,
-    SchemaSlice,
-    build_prompt,
-    schema_slice,
+    build_prompt_slots_given,
+    build_prompt_v2,
 )
-from citizengraph.core1.slots import LANGUAGES, Slots
+from citizengraph.core1.slots import LANGUAGES
+from citizengraph.core1.targets import Request, build_request_query
+from citizengraph.gateway.text import fold, is_word, tokenize
 from citizengraph.graph import InMemoryGraph
 from citizengraph.guardrail.schema import OFFICIAL_SCHEMA
-from training.noise import NOISE_LEVELS, SMS_FIL, add_noise
+from training.cells import (
+    HELD_OUT_SHAPES,
+    Cell,
+    enumerate_cells,
+    has_go_first_data,
+    variant_combos,
+    withheld_combos,
+)
+from training.noise import NOISE_LEVELS, add_noise
+from training.phrasebook import (
+    ALIASES_PATH,
+    PHRASEBOOK_PATHS,
+    VARIANT_MENTION_SHARE,
+    Family,
+    Phrasebook,
+    PhrasebookError,
+    build_phrase,
+    check_phrasebook,
+    load_aliases,
+    load_phrasebook,
+    review_strings,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 TRAINING_DIR = Path(__file__).resolve().parent
-PHRASEBOOK_PATH = TRAINING_DIR / "phrasebook.yaml"
-ALIASES_PATH = ROOT / "graph" / "seed" / "aliases.yaml"
 DEFAULT_OUT = TRAINING_DIR / "out"
-SPLITS = ("train", "validation", "test_synthetic")
+UNSEEN = "test_unseen_shape"
+SPLITS = ("train", "validation", "test_synthetic", UNSEEN)
+EVAL_SPLITS = SPLITS[1:]
+SAMPLE_SIZE = 70
+MIN_EVAL_CELLS = 6  # see build_dataset
 
-OFFICIAL_NAME_SHARE = 0.15  # how often the official service name is used as it is
-VARIANT_MENTION_SHARE = 0.85  # how often a given variant combination is said in the phrase
-SAMPLE_SIZE = 60
-
-_ALTERNATIVES = re.compile(r"<([^<>]*)>")
-_PLACEHOLDER = re.compile(r"\{([^{}]*)\}")
-
-
-class PhrasebookError(ValueError):
-    """The phrasebook is malformed or does not cover the templates."""
-
-
-# ---- phrasebook ---------------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class Family:
-    id: str  # "<intent>.<shape>.<language>.<n>"
-    intent: str
-    shape: str
-    language: str
-    templates: tuple[str, ...]
-
-
-@dataclass(frozen=True)
-class Phrasebook:
-    service_names: dict[str, dict[str, tuple[str, ...]]]
-    variants: dict[str, dict[str, tuple[str, ...]]]
-    variant_frames: dict[str, tuple[str, ...]]
-    variant_joiners: dict[str, tuple[str, ...]]
-    families: dict[tuple[str, str, str], tuple[Family, ...]]  # (intent, shape, language)
+__all__ = [
+    "ALIASES_PATH",
+    "HELD_OUT_SHAPES",
+    "PHRASEBOOK_PATHS",
+    "SPLITS",
+    "UNSEEN",
+    "Dataset",
+    "Example",
+    "Family",
+    "Phrasebook",
+    "PhrasebookError",
+    "build_dataset",
+    "check_phrasebook",
+    "enumerate_cells",
+    "has_go_first_data",
+    "load_aliases",
+    "load_phrasebook",
+    "main",
+    "review_strings",
+    "variant_combos",
+]
 
 
-def load_phrasebook(path: Path = PHRASEBOOK_PATH) -> Phrasebook:
-    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-    families: dict[tuple[str, str, str], tuple[Family, ...]] = {}
-    for intent, shapes in raw["families"].items():
-        for shape, languages in shapes.items():
-            for language, groups in languages.items():
-                families[(intent, shape, language)] = tuple(
-                    Family(f"{intent}.{shape}.{language}.{i}", intent, shape, language, tuple(g))
-                    for i, g in enumerate(groups, start=1)
-                )
-    book = Phrasebook(
-        service_names={
-            k: {lg: tuple(v) for lg, v in d.items()} for k, d in raw["service_names"].items()
-        },
-        variants={k: {lg: tuple(v) for lg, v in d.items()} for k, d in raw["variants"].items()},
-        variant_frames={k: tuple(v) for k, v in raw["variant_frames"].items()},
-        variant_joiners={k: tuple(v) for k, v in raw["variant_joiners"].items()},
-        families=families,
-    )
-    problems = check_phrasebook(book)
-    if problems:
-        raise PhrasebookError("; ".join(problems))
-    return book
+def gateway_clean(text: str, max_chars: int = MAX_PHRASE_CHARS_V2) -> str:
+    """The phrase as the gateway hands it over: lower-case ASCII words, no punctuation, apostrophes
+    and hyphens dropped, at most ``max_chars`` (``gateway.max_phrase_chars``). No typo repair here
+    (the gateway repairs some typos; leaving them makes the model's job harder, not easier)."""
+    words = [t for t in tokenize(fold(text)) if is_word(t)]
+    return " ".join(words)[:max_chars].rstrip()
 
 
-def check_phrasebook(book: Phrasebook, graph: InMemoryGraph | None = None) -> list[str]:
-    """Everything that could make the generator fail or produce a bad phrase."""
-    graph = graph or InMemoryGraph.from_dir()
-    problems: list[str] = []
-    for svc in graph.seed.services:
-        for lang in ("en", "fil"):
-            if not book.service_names.get(svc.id, {}).get(lang):
-                problems.append(f"no {lang} name for service {svc.id}")
-    for extra in set(book.service_names) - {s.id for s in graph.seed.services}:
-        problems.append(f"phrasebook names an unknown service {extra}")
-    for v in graph.seed.variants:
-        for lang in ("en", "fil"):
-            if not book.variants.get(v.id, {}).get(lang):
-                problems.append(f"no {lang} phrase for variant {v.id}")
-    for lang in LANGUAGES:
-        if not book.variant_frames.get(lang) or not book.variant_joiners.get(lang):
-            problems.append(f"no variant frames or joiners for {lang}")
-        for frame in book.variant_frames.get(lang, ()):
-            if "{base}" not in frame or "{variant}" not in frame:
-                problems.append(f"variant frame {frame!r} needs {{base}} and {{variant}}")
-    wanted = {(i, s) for (i, s, filtered) in T.TEMPLATES if not filtered}
-    have = {(i, s) for (i, s, _) in book.families}
-    for missing in sorted(wanted - have):
-        problems.append(f"no phrase families for {missing}")
-    for extra in sorted(have - wanted):
-        problems.append(f"phrase families for {extra}, which has no template")
-    for (intent, shape, lang), fams in book.families.items():
-        if lang not in LANGUAGES:
-            problems.append(f"unknown language {lang!r} in {intent}.{shape}")
-        if len(fams) < 3:
-            problems.append(f"{intent}.{shape}.{lang} needs at least 3 families to be split")
-        for fam in fams:
-            if not fam.templates:
-                problems.append(f"family {fam.id} is empty")
-            for tpl in fam.templates:
-                holders = _PLACEHOLDER.findall(tpl)
-                if holders != ["service"]:
-                    problems.append(f"{fam.id}: {tpl!r} must contain exactly one {{service}}")
-                stripped = _ALTERNATIVES.sub("", tpl)
-                if "<" in stripped or ">" in stripped:
-                    problems.append(f"{fam.id}: unbalanced <a|b> in {tpl!r}")
-    return problems
+# ---- splits -----------------------------------------------------------------------------------
 
 
-def review_strings(book: Phrasebook) -> list[str]:
-    """Every Filipino or Taglish string in the generator, in a stable order (NEEDS-NATIVE-REVIEW)."""
-    out: list[str] = []
-    for svc in sorted(book.service_names):
-        out += [f"service name [{svc}]: {n}" for n in book.service_names[svc].get("fil", ())]
-    for vid in sorted(book.variants):
-        out += [f"variant phrase [{vid}]: {n}" for n in book.variants[vid].get("fil", ())]
-    for lang in ("fil", "mixed"):
-        out += [f"variant frame [{lang}]: {f}" for f in book.variant_frames[lang]]
-        out += [f"variant joiner [{lang}]: {j!r}" for j in book.variant_joiners[lang]]
-    for key in sorted(book.families):
-        if key[2] in ("fil", "mixed"):
-            for fam in book.families[key]:
-                out += [f"family {fam.id}: {t}" for t in fam.templates]
-    out += [f"sms spelling: {k} -> {v}" for k, v in sorted(SMS_FIL.items())]
-    return out
-
-
-def load_aliases(
-    graph: InMemoryGraph, path: Path = ALIASES_PATH
-) -> dict[str, dict[str, list[str]]]:
-    """Service aliases from ``graph/seed/aliases.yaml`` when that file exists.
-
-    Another session owns that file and its format was not fixed when this was written, so the
-    reader is tolerant: a top-level list, or a mapping with an ``aliases`` list, of records with
-    ``text``, ``lang`` (en|fil) and the service id under ``service_id``, ``target_id``, ``target``
-    or ``for``. Records it cannot read are skipped; nothing here can fail the generator.
-    """
-    if not path.is_file():
-        return {}
-    try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError):
-        return {}
-    records = data.get("aliases", []) if isinstance(data, dict) else data
-    known = {s.id for s in graph.seed.services}
-    out: dict[str, dict[str, list[str]]] = {}
-    for rec in records if isinstance(records, list) else []:
-        if not isinstance(rec, dict):
-            continue
-        sid = next((rec[k] for k in ("service_id", "target_id", "target", "for") if k in rec), None)
-        text, lang = rec.get("text"), rec.get("lang")
-        if sid in known and isinstance(text, str) and text.strip() and lang in ("en", "fil"):
-            out.setdefault(sid, {}).setdefault(lang, []).append(" ".join(text.split()))
-    return out
-
-
-# ---- cells ----------------------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class Cell:
-    service_id: str
-    intent: str
-    shape: str
-    combo: tuple[tuple[str, str], ...]  # sorted (dimension, value) pairs
-
-
-def variant_combos(graph: InMemoryGraph, service_id: str) -> list[tuple[tuple[str, str], ...]]:
-    """Every selection of at most one value per dimension that the service's records link."""
-    dims: dict[str, set[str]] = {}
-    for rec in (*graph.requirements(service_id), *graph.fees(service_id)):
-        for vid in rec.variant_ids:
-            dimension, _, value = vid.partition(":")
-            dims.setdefault(dimension, set()).add(value)
-    names = sorted(dims)
-    options = [[None, *sorted(dims[d])] for d in names]
-    combos = []
-    for choice in product(*options):
-        combos.append(tuple((d, v) for d, v in zip(names, choice, strict=True) if v is not None))
-    return combos
-
-
-def withheld_combos(
-    graph: InMemoryGraph, service_id: str, seed: int
-) -> set[tuple[tuple[str, str], ...]]:
-    """Non-empty combinations kept out of train (only for services with at least 3 of them)."""
-    nonempty = [c for c in variant_combos(graph, service_id) if c]
-    if len(nonempty) < 3:
-        return set()
-    rng = random.Random(f"{seed}|withheld|{service_id}")
-    return set(rng.sample(nonempty, max(1, round(len(nonempty) / 3))))
-
-
-def _has_go_first_data(graph: InMemoryGraph, service_id: str) -> bool:
-    for req in graph.requirements(service_id):
-        if graph.satisfied_by(req.id):
-            return True
-        if req.secured_at and graph.office_for_agency(req.secured_at):
-            return True
-    return False
-
-
-def enumerate_cells(graph: InMemoryGraph) -> list[Cell]:
-    cells = []
-    for svc in graph.seed.services:
-        leaf_requirements = [r for r in graph.requirements(svc.id) if not r.group]
-        has = {
-            ("requirements", "count"): bool(leaf_requirements),
-            ("fees", "per_step"): any(f.step_id for f in graph.fees(svc.id)),
-            ("where_to_secure", "go_first"): _has_go_first_data(graph, svc.id),
-        }
-        shapes = [
-            (intent, shape)
-            for intent in T.CORE1_INTENTS
-            for shape in T.shapes_for(intent)
-            if has.get((intent, shape), True)
-        ]
-        for combo in variant_combos(graph, svc.id):
-            cells += [Cell(svc.id, intent, shape, combo) for intent, shape in shapes]
-    return cells
-
-
-# ---- splits ---------------------------------------------------------------------------------------
-
-
-def assign_splits(book: Phrasebook, seed: int) -> dict[str, str]:
+def assign_splits(
+    book: Phrasebook, seed: int, held_out: frozenset[str] = HELD_OUT_SHAPES
+) -> dict[str, str]:
     """Family id -> split. In every (intent, shape, language) group one family goes to
-    test_synthetic, one to validation and the rest to train."""
+    test_synthetic, one to validation and the rest to train; every family of a held-out shape goes
+    to test_unseen_shape."""
     out: dict[str, str] = {}
-    for fams in book.families.values():
+    for (_, shape, _), fams in book.families.items():
+        if shape in held_out:
+            out.update({f.id: UNSEEN for f in fams})
+            continue
         ordered = sorted(fams, key=lambda f: hashlib.sha256(f"{seed}|{f.id}".encode()).hexdigest())
         out[ordered[0].id] = "test_synthetic"
         out[ordered[1].id] = "validation"
-        for fam in ordered[2:]:
-            out[fam.id] = "train"
+        out.update({f.id: "train" for f in ordered[2:]})
     return out
 
 
-# ---- phrases --------------------------------------------------------------------------------------
-
-
-def _expand(template: str, rng: random.Random) -> str:
-    return _ALTERNATIVES.sub(lambda m: rng.choice(m.group(1).split("|")), template)
-
-
-def _service_name(
-    rng: random.Random,
-    book: Phrasebook,
-    aliases: dict[str, dict[str, list[str]]],
-    graph: InMemoryGraph,
-    service_id: str,
-    language: str,
-) -> str:
-    names = book.service_names[service_id]
-    extra = aliases.get(service_id, {})
-    en = [*names["en"], *extra.get("en", ())]
-    fil = [*names["fil"], *extra.get("fil", ())]
-    pool = {"en": en, "fil": fil, "mixed": en + fil}[language]
-    if language != "fil" and rng.random() < OFFICIAL_NAME_SHARE:
-        return " ".join(graph.service(service_id).name.split())
-    return rng.choice(pool)
-
-
-def _variant_text(rng: random.Random, book: Phrasebook, combo, language: str) -> str:
-    parts = []
-    for dimension, value in combo:
-        forms = book.variants[f"{dimension}:{value}"]
-        lang = rng.choice(("en", "fil")) if language == "mixed" else language
-        parts.append(rng.choice(forms[lang]))
-    return rng.choice(book.variant_joiners[language]).join(parts)
-
-
-def build_phrase(
-    rng: random.Random,
-    book: Phrasebook,
-    aliases: dict[str, dict[str, list[str]]],
-    graph: InMemoryGraph,
-    family: Family,
-    cell: Cell,
-) -> str:
-    """The clean (noise-free) citizen phrase for one cell and family."""
-    name = _service_name(rng, book, aliases, graph, cell.service_id, family.language)
-    text = _expand(rng.choice(family.templates), rng).replace("{service}", name)
-    if cell.combo and rng.random() < VARIANT_MENTION_SHARE:
-        end = "?" if text.endswith("?") else ""
-        base = text.rstrip("?. ")
-        variant = _variant_text(rng, book, cell.combo, family.language)
-        frame = rng.choice(book.variant_frames[family.language])
-        text = frame.replace("{base}", base).replace("{variant}", variant) + end
-    return " ".join(text.split())
-
-
-# ---- dataset --------------------------------------------------------------------------------------
+# ---- dataset ----------------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
 class Example:
     id: str
     split: str
-    slots: Slots
+    request: Request
+    intent_header: str  # "fees" or "fees+processing_time"
     shape: str
+    variant_ids: tuple[str, ...]
     template_key: str  # "intent/shape/filtered"
     noise: int
     family: str
     combo_withheld: bool
-    clean_phrase: str
+    raw_phrase: str  # the question before noise and cleaning
     system: str
-    user: str
+    user: str  # prompt v2: targets, language, phrase
+    user_slots_given: str  # the same plus the intent and variants
+    completion: str  # three header lines and the Cypher
     cypher: str
     params: dict[str, Any]
     tokens: int
 
-    def messages(self) -> dict[str, Any]:
+    @property
+    def intents(self) -> tuple[str, ...]:
+        return tuple(self.intent_header.split("+"))
+
+    @property
+    def language(self) -> str:
+        return self.request.language
+
+    @property
+    def targets_text(self) -> str:
+        return ", ".join(str(t) for t in self.request.targets)
+
+    def messages(self, *, slots_given: bool = False) -> dict[str, Any]:
         return {
             "messages": [
                 {"role": "system", "content": self.system},
-                {"role": "user", "content": self.user},
-                {"role": "assistant", "content": self.cypher},
+                {"role": "user", "content": self.user_slots_given if slots_given else self.user},
+                {"role": "assistant", "content": self.completion},
             ]
         }
 
@@ -379,16 +195,17 @@ class Example:
         return {
             "id": self.id,
             "split": self.split,
-            "service_id": self.slots.service_id,
-            "intent": self.slots.intent,
+            "intent": self.intent_header,
             "shape": self.shape,
             "template": self.template_key,
-            "variants": dict(sorted(self.slots.variants.items())),
-            "language": self.slots.language,
+            "variants": list(self.variant_ids),
+            "language": self.language,
             "noise": self.noise,
             "family": self.family,
+            "targets": [str(t) for t in self.request.targets],
             "combo_withheld": self.combo_withheld,
-            "clean_phrase": self.clean_phrase,
+            "raw_phrase": self.raw_phrase,
+            "phrase": self.request.phrase,
             "params": self.params,
             "prompt_tokens": self.tokens,
         }
@@ -404,8 +221,12 @@ class Dataset:
     train_rounds: int
     eval_fraction: float
     cells: int
+    held_out: tuple[str, ...]
     schema_fingerprint: str = ""
     extra: dict[str, Any] = field(default_factory=dict)
+
+    def all(self) -> list[Example]:
+        return [e for s in SPLITS for e in self.examples[s]]
 
 
 def schema_fingerprint() -> str:
@@ -419,45 +240,105 @@ def schema_fingerprint() -> str:
     return hashlib.sha256(text.encode()).hexdigest()[:12]
 
 
-def _dedupe_key(slots: Slots, shape: str) -> tuple:
-    return (
-        slots.service_id,
-        slots.intent,
-        shape,
-        tuple(sorted(slots.variants.items())),
-        slots.language,
-        " ".join(slots.phrase.casefold().split()),
+def _dedupe_key(request: Request, completion: str) -> tuple:
+    return (request.targets, request.language, request.phrase, completion)
+
+
+def _make_example(
+    split: str,
+    cell: Cell,
+    family: Family,
+    level: int,
+    rng: random.Random,
+    book: Phrasebook,
+    aliases,
+    graph: InMemoryGraph,
+    withheld: bool,
+) -> Example:
+    mention = cell.filtered or rng.random() < VARIANT_MENTION_SHARE
+    raw, protect = build_phrase(
+        rng, book, aliases, graph, family, cell.entity_map, cell.combo, mention
+    )
+    noisy = add_noise(raw, level, rng, protect)
+    phrase = gateway_clean(noisy) or gateway_clean(raw)
+    request = Request(targets=cell.targets, phrase=phrase, language=family.language)
+
+    variant_ids = tuple(sorted(f"{d}:{v}" for d, v in cell.combo)) if cell.filtered else ()
+    template = T.TEMPLATES[(cell.intent, cell.shape, cell.filtered)]
+    query = build_request_query(request, cell.intent, cell.shape, variant_ids)
+    prompt = build_prompt_v2(request)
+    given = build_prompt_slots_given(
+        request, template.intent_header, dict(cell.combo) if cell.filtered else {}
+    )
+    return Example(
+        id="",
+        split=split,
+        request=request,
+        intent_header=template.intent_header,
+        shape=cell.shape,
+        variant_ids=variant_ids,
+        template_key=f"{cell.intent}/{cell.shape}/{str(cell.filtered).lower()}",
+        noise=level,
+        family=family.id,
+        combo_withheld=withheld,
+        raw_phrase=raw,
+        system=prompt.system,
+        user=prompt.user,
+        user_slots_given=given.user,
+        completion=format_completion(template, variant_ids),
+        cypher=query.cypher,
+        params=query.params,
+        tokens=prompt.tokens,
     )
 
 
 def build_dataset(
     seed: int = 0,
     *,
-    train_rounds: int = 2,
+    train_rounds: int = 1,
     eval_fraction: float = 0.15,
     book: Phrasebook | None = None,
     graph: InMemoryGraph | None = None,
+    held_out: frozenset[str] = HELD_OUT_SHAPES,
 ) -> Dataset:
     graph = graph or InMemoryGraph.from_dir()
     book = book or load_phrasebook()
+    problems = check_phrasebook(book, graph, held_out)
+    if problems:
+        raise PhrasebookError("; ".join(problems))
     aliases = load_aliases(graph)
-    cells = enumerate_cells(graph)
-    family_split = assign_splits(book, seed)
+    cells = enumerate_cells(graph, book, seed)
+    family_split = assign_splits(book, seed, held_out)
     withheld = {s.id: withheld_combos(graph, s.id, seed) for s in graph.seed.services}
-    slices: dict[str, SchemaSlice] = {i: schema_slice(i) for i in T.CORE1_INTENTS}
+
+    def is_withheld(cell: Cell) -> bool:
+        sid = next((t.id for t in cell.targets if t.kind == "service"), None)
+        return bool(cell.combo) and sid is not None and cell.combo in withheld.get(sid, set())
+
+    per_shape = Counter((c.intent, c.shape) for c in cells)
+
+    def keep_share(cell: Cell) -> float:
+        """Share of a shape's ordinary cells kept for validation and test: ``eval_fraction``, but
+        at least about MIN_EVAL_CELLS cells of a shape with few cells (an office has only 8)."""
+        return max(eval_fraction, min(1.0, MIN_EVAL_CELLS / per_shape[(cell.intent, cell.shape)]))
 
     examples: dict[str, list[Example]] = {split: [] for split in SPLITS}
     seen: set[tuple] = set()
     for split in SPLITS:
         rounds = train_rounds if split == "train" else 1
         for cell in cells:
-            is_withheld = cell.combo in withheld[cell.service_id]
-            if split == "train" and is_withheld:
+            if (cell.shape in held_out) != (split == UNSEEN):
                 continue
-            if split != "train" and not is_withheld:
-                keep = random.Random(f"{seed}|keep|{split}|{cell}").random()
-                if keep >= eval_fraction:
-                    continue
+            held = is_withheld(cell)
+            if split == "train" and held:
+                continue
+            sampled_out = (
+                split in ("validation", "test_synthetic")
+                and not held
+                and random.Random(f"{seed}|keep|{split}|{cell.key}").random() >= keep_share(cell)
+            )
+            if sampled_out:
+                continue
             for language in LANGUAGES:
                 families = [
                     f
@@ -466,48 +347,16 @@ def build_dataset(
                 ]
                 for level in NOISE_LEVELS:
                     for rnd in range(rounds):
-                        rng = random.Random(f"{seed}|{split}|{cell}|{language}|{level}|{rnd}")
+                        rng = random.Random(f"{seed}|{split}|{cell.key}|{language}|{level}|{rnd}")
                         family = rng.choice(families)
-                        clean = build_phrase(rng, book, aliases, graph, family, cell)
-                        phrase = " ".join(add_noise(clean, level, rng).split()) or clean
-                        slots = Slots(
-                            service_id=cell.service_id,
-                            intent=cell.intent,
-                            variants=dict(cell.combo),
-                            phrase=phrase,
-                            language=language,
+                        example = _make_example(
+                            split, cell, family, level, rng, book, aliases, graph, held
                         )
-                        key = _dedupe_key(slots, cell.shape)
+                        key = _dedupe_key(example.request, example.completion)
                         if key in seen:
                             continue
                         seen.add(key)
-                        template = T.select_template(slots, cell.shape)
-                        prompt = build_prompt(slots, slices[cell.intent])
-                        query = T.build_query(slots, cell.shape)
-                        examples[split].append(
-                            Example(
-                                id="",
-                                split=split,
-                                slots=slots,
-                                shape=cell.shape,
-                                template_key="/".join(
-                                    (
-                                        template.intent,
-                                        template.shape,
-                                        str(template.filtered).lower(),
-                                    )
-                                ),
-                                noise=level,
-                                family=family.id,
-                                combo_withheld=is_withheld,
-                                clean_phrase=clean,
-                                system=prompt.system,
-                                user=prompt.user,
-                                cypher=query.cypher,
-                                params=query.params,
-                                tokens=prompt.tokens,
-                            )
-                        )
+                        examples[split].append(example)
     # stable ids, assigned after generation so they do not depend on the loop layout
     for split, rows in examples.items():
         examples[split] = [
@@ -524,36 +373,80 @@ def build_dataset(
         train_rounds=train_rounds,
         eval_fraction=eval_fraction,
         cells=len(cells),
+        held_out=tuple(sorted(held_out)),
         schema_fingerprint=schema_fingerprint(),
     )
 
 
-# ---- output ---------------------------------------------------------------------------------------
+# ---- non-triviality ------------------------------------------------------------------------------
+
+
+def distinct_queries(rows: list[Example]) -> int:
+    return len({e.cypher for e in rows})
+
+
+def slots_only_ceiling(train: list[Example], test: list[Example]) -> float:
+    """Exact-match rate of the best predictor that sees only the prompt's slots (the targets and
+    the language, not the wording): for each (targets, language) it answers with the most common
+    training completion. If the output were a function of the slots this would be near 1."""
+    votes: dict[tuple, Counter] = defaultdict(Counter)
+    kinds: dict[tuple, Counter] = defaultdict(Counter)
+    for e in train:
+        votes[(e.targets_text, e.language)][e.completion] += 1
+        kinds[(tuple(t.kind for t in e.request.targets), e.language)][e.completion] += 1
+    hits = 0
+    for e in test:
+        pool = votes.get((e.targets_text, e.language)) or kinds.get(
+            (tuple(t.kind for t in e.request.targets), e.language)
+        )
+        hits += bool(pool) and pool.most_common(1)[0][0] == e.completion
+    return hits / max(len(test), 1)
+
+
+def completions_per_slot_group(rows: list[Example]) -> dict[str, int]:
+    """For each (targets, language) group: how many different completions it leads to."""
+    groups: dict[tuple, set[str]] = defaultdict(set)
+    for e in rows:
+        groups[(e.targets_text, e.language)].add(e.completion)
+    return {f"{t} | {lang}": len(v) for (t, lang), v in groups.items()}
+
+
+# ---- output -----------------------------------------------------------------------------------
 
 
 def _dump(obj: Any) -> str:
     return json.dumps(obj, ensure_ascii=False, sort_keys=True)
 
 
-def jsonl(rows: list[Example], *, meta: bool = False) -> str:
+def jsonl(rows: list[Example], *, meta: bool = False, slots_given: bool = False) -> str:
     """Stable text: one JSON object per line, ``\\n`` newlines on every platform."""
-    return "".join(_dump(r.meta() if meta else r.messages()) + "\n" for r in rows)
+    return "".join(
+        _dump(r.meta() if meta else r.messages(slots_given=slots_given)) + "\n" for r in rows
+    )
+
+
+def _write(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
 
 
 def write_dataset(ds: Dataset, out_dir: Path) -> list[Path]:
-    out_dir.mkdir(parents=True, exist_ok=True)
+    """``<split>.jsonl`` (prompt v2), ``<split>.meta.jsonl`` and ``slots_given/<split>.jsonl``."""
     written = []
     for split, rows in ds.examples.items():
-        for meta in (False, True):
-            path = out_dir / f"{split}{'.meta' if meta else ''}.jsonl"
-            with path.open("w", encoding="utf-8", newline="\n") as fh:
-                fh.write(jsonl(rows, meta=meta))
+        for path, text in (
+            (out_dir / f"{split}.jsonl", jsonl(rows)),
+            (out_dir / f"{split}.meta.jsonl", jsonl(rows, meta=True)),
+            (out_dir / "slots_given" / f"{split}.jsonl", jsonl(rows, slots_given=True)),
+        ):
+            _write(path, text)
             written.append(path)
     return written
 
 
 def pick_sample(ds: Dataset, size: int = SAMPLE_SIZE) -> list[Example]:
-    """About ``size`` examples covering every intent/shape, language, noise level and split."""
+    """About ``size`` examples covering every shape, language, noise level and split."""
     rng = random.Random(f"{ds.seed}|sample")
     chosen: list[Example] = []
     taken: set[str] = set()
@@ -564,25 +457,24 @@ def pick_sample(ds: Dataset, size: int = SAMPLE_SIZE) -> list[Example]:
             taken.add(e.id)
             chosen.append(e)
 
-    everything = [e for split in SPLITS for e in ds.examples[split]]
-    keys = sorted({(e.slots.intent, e.shape) for e in everything})
-    for intent, shape in keys:
-        for language in LANGUAGES:
-            take(
-                [
-                    e
-                    for e in ds.examples["train"]
-                    if (e.slots.intent, e.shape, e.slots.language) == (intent, shape, language)
-                ],
-                1,
-            )
-    for split in ("validation", "test_synthetic"):
-        for intent, shape in keys:
-            take([e for e in ds.examples[split] if (e.slots.intent, e.shape) == (intent, shape)], 1)
+    keys = sorted({(e.intent_header, e.shape) for e in ds.all() if e.split != UNSEEN})
+    for i, (intent, shape) in enumerate(keys):
+        language = LANGUAGES[i % len(LANGUAGES)]
+        in_shape = [
+            e for e in ds.examples["train"] if (e.intent_header, e.shape) == (intent, shape)
+        ]
+        take([e for e in in_shape if e.language == language] or in_shape, 1)
+        split = ("validation", "test_synthetic")[i % 2]  # one evaluation example per shape
+        take([e for e in ds.examples[split] if (e.intent_header, e.shape) == (intent, shape)], 1)
+    for shape in sorted(HELD_OUT_SHAPES):
+        take([e for e in ds.examples[UNSEEN] if e.shape == shape], 3)
     for level in NOISE_LEVELS:
-        take([e for e in everything if e.noise == level and e.slots.variants], 2)
-    take([e for e in everything if e.combo_withheld], 2)
-    return sorted(chosen, key=lambda e: (SPLITS.index(e.split), e.id))[: size + 10]
+        take([e for e in ds.all() if e.noise == level and e.variant_ids], 2)
+    take([e for e in ds.all() if e.combo_withheld], 2)
+    return sorted(chosen, key=lambda e: (SPLITS.index(e.split), e.id))
+
+
+# ---- dataset card -------------------------------------------------------------------------------
 
 
 def _table(title: str, rows: dict[str, dict[str, int]], columns: list[str]) -> list[str]:
@@ -605,7 +497,7 @@ def _p(*parts: str) -> str:
 
 def dataset_card(ds: Dataset) -> str:
     """The text of training/DATASET_CARD.md (generated; contains no timestamps)."""
-    every = [e for s in SPLITS for e in ds.examples[s]]
+    every = ds.all()
 
     def counts(key) -> dict[str, dict[str, int]]:
         out: dict[str, Counter] = {}
@@ -613,12 +505,10 @@ def dataset_card(ds: Dataset) -> str:
             out.setdefault(str(key(e)), Counter())[e.split] += 1
         return {k: dict(v) for k, v in sorted(out.items())}
 
-    def kind(e: Example) -> str:
-        return "filtered" if e.template_key.endswith("true") else "plain"
-
-    def variant_use(e: Example) -> str:
-        return "with variants" if e.slots.variants else "no variants"
-
+    train, test = ds.examples["train"], ds.examples["test_synthetic"]
+    ceiling = slots_only_ceiling(train, test)
+    groups = completions_per_slot_group(every)
+    service_groups = {k: v for k, v in groups.items() if k.startswith("service:")}
     fam_counts = {s: sum(1 for v in ds.family_split.values() if v == s) for s in SPLITS}
     tokens = [e.tokens for e in every]
     alias_note = "" if ds.aliases_used else " (file absent or no readable records)"
@@ -627,7 +517,7 @@ def dataset_card(ds: Dataset) -> str:
         for sid, combos in sorted(ds.withheld.items())
     ]
     lines = [
-        "# Dataset card: Core 1 synthetic Text-to-Cypher data",
+        "# Dataset card: Core 1 synthetic Text-to-Cypher data (prompt v2, slots inferred)",
         "",
         _p(
             "Generated by `python -m training.generate_dataset` (do not edit by hand; ",
@@ -636,13 +526,50 @@ def dataset_card(ds: Dataset) -> str:
             "examples hold only questions and Cypher (no answer text from the charters).",
         ),
         "",
+        "## What the model must learn",
+        "",
+        _p(
+            "The prompt gives only the linked targets, the language and the cleaned phrase. The ",
+            "model has to infer, from the wording, the intent (one or two), the query shape, ",
+            "the variants the citizen states and which target fills which parameter, and then ",
+            "write the Cypher. The same service with different wording leads to different ",
+            "queries; the same wording with a different target kind (service, office, agency, ",
+            "document) leads to a different query too. Ambiguity is deliberate: for example ",
+            '"magkano at gaano katagal" asks for fee and time together (`fees+processing_time`).',
+        ),
+        "",
+        _p(
+            f"- distinct gold queries: {distinct_queries(every)} (train "
+            f"{distinct_queries(train)}, validation "
+            f"{distinct_queries(ds.examples['validation'])}, test_synthetic "
+            f"{distinct_queries(test)}, test_unseen_shape "
+            f"{distinct_queries(ds.examples[UNSEEN])}); distinct completions (header plus query): "
+            f"{len({e.completion for e in every})}",
+        ),
+        _p(
+            "- a predictor that sees only the slots (targets and language) and answers with the ",
+            f"most common training completion scores {ceiling:.3f} exact match on test_synthetic ",
+            "(if the output were a function of the slots this would be near 1)",
+        ),
+        _p(
+            "- service-linked prompts lead to "
+            f"{min(service_groups.values(), default=0)} to {max(service_groups.values(), default=0)} ",
+            "different completions per (targets, language) group",
+        ),
+        _p(
+            "- held out entirely (`test_unseen_shape`): "
+            + ", ".join(f"`{s}`" for s in ds.held_out)
+            + ". The model never sees these query shapes in training; the split measures ",
+            "whether it still produces a valid, sensible query.",
+        ),
+        "",
         "## Settings",
         "",
         _p(
             f"- seed: {ds.seed}; train rounds: {ds.train_rounds}; ",
             f"validation/test share of ordinary cells: {ds.eval_fraction}",
         ),
-        f"- cells (service x intent/shape x variant combination): {ds.cells}",
+        f"- cells (shape x targets x stated variants): {ds.cells}",
         _p(
             f"- guardrail schema fingerprint: `{ds.schema_fingerprint}` ",
             "(labels, relationship types and properties read at runtime)",
@@ -651,7 +578,8 @@ def dataset_card(ds: Dataset) -> str:
         f"- noise levels (percent of words): {', '.join(str(n) for n in NOISE_LEVELS)}",
         _p(
             f"- prompt budget: estimated tokens max {max(tokens)}, ",
-            f"mean {sum(tokens) / len(tokens):.0f} (ceiling {MAX_PROMPT_TOKENS})",
+            f"mean {sum(tokens) / len(tokens):.0f} (ceiling {MAX_PROMPT_TOKENS}); the system ",
+            "message is identical in every example",
         ),
         "",
         "## Counts",
@@ -663,14 +591,20 @@ def dataset_card(ds: Dataset) -> str:
         "",
     ]
     columns = list(SPLITS)
-    lines += _table("By intent", counts(lambda e: e.slots.intent), columns)
+    lines += _table("By intent", counts(lambda e: e.intent_header), columns)
     lines += _table(
-        "By shape (query template)", counts(lambda e: f"{e.slots.intent}/{e.shape}"), columns
+        "By shape (query family)", counts(lambda e: f"{e.intent_header}/{e.shape}"), columns
     )
-    lines += _table("By language", counts(lambda e: e.slots.language), columns)
+    lines += _table("By language", counts(lambda e: e.language), columns)
     lines += _table("By noise level", counts(lambda e: e.noise), columns)
-    lines += _table("By variant use", counts(variant_use), columns)
-    lines += _table("By gold query kind", counts(kind), columns)
+    lines += _table(
+        "By stated variants", counts(lambda e: "filter" if e.variant_ids else "no filter"), columns
+    )
+    lines += _table(
+        "By target kinds",
+        counts(lambda e: "+".join(t.kind for t in e.request.targets) or "none"),
+        columns,
+    )
     lines += [
         "## Splits",
         "",
@@ -678,8 +612,9 @@ def dataset_card(ds: Dataset) -> str:
             "Split by phrase-template family (paraphrases of one wording stay together): ",
             ", ".join(f"{s}: {n} families" for s, n in fam_counts.items()),
             ". In each (intent, shape, language) group one family is in test_synthetic, one in ",
-            "validation and the rest in train. No family is in two splits, and no example ",
-            "prompt is identical across splits.",
+            "validation and the rest in train; every family of a held-out shape is in ",
+            "test_unseen_shape. No family is in two splits, and no example is identical across ",
+            "splits.",
         ),
         "",
         "Variant combinations withheld from train (present only in validation and test):",
@@ -695,31 +630,38 @@ def dataset_card(ds: Dataset) -> str:
         "",
         _p(
             '`{"messages": [system, user, assistant]}`: the system message is the fixed ',
-            "instruction plus the schema slice of the intent, the user message lists service, ",
-            "intent, variants, language and the noisy phrase, and the assistant message is the ",
-            "canonical Cypher with `$sid` / `$variant_ids` (never literal ids). A parallel ",
-            "`<split>.meta.jsonl` (same line order) holds id, shape, noise level, family, ",
-            "clean phrase and query parameters.",
+            "instruction plus the whole schema (identical for every example); the user message ",
+            "is `language`, `targets` and the cleaned phrase; the assistant message is the ",
+            "intent, shape and variants header lines and the canonical Cypher with parameters ",
+            "(never literal ids). `slots_given/<split>.jsonl` holds the same examples with the ",
+            "intent and variants added to the prompt (the ablation). A parallel ",
+            "`<split>.meta.jsonl` (same line order) holds id, shape, noise, family, the phrase ",
+            "before noise, targets and query parameters.",
         ),
         "",
         "## Known limits",
         "",
         _p(
+            "- The gold Cypher is still a fixed template per (intent, shape, filter): the model ",
+            "learns to classify the wording and to pick the right template and parameters; it ",
+            "does not compose new queries. `test_unseen_shape` measures composition.",
+        ),
+        _p(
             "- Filipino and Taglish wording is unreviewed (NEEDS-NATIVE-REVIEW); the list is in ",
             "`docs/training_notes.md`.",
         ),
         _p(
-            "- The shape (list, count, per_step, go_first) must be inferred from the wording ",
-            "alone; the variant filter depends on whether variants are given, and steps, times, ",
-            "offices and who-may-avail ignore variants (no variant links in the graph).",
+            "- Phrases are short single questions written by us: no multi-request messages, no ",
+            "gibberish, no out-of-scope or mutation requests (the front end handles those). ",
+            "Entity words carry no noise, because the gateway repairs them first.",
         ),
         _p(
-            "- Service names are colloquial names plus the official names; aliases from ",
-            "`graph/seed/aliases.yaml` are used when that file exists.",
+            "- Agency, document and second-service targets are not produced by the session 4 ",
+            "gateway yet (it links services and offices); see `docs/training_notes.md`.",
         ),
         _p(
-            "- Phrases are short single questions: no multi-request messages, no gibberish, no ",
-            "out-of-scope or mutation requests (those are handled before the model).",
+            "- Validation and test contain more variant-bearing examples than train, because the ",
+            "withheld combinations are always kept there.",
         ),
         "",
     ]
@@ -728,21 +670,18 @@ def dataset_card(ds: Dataset) -> str:
 
 def write_docs(ds: Dataset, directory: Path = TRAINING_DIR) -> list[Path]:
     sample_dir = directory / "sample"
-    sample_dir.mkdir(parents=True, exist_ok=True)
     rows = pick_sample(ds)
     paths = []
     for meta in (False, True):
         path = sample_dir / f"sample{'.meta' if meta else ''}.jsonl"
-        with path.open("w", encoding="utf-8", newline="\n") as fh:
-            fh.write(jsonl(rows, meta=meta))
+        _write(path, jsonl(rows, meta=meta))
         paths.append(path)
     card = directory / "DATASET_CARD.md"
-    with card.open("w", encoding="utf-8", newline="\n") as fh:
-        fh.write(dataset_card(ds))
+    _write(card, dataset_card(ds))
     return [*paths, card]
 
 
-# ---- command line ---------------------------------------------------------------------------------
+# ---- command line -------------------------------------------------------------------------------
 
 REVIEW_BEGIN = "<!-- BEGIN REVIEW LIST (generated: python -m training.generate_dataset --write-review-list) -->"
 REVIEW_END = "<!-- END REVIEW LIST -->"
@@ -768,7 +707,7 @@ def main(argv: list[str] | None = None) -> int:
         "--docs-dir", type=Path, default=TRAINING_DIR, help="where sample/ and DATASET_CARD.md go"
     )
     ap.add_argument("--no-docs", action="store_true", help="do not write the sample and the card")
-    ap.add_argument("--train-rounds", type=int, default=2)
+    ap.add_argument("--train-rounds", type=int, default=1)
     ap.add_argument("--eval-fraction", type=float, default=0.15)
     ap.add_argument(
         "--list-review",

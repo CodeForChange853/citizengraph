@@ -1,0 +1,387 @@
+# Phrase templates for the query shapes added in session 5b (see core1/templates.py NEW_SHAPES),
+# and the wording of the new target kinds (offices, agencies, documents).
+#
+# Written by us by hand. No LLM API output, nothing from eval/heldout/ (never read). Questions
+# only: no answer text from the charters. The document words are phrases that really occur in
+# requirement text and the agencies are Agency nodes of the seed (tests check both); an office,
+# agency or document named in a question is an input to the query, not an answer.
+#
+# NEEDS-NATIVE-REVIEW: every `fil` and `mixed` string in this file is unverified Filipino or
+# Taglish (CLAUDE.md rule 8). The full list is in docs/training_notes.md.
+#
+# Same syntax as phrasebook.yaml: <a|b> picks one alternative; a family is a list of paraphrases
+# that always stays in ONE split. Placeholders by target kind: {service}, {service2}, {office},
+# {agency}, {document}; a template uses exactly the placeholders its shape needs.
+#
+# Two shapes are held out of training on purpose (training/generate_dataset.py HELD_OUT_SHAPES):
+# office_who and compare_time. All their families go to test_unseen_shape.
+
+version: 1
+
+offices:
+  bplo:
+    en: ["BPLO", "the business permits office", "the business permits and licensing office"]
+    fil: ["BPLO", "opisina ng business permits", "tanggapan ng business permits at licensing"]
+  lcro:
+    en: ["LCRO", "the civil registry", "the local civil registry office"]
+    fil: ["LCRO", "civil registry", "tanggapan ng civil registry"]
+  cho:
+    en: ["CHO", "the city health office", "the health office"]
+    fil: ["CHO", "city health office", "opisina ng kalusugan ng lungsod"]
+  cswdo:
+    en: ["CSWDO", "the social welfare office", "the city social welfare office"]
+    fil: ["CSWDO", "social welfare office", "tanggapan ng social welfare"]
+
+agencies:
+  city-treasurers-office:
+    en: ["the city treasurer's office", "the treasurer's office"]
+    fil: ["city treasurer's office", "opisina ng city treasurer"]
+  civil-registry-office:
+    en: ["the civil registry office", "the civil registry"]
+    fil: ["civil registry office", "opisina ng civil registry"]
+  civil-registry-office-or-notary-public:
+    en: ["the civil registry office or a notary public", "civil registry or notary"]
+    fil: ["civil registry office o notary public", "civil registry o notaryo"]
+  philippine-statistics-authority-lcr-calbayog-thru-breqs:
+    en: ["PSA", "the Philippine Statistics Authority"]
+    fil: ["PSA", "Philippine Statistics Authority"]
+  department-of-trade-and-industry-dti:
+    en: ["DTI", "the Department of Trade and Industry"]
+    fil: ["DTI", "Kagawaran ng Kalakalan at Industriya"]
+  security-and-exchange-commission-sec:
+    en: ["SEC", "the SEC"]
+    fil: ["SEC", "ang SEC"]
+  bureau-of-fire-protection-bfp:
+    en: ["BFP", "the Bureau of Fire Protection"]
+    fil: ["BFP", "Bureau of Fire Protection"]
+  city-health-office-cho:
+    en: ["the City Health Office", "CHO"]
+    fil: ["City Health Office", "CHO"]
+
+# key = the words that must occur (lowercase) inside at least one requirement text; it is also the
+# `$doc` parameter the query gets.
+documents:
+  cedula:
+    en: ["cedula", "community tax certificate"]
+    fil: ["cedula", "sedula"]
+  proof of payment:
+    en: ["proof of payment", "payment receipt"]
+    fil: ["patunay ng bayad", "resibo ng bayad"]
+  marriage certificate:
+    en: ["marriage certificate", "a marriage certificate"]
+    fil: ["marriage certificate", "sertipiko ng kasal"]
+  affidavit:
+    en: ["an affidavit", "a sworn affidavit"]
+    fil: ["affidavit", "salaysay na may panunumpa"]
+  birth certificate:
+    en: ["a birth certificate", "birth certificate"]
+    fil: ["birth certificate", "sertipiko ng kapanganakan"]
+  death certificate:
+    en: ["a death certificate", "death certificate"]
+    fil: ["death certificate", "sertipiko ng pagkamatay"]
+  official receipt:
+    en: ["an official receipt", "official receipt"]
+    fil: ["official receipt", "opisyal na resibo"]
+  application form:
+    en: ["an application form", "application form"]
+    fil: ["application form", "porma ng aplikasyon"]
+  barangay clearance:
+    en: ["a barangay clearance", "barangay clearance"]
+    fil: ["barangay clearance", "klirans mula sa barangay"]
+  police clearance:
+    en: ["a police clearance", "police clearance"]
+    fil: ["police clearance", "klirans mula sa pulis"]
+  medical certificate:
+    en: ["a medical certificate", "medical certificate"]
+    fil: ["medical certificate", "sertipikong medikal"]
+
+families:
+  requirements:
+    doc_services:
+      en:
+        - ["Which services require {document}?", "Which services need {document}?"]
+        - ["What services ask for {document}?", "Where is {document} required?"]
+        - ["List the services that require {document}", "Services that need {document}"]
+        - ["Do any services require {document}, and which ones?", "For which services do I need {document}?"]
+      fil:
+        - ["Anong mga serbisyo ang nangangailangan ng {document}?", "Anong mga serbisyo ang humihingi ng {document}?"]
+        - ["Aling mga serbisyo ang kailangan ng {document}?", "Saang mga serbisyo kailangan ang {document}?"]
+        - ["Ilista ang mga serbisyo na nangangailangan ng {document}", "Mga serbisyong nangangailangan ng {document}"]
+        - ["May mga serbisyo bang humihingi ng {document}, alin?", "Para sa anong serbisyo kailangan ang {document}?"]
+      mixed:
+        - ["Which services ang nangangailangan ng {document}?", "Anong services ang need ng {document}?"]
+        - ["Saang services kailangan ang {document}?", "Which services ang humihingi ng {document}?"]
+        - ["List ng services na kailangan ang {document}", "Services na may requirement na {document}"]
+        - ["May services ba na nag-re-require ng {document}, which ones?", "Para sa anong services need ang {document}?"]
+    doc_in_service:
+      en:
+        - ["Do I need {document} for {service}?", "Is {document} required for {service}?"]
+        - ["Does {service} require {document}?", "Do they ask for {document} in {service}?"]
+        - ["Is {document} part of the requirements for {service}?", "Is {document} needed in {service}?"]
+        - ["{service}: do I have to bring {document}?", "Should I bring {document} for {service}?"]
+      fil:
+        - ["Kailangan ba ng {document} para sa {service}?", "Kailangan ko ba ng {document} sa {service}?"]
+        - ["Hinihingi ba ang {document} sa {service}?", "Humihingi ba ng {document} ang {service}?"]
+        - ["Kasama ba ang {document} sa mga requirements ng {service}?", "Kasali ba ang {document} sa {service}?"]
+        - ["Dapat ko bang dalhin ang {document} para sa {service}?", "{service}: kailangan bang magdala ng {document}?"]
+      mixed:
+        - ["Need ba ng {document} for {service}?", "Required ba ang {document} sa {service}?"]
+        - ["Hinihingi ba ang {document} for {service}?", "Ask ba nila ang {document} sa {service}?"]
+        - ["Kasama ba ang {document} sa requirements for {service}?", "Is {document} kasama sa {service}?"]
+        - ["Dapat ko bang i-bring ang {document} for {service}?", "{service}: need bang i-bring ang {document}?"]
+    office_req_counts:
+      en:
+        - ["How many requirements does each service of {office} have?", "How many requirements per service at {office}?"]
+        - ["Which service of {office} has the most requirements?", "Which {office} service needs the most documents?"]
+        - ["Number of requirements for every service of {office}", "Count the requirements of each service at {office}"]
+        - ["Rank the services of {office} by number of documents", "Which services of {office} need the fewest documents?"]
+      fil:
+        - ["Ilang requirements ang bawat serbisyo ng {office}?", "Ilang requirements kada serbisyo sa {office}?"]
+        - ["Anong serbisyo ng {office} ang may pinakamaraming requirements?", "Aling serbisyo ng {office} ang pinakamaraming dokumento?"]
+        - ["Bilang ng requirements ng bawat serbisyo ng {office}", "Bilangin ang requirements ng bawat serbisyo sa {office}"]
+        - ["Ayusin ang mga serbisyo ng {office} ayon sa dami ng dokumento", "Anong mga serbisyo ng {office} ang pinakakaunti ang dokumento?"]
+      mixed:
+        - ["Ilang requirements ang bawat service ng {office}?", "Ilang requirements per service sa {office}?"]
+        - ["Which service ng {office} ang pinakamaraming requirements?", "Anong service ng {office} ang most documents?"]
+        - ["Count ng requirements ng bawat service sa {office}", "Bilang ng requirements per service ng {office}"]
+        - ["I-rank ang services ng {office} by number of documents", "Which services ng {office} ang pinakakaunti ang documents?"]
+    compare_requirements:
+      en:
+        - ["Which needs more documents, {service} or {service2}?", "Which has more requirements, {service} or {service2}?"]
+        - ["Compare the requirements of {service} and {service2}", "Requirements of {service} versus {service2}"]
+        - ["Does {service} have more requirements than {service2}?", "Which is simpler, {service} or {service2}?"]
+        - ["How many documents for {service} compared with {service2}?", "Is {service} easier than {service2}, in requirements and steps?"]
+      fil:
+        - ["Alin ang mas maraming dokumento, {service} o {service2}?", "Alin ang mas maraming requirements, {service} o {service2}?"]
+        - ["Ihambing ang requirements ng {service} at {service2}", "Requirements ng {service} kumpara sa {service2}"]
+        - ["Mas marami ba ang requirements ng {service} kaysa sa {service2}?", "Alin ang mas simple, {service} o {service2}?"]
+        - ["Ilang dokumento ang {service} kumpara sa {service2}?", "Mas madali ba ang {service} kaysa sa {service2}, sa requirements at hakbang?"]
+      mixed:
+        - ["Alin ang mas maraming documents, {service} or {service2}?", "Which has more requirements, {service} o {service2}?"]
+        - ["I-compare ang requirements ng {service} at {service2}", "Requirements ng {service} vs {service2}"]
+        - ["Mas marami ba ang requirements ng {service} than {service2}?", "Alin ang mas simple, {service} or {service2}?"]
+        - ["Ilang documents ang {service} compared sa {service2}?", "Mas easy ba ang {service} kaysa sa {service2}, sa requirements at steps?"]
+  where_to_secure:
+    doc_where:
+      en:
+        - ["Where do I get {document}?", "Where can I get {document}?"]
+        - ["Where can I secure {document}?", "Which office gives {document}?"]
+        - ["Where to obtain {document}", "Where do I apply for {document}?"]
+        - ["Who issues {document}?", "Where should I go to get {document}?"]
+      fil:
+        - ["Saan ako makakakuha ng {document}?", "Saan kukuha ng {document}?"]
+        - ["Saan puwedeng kumuha ng {document}?", "Saang opisina nakukuha ang {document}?"]
+        - ["Saan ko makukuha ang {document}?", "Saan nag-iisyu ng {document}?"]
+        - ["Sino ang nagbibigay ng {document}?", "Saan ako pupunta para makakuha ng {document}?"]
+      mixed:
+        - ["Saan ako kukuha ng {document}?", "Where ako kukuha ng {document}?"]
+        - ["Saan pwede ma-secure ang {document}?", "Which office ang nag-iisyu ng {document}?"]
+        - ["Saan po makakakuha ng {document}?", "Where po nakukuha ang {document}?"]
+        - ["Sino ang nag-iisyu ng {document}?", "Saan ako mag-apply for {document}?"]
+    agency_services:
+      en:
+        - ["Which services need something from {agency}?", "Which services involve {agency}?"]
+        - ["What services require documents from {agency}?", "Which services send me to {agency}?"]
+        - ["List the services where I must go to {agency}", "Services that need papers from {agency}"]
+        - ["For which services do I need to visit {agency}?", "Which services have a requirement from {agency}?"]
+      fil:
+        - ["Anong mga serbisyo ang may kailangan mula sa {agency}?", "Aling mga serbisyo ang may kinalaman sa {agency}?"]
+        - ["Anong mga serbisyo ang nangangailangan ng papeles mula sa {agency}?", "Anong mga serbisyo ang magpapapunta sa akin sa {agency}?"]
+        - ["Ilista ang mga serbisyo na kailangang kumuha sa {agency}", "Mga serbisyong kailangan ng papeles galing sa {agency}"]
+        - ["Para sa anong mga serbisyo ako pupunta sa {agency}?", "Anong mga serbisyo ang may requirement na galing sa {agency}?"]
+      mixed:
+        - ["Which services ang may kailangan from {agency}?", "Anong services ang involve ang {agency}?"]
+        - ["Anong services ang nangangailangan ng papers from {agency}?", "Which services ang pupunta ako sa {agency}?"]
+        - ["List ng services na kailangan ng papers galing sa {agency}", "Services na kukuha ng requirement sa {agency}"]
+        - ["Para sa anong services ako pupunta sa {agency}?", "Anong services ang may requirement from {agency}?"]
+    office_prereqs:
+      en:
+        - ["Which services of {office} need something from another office first?", "Which {office} services need papers from another office?"]
+        - ["What must I get from other offices before using the services of {office}?", "Which prerequisites from other offices do {office} services have?"]
+        - ["List the services of {office} that send me to another office", "Which services of {office} depend on another office?"]
+        - ["Do any services of {office} need a document from a different office?", "What do I need from other offices for {office}?"]
+      fil:
+        - ["Anong mga serbisyo ng {office} ang nangangailangan muna ng kailangan mula sa ibang opisina?", "Aling mga serbisyo ng {office} ang may kailangang papeles mula sa ibang opisina?"]
+        - ["Ano ang kailangan kong kunin sa ibang opisina bago gumamit ng serbisyo ng {office}?", "Anong mga paunang kailangan mula sa ibang opisina ang may serbisyo ng {office}?"]
+        - ["Ilista ang mga serbisyo ng {office} na magpapapunta sa ibang opisina", "Anong mga serbisyo ng {office} ang nakadepende sa ibang opisina?"]
+        - ["May mga serbisyo ba ng {office} na kailangan ng dokumento mula sa ibang opisina?", "Ano ang kailangan ko mula sa ibang opisina para sa {office}?"]
+      mixed:
+        - ["Anong services ng {office} ang need muna ng papers from ibang office?", "Which services ng {office} ang kailangan ng papers from another office?"]
+        - ["Ano ang dapat kong kunin sa ibang office bago mag-avail sa {office}?", "Anong prerequisites from other offices ang services ng {office}?"]
+        - ["List ng services ng {office} na magpapapunta sa ibang office", "Which services ng {office} ang depende sa ibang office?"]
+        - ["May services ba ng {office} na need ng document from different office?", "Ano ang need ko from other offices for {office}?"]
+  office:
+    office_services:
+      en:
+        - ["What services does {office} offer?", "What services are handled by {office}?"]
+        - ["List the services of {office}", "Services offered by {office}"]
+        - ["What can I apply for at {office}?", "What can I get from {office}?"]
+        - ["Which services does {office} have?", "What does {office} do for citizens?"]
+      fil:
+        - ["Anong mga serbisyo ang inaalok ng {office}?", "Anong mga serbisyo ang hawak ng {office}?"]
+        - ["Ilista ang mga serbisyo ng {office}", "Mga serbisyo ng {office}"]
+        - ["Ano ang puwede kong i-apply sa {office}?", "Ano ang makukuha ko sa {office}?"]
+        - ["Ano-anong serbisyo ang mayroon ang {office}?", "Ano ang ginagawa ng {office} para sa mga mamamayan?"]
+      mixed:
+        - ["Anong services ang offer ng {office}?", "Anong services ang handle ng {office}?"]
+        - ["List ng services ng {office}", "Services ng {office}, ano-ano?"]
+        - ["Ano ang pwede ko ma-avail sa {office}?", "Ano ang makukuha ko from {office}?"]
+        - ["Ano-ano ang services ng {office}?", "Anong services ang meron ang {office}?"]
+    office_count:
+      en:
+        - ["How many services does {office} have?", "How many services does {office} offer?"]
+        - ["Number of services of {office}", "Number of services at {office}"]
+        - ["how many services can i get from {office}", "how many services are there in {office}"]
+        - ["What is the total number of services of {office}?", "Count the services of {office}"]
+      fil:
+        - ["Ilang serbisyo ang mayroon ang {office}?", "Ilang serbisyo ang inaalok ng {office}?"]
+        - ["Ilan ang serbisyo ng {office}?", "Ilan ang mga serbisyo sa {office}?"]
+        - ["Ilang serbisyo ang makukuha ko sa {office}?", "Ilang serbisyo ang hawak ng {office}?"]
+        - ["Ano ang kabuuang bilang ng serbisyo ng {office}?", "Bilangin ang mga serbisyo ng {office}"]
+      mixed:
+        - ["Ilang services ang meron ang {office}?", "Ilang services ang offer ng {office}?"]
+        - ["Ilan ang services ng {office}?", "Ilan ang mga services sa {office}?"]
+        - ["How many services ang makukuha ko sa {office}?", "How many services ang handle ng {office}?"]
+        - ["Total number ng services ng {office}?", "Count ng services ng {office}"]
+  who_may_avail:
+    office_who:
+      en:
+        - ["Who can avail of the services of {office}?", "Who may avail of the services of {office}?"]
+        - ["Who is eligible for each service at {office}?", "Who can apply for the services of {office}?"]
+        - ["Who is allowed to request services from {office}?", "Are the services of {office} open to everyone?"]
+      fil:
+        - ["Sino ang maaaring mag-avail ng mga serbisyo ng {office}?", "Sino ang puwedeng kumuha ng serbisyo ng {office}?"]
+        - ["Sino ang kwalipikado sa bawat serbisyo ng {office}?", "Sino ang maaaring mag-apply sa mga serbisyo ng {office}?"]
+        - ["Sino ang pinapayagang humiling ng serbisyo sa {office}?", "Bukas ba sa lahat ang mga serbisyo ng {office}?"]
+      mixed:
+        - ["Who can avail ng services ng {office}?", "Sino ang pwedeng mag-avail ng services ng {office}?"]
+        - ["Sino ang eligible sa bawat service ng {office}?", "Sino ang qualified sa services ng {office}?"]
+        - ["Sino ang allowed mag-request ng services from {office}?", "Open ba sa lahat ang services ng {office}?"]
+  fees:
+    cheapest:
+      en:
+        - ["Which services of {office} are the cheapest?", "What is the cheapest service at {office}?"]
+        - ["Which {office} service has the lowest fee?", "Which service of {office} costs the least?"]
+        - ["Cheapest services in {office}", "Lowest fees at {office}"]
+        - ["Where at {office} can I pay the least?", "Which service at {office} is the most affordable?"]
+      fil:
+        - ["Anong mga serbisyo ng {office} ang pinakamura?", "Ano ang pinakamurang serbisyo sa {office}?"]
+        - ["Anong serbisyo ng {office} ang pinakamababa ang bayad?", "Aling serbisyo ng {office} ang pinakakaunti ang babayaran?"]
+        - ["Pinakamurang serbisyo sa {office}", "Pinakamababang bayad sa {office}"]
+        - ["Saan sa {office} ako pinakakaunti ang magbabayad?", "Anong serbisyo sa {office} ang pinakaabot-kaya?"]
+      mixed:
+        - ["Which services ng {office} ang pinakamura?", "Ano ang cheapest service sa {office}?"]
+        - ["Anong service ng {office} ang lowest ang fee?", "Which service ng {office} ang pinakakaunti ang bayad?"]
+        - ["Cheapest services sa {office}", "Lowest fees sa {office}"]
+        - ["Saan sa {office} ako pinakakaunti magbabayad?", "Which service sa {office} ang pinaka-affordable?"]
+    no_fee_rows:
+      en:
+        - ["Which services of {office} have no fee listed?", "Which services at {office} list no fees?"]
+        - ["Are there services at {office} with no fee?", "Which {office} services are free of charge?"]
+        - ["List the services of {office} without a fee", "Services of {office} that cost nothing"]
+        - ["Which services at {office} do not charge anything?", "Where at {office} can I avail without paying?"]
+      fil:
+        - ["Anong mga serbisyo ng {office} ang walang nakalistang bayad?", "Aling mga serbisyo ng {office} ang walang bayad na nakasulat?"]
+        - ["May mga serbisyo ba sa {office} na walang bayad?", "Anong mga serbisyo ng {office} ang libre?"]
+        - ["Ilista ang mga serbisyo ng {office} na walang bayad", "Mga serbisyo ng {office} na hindi nagkakahalaga"]
+        - ["Anong mga serbisyo sa {office} ang hindi naniningil?", "Saan sa {office} ako makakakuha nang hindi nagbabayad?"]
+      mixed:
+        - ["Which services ng {office} ang walang fee na nakalista?", "Anong services ng {office} ang no fee listed?"]
+        - ["May services ba sa {office} na walang fee?", "Anong services ng {office} ang libre?"]
+        - ["List ng services ng {office} na walang fee", "Services ng {office} na walang binabayaran"]
+        - ["Anong services sa {office} ang hindi nagcha-charge?", "Saan sa {office} ako pwedeng mag-avail nang walang bayad?"]
+    fees_total:
+      en:
+        - ["What is the total fee for {service}?", "What is the total amount I pay for {service}?"]
+        - ["How much do I pay in all for {service}?", "How much is the total cost of {service}?"]
+        - ["Total payment for {service}", "Total fees of {service}"]
+        - ["Add up all the fees of {service}", "What is the grand total for {service}?"]
+      fil:
+        - ["Magkano ang kabuuang bayad sa {service}?", "Magkano lahat ang babayaran sa {service}?"]
+        - ["Magkano ang total ng babayaran para sa {service}?", "Magkano ang buong halaga ng {service}?"]
+        - ["Kabuuang bayad sa {service}", "Kabuuang babayaran para sa {service}"]
+        - ["Pagsama-samahin ang lahat ng bayad sa {service}", "Magkano ang grand total ng {service}?"]
+      mixed:
+        - ["Magkano ang total fee ng {service}?", "Magkano ang total amount na babayaran sa {service}?"]
+        - ["Magkano lahat ang babayaran ko for {service}?", "How much lahat-lahat ang {service}?"]
+        - ["Total payment po ng {service}", "Total fees ng {service}"]
+        - ["I-add up ang lahat ng fees ng {service}", "Ano ang grand total ng {service}?"]
+    fee_time:
+      en:
+        - ["How much and how long is {service}?", "How much does {service} cost and how long does it take?"]
+        - ["Fee and processing time for {service}", "Cost and time for {service}"]
+        - ["At each step of {service}, how much and how long?", "What do I pay and how many days at each step of {service}?"]
+        - ["How long will {service} take and what will I pay?", "Tell me the price and the waiting time of {service}"]
+      fil:
+        - ["Magkano at gaano katagal ang {service}?", "Magkano ang bayad at gaano katagal ang {service}?"]
+        - ["Bayad at tagal ng proseso ng {service}", "Gastos at oras para sa {service}"]
+        - ["Sa bawat hakbang ng {service}, magkano at gaano katagal?", "Ano ang babayaran at ilang araw sa bawat hakbang ng {service}?"]
+        - ["Gaano katagal ang {service} at magkano ang babayaran?", "Sabihin ang presyo at tagal ng paghihintay sa {service}"]
+      mixed:
+        - ["Magkano at how long ang {service}?", "Magkano ang fee at gaano katagal ang {service}?"]
+        - ["Fee at processing time ng {service}", "Cost at time ng {service}, magkano at ilang days?"]
+        - ["Sa bawat step ng {service}, magkano at gaano katagal?", "Ano ang bayad at ilang days sa bawat step ng {service}?"]
+        - ["How long ang {service} at magkano ang babayaran?", "Pakisabi ang price at waiting time ng {service}"]
+    compare_fees:
+      en:
+        - ["Which is cheaper, {service} or {service2}?", "Is {service} cheaper than {service2}?"]
+        - ["Compare the fees of {service} and {service2}", "Fees of {service} versus {service2}"]
+        - ["How do the fees of {service} and {service2} differ?", "Which costs more, {service} or {service2}?"]
+        - ["{service} or {service2}: which one has the lower fee?", "What is the price difference between {service} and {service2}?"]
+      fil:
+        - ["Alin ang mas mura, {service} o {service2}?", "Mas mura ba ang {service} kaysa sa {service2}?"]
+        - ["Ihambing ang bayad ng {service} at {service2}", "Bayad ng {service} kumpara sa {service2}"]
+        - ["Paano nagkakaiba ang bayad sa {service} at {service2}?", "Alin ang mas mahal, {service} o {service2}?"]
+        - ["{service} o {service2}: alin ang mas mababa ang bayad?", "Magkano ang agwat ng presyo ng {service} at {service2}?"]
+      mixed:
+        - ["Alin ang mas cheap, {service} or {service2}?", "Mas mura ba ang {service} than {service2}?"]
+        - ["I-compare ang fees ng {service} at {service2}", "Fees ng {service} vs {service2}"]
+        - ["Paano nagkakaiba ang fees ng {service} at {service2}?", "Alin ang mas mahal, {service} or {service2}?"]
+        - ["{service} or {service2}: alin ang lower ang fee?", "Magkano ang price difference ng {service} at {service2}?"]
+  processing_time:
+    longest_step:
+      en:
+        - ["Which step of {service} takes the longest?", "Which is the longest step in {service}?"]
+        - ["What is the slowest step of {service}?", "Where does {service} take the most time?"]
+        - ["Longest step in {service}", "Slowest step of {service}"]
+        - ["Which part of {service} takes the most time?", "Where do I wait the longest in {service}?"]
+      fil:
+        - ["Aling hakbang ng {service} ang pinakamatagal?", "Ano ang pinakamatagal na hakbang sa {service}?"]
+        - ["Ano ang pinakamabagal na hakbang ng {service}?", "Saan pinakamatagal ang {service}?"]
+        - ["Pinakamatagal na hakbang sa {service}", "Pinakamabagal na hakbang ng {service}"]
+        - ["Aling bahagi ng {service} ang pinakamatagal?", "Saan ako pinakamatagal maghihintay sa {service}?"]
+      mixed:
+        - ["Which step ng {service} ang pinakamatagal?", "Ano ang longest step sa {service}?"]
+        - ["Ano ang slowest step ng {service}?", "Saan pinakamatagal ang process ng {service}?"]
+        - ["Longest step sa {service}", "Slowest step ng {service}"]
+        - ["Anong part ng {service} ang pinakamatagal?", "Saan ako longest maghintay sa {service}?"]
+    compare_time:
+      en:
+        - ["Which takes longer, {service} or {service2}?", "Is {service} faster than {service2}?"]
+        - ["Compare the processing time of {service} and {service2}", "How long does {service} take compared with {service2}?"]
+        - ["{service} or {service2}: which is quicker?", "What is the time difference between {service} and {service2}?"]
+      fil:
+        - ["Alin ang mas matagal, {service} o {service2}?", "Mas mabilis ba ang {service} kaysa sa {service2}?"]
+        - ["Ihambing ang tagal ng proseso ng {service} at {service2}", "Gaano katagal ang {service} kumpara sa {service2}?"]
+        - ["{service} o {service2}: alin ang mas mabilis?", "Ilang araw ang agwat ng {service} at {service2}?"]
+      mixed:
+        - ["Alin ang mas matagal, {service} or {service2}?", "Mas fast ba ang {service} than {service2}?"]
+        - ["I-compare ang processing time ng {service} at {service2}", "How long ang {service} compared sa {service2}?"]
+        - ["{service} or {service2}: alin ang mas quick?", "Ilang days ang difference ng {service} at {service2}?"]
+  steps:
+    external_steps:
+      en:
+        - ["Which steps of {service} are done by another agency?", "Which steps of {service} happen at another office?"]
+        - ["Are there steps of {service} handled outside the office?", "Which steps of {service} depend on another agency?"]
+        - ["Steps of {service} done by other agencies", "External steps in {service}"]
+        - ["Do I have to go to another agency in {service}, and at which step?", "At which step of {service} do I leave for another office?"]
+      fil:
+        - ["Anong mga hakbang ng {service} ang ginagawa ng ibang ahensya?", "Aling mga hakbang ng {service} ang sa ibang opisina?"]
+        - ["May mga hakbang ba ng {service} na hawak ng ibang ahensya?", "Anong mga hakbang ng {service} ang nakadepende sa ibang ahensya?"]
+        - ["Mga hakbang ng {service} na ginagawa ng ibang ahensya", "Panlabas na mga hakbang sa {service}"]
+        - ["Kailangan ko bang pumunta sa ibang ahensya sa {service}, at sa anong hakbang?", "Sa anong hakbang ng {service} ako pupunta sa ibang opisina?"]
+      mixed:
+        - ["Which steps ng {service} ang ginagawa ng ibang agency?", "Anong steps ng {service} ang sa another office?"]
+        - ["May steps ba ng {service} na handled ng ibang agency?", "Which steps ng {service} ang depende sa ibang agency?"]
+        - ["Steps ng {service} na ginagawa ng ibang agencies", "External steps sa {service}"]
+        - ["Kailangan ko bang pumunta sa ibang agency sa {service}, at sa anong step?", "Sa anong step ng {service} ako pupunta sa ibang office?"]

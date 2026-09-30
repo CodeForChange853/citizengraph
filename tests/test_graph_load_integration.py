@@ -28,7 +28,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _loadmod():
-    spec = importlib.util.spec_from_file_location("citizengraph_admin_load_it", ROOT / "graph/load.py")
+    spec = importlib.util.spec_from_file_location(
+        "citizengraph_admin_load_it", ROOT / "graph/load.py"
+    )
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
@@ -53,10 +55,13 @@ def driver():
 
 def counts(driver):
     def work(tx):
-        nodes = {r["l"]: r["c"] for r in tx.run(
-            "MATCH (n) UNWIND labels(n) AS l RETURN l, count(*) AS c")}
-        rels = {r["t"]: r["c"] for r in tx.run(
-            "MATCH ()-[r]->() RETURN type(r) AS t, count(*) AS c")}
+        nodes = {
+            r["l"]: r["c"]
+            for r in tx.run("MATCH (n) UNWIND labels(n) AS l RETURN l, count(*) AS c")
+        }
+        rels = {
+            r["t"]: r["c"] for r in tx.run("MATCH ()-[r]->() RETURN type(r) AS t, count(*) AS c")
+        }
         return nodes, rels
 
     with driver.session() as s:
