@@ -38,7 +38,8 @@
 #    download the LoRA adapter (cell 9) and convert on another machine.
 # 10. After import into llama.cpp/Ollama: the Llama-3 chat template is applied and generation
 #     stops at `<|eot_id|>`. The inference prompt must come from
-#     `citizengraph.core1.prompt.build_prompt`, the same format as the training data.
+#     `citizengraph.core1.prompt.build_prompt_v2` (and `build_prompt_slots_given` for the
+#     `SLOTS_GIVEN` ablation), the same format as the training data.
 #
 # ## Data
 # Generate the data locally (`python -m training.generate_dataset --seed 0`), then upload

@@ -645,7 +645,7 @@ def test_write_dataset_and_docs(ds, tmp_path):
     import json
 
     written = G.write_dataset(ds, tmp_path / "out")
-    names = {str(p.relative_to(tmp_path / "out")) for p in written}
+    names = {p.relative_to(tmp_path / "out").as_posix() for p in written}
     assert names == (
         {f"{s}.jsonl" for s in SPLITS}
         | {f"{s}.meta.jsonl" for s in SPLITS}
