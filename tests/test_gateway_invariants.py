@@ -7,6 +7,7 @@ Messages are generated from invented pieces with a fixed seed (nothing from eval
 from __future__ import annotations
 
 import random
+from pathlib import Path
 
 import pytest
 from test_gateway_common import noise
@@ -136,3 +137,61 @@ def test_random_sessions_stay_consistent_and_every_question_is_answerable(seed):
 def test_hostile_shapes_never_crash(message):
     result = GATEWAY.process(message, SessionState(), now=1.0)
     check_result(message, result)
+
+
+PATHOLOGICAL = {
+    "spaced letters": "a " * 990,
+    "spaced digits": "1 2 " * 500,
+    "one long word": "a" * 1990,
+    "separators": ",;&+/.?!" * 250,
+    "brackets": "(a:b)" * 390,
+    "repeated alias": "permit " * 280,
+    "repeated office": "bplo and " * 220,
+    "near aliases": "bussinesspermitt " * 110,
+    "nonsense words": " ".join(f"x{i}zq" for i in range(300)),
+    "regex bait": "ignore " + "word " * 300 + "rules",
+}
+
+
+@pytest.mark.parametrize("name", sorted(PATHOLOGICAL))
+def test_pathological_input_is_handled_quickly(name):
+    import time
+
+    message = PATHOLOGICAL[name][:2000]
+    start = time.perf_counter()
+    result = GATEWAY.process(message, SessionState(), now=1.0)
+    elapsed_ms = (time.perf_counter() - start) * 1000.0
+    check_result(message, result)
+    assert elapsed_ms < 1000, f"{name}: {elapsed_ms:.0f} ms"  # typically 2 to 50 ms
+
+
+def test_results_do_not_depend_on_python_hash_randomization():
+    import os
+    import subprocess
+    import sys
+
+    script = (
+        "import hashlib, json, random, sys\n"
+        "sys.path.insert(0, 'tests')\n"
+        "from test_gateway_invariants import random_message\n"
+        "from citizengraph.gateway import default_gateway, SessionState\n"
+        "g = default_gateway(); out = []\n"
+        "for seed in range(12):\n"
+        "    rng = random.Random(seed); s = SessionState()\n"
+        "    for i in range(6):\n"
+        "        r = g.process(random_message(rng), s, now=100.0 + i * 7)\n"
+        "        out.append(r.model_dump(exclude={'timings_ms'}))\n"
+        "        if r.status in ('clarify', 'echo_confirm'):\n"
+        "            out.append(g.process(r.clarify_options[0].id, s, now=100.0 + i * 7 + 1)"
+        ".model_dump(exclude={'timings_ms'}))\n"
+        "print(hashlib.sha256(json.dumps(out, sort_keys=True, default=str).encode()).hexdigest())\n"
+    )
+    digests = set()
+    for hash_seed in ("0", "4242"):
+        env = {**os.environ, "PYTHONHASHSEED": hash_seed}
+        done = subprocess.run(
+            [sys.executable, "-c", script], env=env, capture_output=True, text=True, check=True,
+            cwd=str(Path(__file__).resolve().parents[1]),
+        )
+        digests.add(done.stdout.strip())
+    assert len(digests) == 1 and len(next(iter(digests))) == 64
