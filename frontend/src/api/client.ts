@@ -1,11 +1,12 @@
 import { createFixtureAdapter } from "./fixtureAdapter";
 import { ApiUnreachableError, createRealAdapter } from "./realAdapter";
-import type { ChatRequest, ChatResponse, ServiceListItem } from "./types";
+import type { ChatRequest, ChatResponse, Health, ServiceListItem } from "./types";
 
 export interface ApiClient {
   /** Which adapter answered last: "real" (FastAPI) or "fixtures" (local sample data). */
   mode: "real" | "fixtures";
   services(): Promise<ServiceListItem[]>;
+  health(): Promise<Health>;
   chat(req: ChatRequest): Promise<ChatResponse>;
 }
 
@@ -50,6 +51,7 @@ export function createApiClient(options: Options = {}): ApiClient {
   const client: ApiClient = {
     mode: "real",
     services: () => call((a) => a.services()),
+    health: () => call((a) => a.health()),
     chat: (req: ChatRequest): Promise<ChatResponse> => call((a) => a.chat(req)),
   };
   return client;

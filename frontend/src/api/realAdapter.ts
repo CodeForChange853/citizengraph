@@ -1,5 +1,5 @@
 import type { ApiClient } from "./client";
-import type { ChatRequest, ChatResponse, ServiceListItem } from "./types";
+import type { ChatRequest, ChatResponse, Health, ServiceListItem } from "./types";
 
 /** Raised when the API cannot be reached (network error, timeout, proxy 5xx). */
 export class ApiUnreachableError extends Error {}
@@ -24,6 +24,7 @@ export function createRealAdapter(base = "/api"): ApiClient {
   return {
     mode: "real",
     services: () => request<ServiceListItem[]>(base, "/services"),
+    health: () => request<Health>(base, "/health"),
     chat: (req: ChatRequest) =>
       request<ChatResponse>(base, "/chat", {
         method: "POST",

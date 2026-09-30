@@ -60,3 +60,14 @@ Button, Chip, Segmented, LanguageToggle, DisplayControls (theme and text size), 
 - Checklist: ticks are saved on the device (`cg.checklists.v1`) as soon as an item is ticked, or with "Keep this list on my phone". Progress ("3 of 9 ready") counts only items still on the current list. Storage errors are swallowed; the app works without storage.
 - Settings (`cg.settings.v1`) are applied by an inline script in `index.html` before first paint to avoid a flash.
 - Language choice is saved (`cg.lang`); default follows the phone (`fil` or `tl` -> Filipino).
+
+## Stage 2: shell and home
+
+- **Shell:** sticky header (monogram + name, EN/FIL toggle, "Aa" display button that opens theme and text size), a slim persistent "Thesis prototype, not an official government app" line, the offline banner, then the page. "Skip to main content" link first. The monogram is a plain blue rounded square with "CG": no seal, flag, sun or mascot.
+- **Bottom nav:** three items (Ask, Saved, Help), 64px high, 16px labels. The current page has a top bar, bold text and `aria-current`, not colour alone.
+- **Home order:** ask box ("What do you need to do?", Enter sends, Shift+Enter is a new line), topic chips by life event (Business, Family records, Health, Help and assistance; they filter and can be tapped again to clear), services grouped by life event, and offices last as secondary chips ("Or choose an office") that also filter.
+- **Service row:** name, information scent line, office, chevron; the whole row is one 44px+ button. Pending services show "Being checked with the office" and no numbers. A row asks the chat the service's name (`navigate("/chat", { state: { message } })`; the chat screen is stage 3).
+- **One small illustration** in the header of the ask box (a checklist sheet, palette tokens only). No hero, promo banner or badges.
+- **Sample data tag** on the Services heading comes from `GET /health` (`mock: true`), because `/services` has no `meta`. `ApiClient` gained `health()`.
+- **Errors:** loading failure shows the red alert card (the only use of red) with "Try again". Loading shows plain text with `aria-busy`.
+- Task names use the API's service names as they are. Plain-language task phrasing ("Get a business permit") would be invented text for 40 services, so it waits for curated display names from the real API.

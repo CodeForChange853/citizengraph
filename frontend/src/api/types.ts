@@ -53,6 +53,11 @@ export interface ServiceListItem {
   info_status: InfoStatus;
 }
 
+export interface Health {
+  status: string;
+  mock: boolean;
+}
+
 export interface ChatRequest {
   message: string;
   lang: Lang;

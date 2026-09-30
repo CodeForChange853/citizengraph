@@ -69,5 +69,31 @@
     "body": "Makakatulong ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng paksa para magsimula.",
     "refusalTitle": "Nakakapaghanap lang ako ng impormasyon",
     "refusalBody": "Wala akong mababago. Pumili ng paksa para makita ang kailangan mo."
+  },
+  "nav": {
+    "label": "Pangunahing menu",
+    "ask": "Magtanong",
+    "saved": "Naka-save",
+    "help": "Tulong"
+  },
+  "shell": {
+    "display": "Mga setting ng hitsura",
+    "home": "Home ng Citizen Graph"
+  },
+  "home": {
+    "title": "Ano ang kailangan mong gawin?",
+    "hint": "Magtanong sa English, Filipino, o pinaghalo.",
+    "placeholder": "Halimbawa: Kailangan ko ng business permit",
+    "ask": "Itanong",
+    "topics": "Pumili ng paksa",
+    "services": "Mga serbisyo",
+    "byOffice": "O pumili ng tanggapan",
+    "noResults": "Walang tugmang serbisyo. Subukan ang ibang paksa o tanggapan.",
+    "loading": "Kinukuha ang mga serbisyo",
+    "error": "Hindi namin makuha ang mga serbisyo.",
+    "retry": "Subukan ulit"
+  },
+  "placeholder": {
+    "soon": "Ginagawa pa ang screen na ito sa susunod na yugto."
   }
 }

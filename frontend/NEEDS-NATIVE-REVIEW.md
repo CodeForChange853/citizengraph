@@ -60,6 +60,24 @@ own English wording in both languages and are not translated.
 | `fallback.body` | I can help with services from four city offices. Pick a topic to start. | Makakatulong ako sa mga serbisyo ng apat na tanggapan ng lungsod. Pumili ng paksa para magsimula. | |
 | `fallback.refusalTitle` | I can only look things up | Nakakapaghanap lang ako ng impormasyon | |
 | `fallback.refusalBody` | I cannot change anything. Pick a topic to see what you need. | Wala akong mababago. Pumili ng paksa para makita ang kailangan mo. | |
+| `nav.label` | Main menu | Pangunahing menu | |
+| `nav.ask` | Ask | Magtanong | |
+| `nav.saved` | Saved | Naka-save | |
+| `nav.help` | Help | Tulong | |
+| `shell.display` | Display settings | Mga setting ng hitsura | |
+| `shell.home` | Citizen Graph home | Home ng Citizen Graph | |
+| `home.title` | What do you need to do? | Ano ang kailangan mong gawin? | |
+| `home.hint` | Ask in English, Filipino, or both. | Magtanong sa English, Filipino, o pinaghalo. | |
+| `home.placeholder` | For example: I need a business permit | Halimbawa: Kailangan ko ng business permit | |
+| `home.ask` | Ask | Itanong | |
+| `home.topics` | Pick a topic | Pumili ng paksa | |
+| `home.services` | Services | Mga serbisyo | |
+| `home.byOffice` | Or choose an office | O pumili ng tanggapan | |
+| `home.noResults` | No services match. Try another topic or office. | Walang tugmang serbisyo. Subukan ang ibang paksa o tanggapan. | |
+| `home.loading` | Loading services | Kinukuha ang mga serbisyo | |
+| `home.error` | We could not load the services. | Hindi namin makuha ang mga serbisyo. | |
+| `home.retry` | Try again | Subukan ulit | |
+| `placeholder.soon` | This screen is built in a later stage. | Ginagawa pa ang screen na ito sa susunod na yugto. | |
 
 ## Sentences from the mock API (`src/citizengraph/api/main.py`, `_TEXT["fil"]`)
 

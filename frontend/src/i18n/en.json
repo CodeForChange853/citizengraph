@@ -69,5 +69,31 @@
     "body": "I can help with services from four city offices. Pick a topic to start.",
     "refusalTitle": "I can only look things up",
     "refusalBody": "I cannot change anything. Pick a topic to see what you need."
+  },
+  "nav": {
+    "label": "Main menu",
+    "ask": "Ask",
+    "saved": "Saved",
+    "help": "Help"
+  },
+  "shell": {
+    "display": "Display settings",
+    "home": "Citizen Graph home"
+  },
+  "home": {
+    "title": "What do you need to do?",
+    "hint": "Ask in English, Filipino, or both.",
+    "placeholder": "For example: I need a business permit",
+    "ask": "Ask",
+    "topics": "Pick a topic",
+    "services": "Services",
+    "byOffice": "Or choose an office",
+    "noResults": "No services match. Try another topic or office.",
+    "loading": "Loading services",
+    "error": "We could not load the services.",
+    "retry": "Try again"
+  },
+  "placeholder": {
+    "soon": "This screen is built in a later stage."
   }
 }

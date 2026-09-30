@@ -79,6 +79,7 @@ function fakeReal(overrides: Partial<ApiClient> = {}): ApiClient {
   return {
     mode: "real",
     services: vi.fn().mockResolvedValue([]),
+    health: vi.fn().mockResolvedValue({ status: "ok", mock: false }),
     chat: vi.fn().mockResolvedValue({ kind: "answer", meta: {} }),
     ...overrides,
   } as ApiClient;

@@ -56,6 +56,9 @@ export function createFixtureAdapter(): ApiClient {
     async services() {
       return fixtures.services as ServiceListItem[];
     },
+    async health() {
+      return { status: "ok", mock: true };
+    },
     async chat(req: ChatRequest): Promise<ChatResponse> {
       const r = mockChat(req.message, req.lang);
       return {
