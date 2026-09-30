@@ -6,6 +6,7 @@ Everything here is invented test data, not charter data.
 from __future__ import annotations
 
 import copy
+import re
 from typing import Any
 
 SRC = {"file": "TEST.xlsx", "sheet": "T", "rows": [10, 40]}
@@ -257,3 +258,18 @@ def minimal_seed_raw() -> dict[str, list[dict[str, Any]]]:
         ],
     }
     return copy.deepcopy(raw)
+
+
+def staff_names(seed: Any) -> set[str]:
+    """Person names found in the internal-only field of the real seed (never in any output)."""
+    roles = {st.role.lower() for st in seed.steps if st.role}
+    names: set[str] = set()
+    for st in seed.steps:
+        raw = st.internal_person_raw or ""
+        if raw.lower() in roles:
+            continue  # the whole cell is a role title, not a person
+        for part in re.split(r"\s+/\s+|\s+or\s+", raw, flags=re.IGNORECASE):
+            part = re.sub(r"^(or\s+)?/?\s*", "", part.strip(" /"), flags=re.IGNORECASE)
+            if part and not part.lower().startswith("any") and part.lower() not in roles:
+                names.add(part)
+    return names

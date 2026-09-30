@@ -7,11 +7,12 @@ docs/charter_data.md), not from the seed itself.
 from __future__ import annotations
 
 import json
-import re
 from collections import Counter
 from pathlib import Path
 
 import pytest
+
+from graph_fixtures import staff_names
 
 from citizengraph.graph.loader import DEFAULT_SEED_DIR, load_seed
 from citizengraph.graph.memory import InMemoryGraph
@@ -391,16 +392,7 @@ class TestRolesAndStaffNames:
                 assert {f.code for f in st.flags} & {"role_not_given", "person_missing"}, st.id
 
     def test_staff_names_appear_nowhere_except_the_internal_field(self, seed):
-        roles = {r.lower() for r in ALLOWED_ROLES}
-        names: set[str] = set()
-        for st in seed.steps:
-            raw = st.internal_person_raw or ""
-            if raw.lower() in roles:
-                continue  # the whole cell is a role title, not a person
-            for part in re.split(r"\s+/\s+|\s+or\s+", raw, flags=re.IGNORECASE):
-                part = re.sub(r"^(or\s+)?/?\s*", "", part.strip(" /"), flags=re.IGNORECASE)
-                if part and not part.lower().startswith("any") and part.lower() not in roles:
-                    names.add(part)
+        names = staff_names(seed)
         assert len(names) > 20
         everything = [
             *seed.offices, *seed.services, *seed.requirements,
