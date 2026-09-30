@@ -73,9 +73,11 @@ def test_empty_input_is_rejected(empty):
         "MATCH (s:) RETURN s LIMIT 1",
         "MATCH (s:Service:) RETURN s LIMIT 1",
         "MATCH (s:Service) RETURN s LIMIT",
-        "😀" * 500,
-        "A" * 100_000,
-        "MATCH " + "(" * 2000,
+        # Long inputs get short ids: pytest puts the id in PYTEST_CURRENT_TEST, and Windows
+        # rejects environment variables over 32,767 characters.
+        pytest.param("😀" * 500, id="emoji-500"),
+        pytest.param("A" * 100_000, id="very-long-100k"),
+        pytest.param("MATCH " + "(" * 2000, id="open-parens-2000"),
     ],
 )
 def test_garbage_never_raises_and_never_passes(garbage):
