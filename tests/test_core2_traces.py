@@ -1,6 +1,7 @@
 """Gold trajectories from the reference policy: synthetic, produced by code, chat-message format."""
 
 import json
+import re
 
 import pytest
 from core2_helpers import graph
@@ -72,9 +73,8 @@ def test_no_training_prompt_is_an_evaluation_prompt():
     # Prompts with no history (same task text) or an empty result may coincide; any prompt
     # whose history carries application data must not.
     mine = {e["messages"][1]["content"] for e in EXAMPLES}
-    shared = {
-        p for p in eval_prompts & mine if "ACTION 1:" in p and ('"app_id"' in p or "CG-SIM" in p)
-    }
+    carries_data = re.compile(r"^RESULT \d+: .*(app_id|CG-SIM)", re.MULTILINE)
+    shared = {p for p in eval_prompts & mine if carries_data.search(p)}
     assert shared == set()
 
 
