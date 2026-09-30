@@ -120,7 +120,6 @@ class TestGetWorkflowState:
         assert out["current"]["step_id"] == "business_permit-S08"
         assert out["current"]["elapsed_min"] == 30.0
         assert out["complete"] is False and out["issues"] == []
-        assert out["class"] == "SIMPLE"
 
     def test_reports_missing_timestamps(self):
         stamps = chain(dt(3, 9), [2, 2], open_last=False)
@@ -148,7 +147,7 @@ class TestGetStepSla:
     def test_charter_and_statutory_basis_are_labelled(self):
         out = toolbox(now=NOW).call("get_step_sla", {"service_id": BP, "step_id": f"{BP}-S08"})
         assert out["charter"]["basis"] == "charter_step_time"
-        assert out["charter"]["allowed"] == 5.0 and out["role"] == "BPLO Chief"
+        assert out["charter"]["allowed"] == 5.0
         assert out["statutory"]["basis"] == "statutory_cap_unverified"
         assert out["statutory"]["cap_working_days"] == 3
         assert "check" not in out
@@ -158,6 +157,8 @@ class TestGetStepSla:
         out = tb.call("get_step_sla", {"service_id": BP, "step_id": f"{BP}-S08", "app_id": "A1"})
         assert out["check"]["charter"]["verdict"] == "over"
         assert out["check"]["charter"]["measured"] == 30.0
+        assert out["check"]["charter"]["basis"] == "charter_step_time"
+        assert "charter" not in out and "statutory" not in out  # static blocks only without an app
         assert out["check"]["statutory"]["verdict"] == "within"
         assert out["check"]["statutory"]["basis"] == "statutory_cap_unverified"
 
@@ -205,7 +206,7 @@ class TestGetStepSla:
     def test_output_is_compact(self):
         tb = toolbox([late_signatory_app()], now=NOW)
         out = tb.call("get_step_sla", {"service_id": BP, "step_id": f"{BP}-S08", "app_id": "A1"})
-        assert len(json.dumps(out)) < 1100
+        assert len(json.dumps(out)) < 800
 
 
 class TestCalendarTools:

@@ -1,0 +1,82 @@
+# Office sweeps: the department head asks which applications are overdue.
+# list_overdue lists LGU-overdue applications only (external waits and missing data are not listed).
+
+- id: W01_bplo_sweep_mixed
+  title: BPLO sweep with overdue, on-time, external and another office's applications
+  category: sweep
+  seed: 301
+  as_of: "2026-03-04T14:00"
+  max_steps: 24
+  apps:
+    - {id: A1, ref: CG-SIM-0301, citizen: CIT-0301, service: business_permit, situation: over_charter, at_step: 8}
+    - {id: A2, ref: CG-SIM-0302, citizen: CIT-0302, service: business_permit, situation: on_time, at_step: 8}
+    - {id: A3, ref: CG-SIM-0303, citizen: CIT-0303, service: occupational_permit, situation: external_over, at_step: 3}
+    - {id: A4, ref: CG-SIM-0304, citizen: CIT-0304, service: business_permit, situation: overdue_statutory, at_step: 8}
+    - {id: A5, ref: CG-SIM-0305, citizen: CIT-0305, service: cho_dental_services, situation: over_charter, at_step: 1}
+  task: {kind: office_sweep, office_id: bplo}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice]}
+      A4: {status: overdue_statutory, alerts: [citizen_delay_notice, department_head_escalation]}
+  required_tools: [list_overdue, get_workflow_state, get_step_sla, draft_alert]
+
+- id: W02_bplo_sweep_nothing_overdue
+  title: Nothing is overdue
+  category: sweep
+  seed: 302
+  as_of: "2026-03-04T14:00"
+  apps:
+    - {id: A1, ref: CG-SIM-0311, citizen: CIT-0311, service: business_permit, situation: on_time, at_step: 8}
+    - {id: A2, ref: CG-SIM-0312, citizen: CIT-0312, service: business_permit, situation: minor_delay, at_step: 8}
+  task: {kind: office_sweep, office_id: bplo}
+  gold:
+    applications: {}
+  required_tools: [list_overdue]
+
+- id: W03_cho_sweep
+  title: City Health Office sweep
+  category: sweep
+  seed: 303
+  as_of: "2026-03-04T14:00"
+  max_steps: 14
+  apps:
+    - {id: A1, ref: CG-SIM-0321, citizen: CIT-0321, service: cho_dental_services, situation: over_charter, at_step: 1}
+    - {id: A2, ref: CG-SIM-0322, citizen: CIT-0322, service: cho_medical_certificate, situation: on_time, at_step: 2}
+    - {id: A3, ref: CG-SIM-0323, citizen: CIT-0323, service: cho_dental_services, situation: minor_delay, at_step: 1}
+  task: {kind: office_sweep, office_id: cho}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice]}
+  required_tools: [list_overdue, get_workflow_state, get_step_sla, draft_alert]
+
+- id: W04_sweep_skips_records_with_a_missing_current_timestamp
+  title: An application with no start time on its current step is not "overdue"
+  category: sweep
+  seed: 304
+  as_of: "2026-03-04T14:00"
+  max_steps: 14
+  apps:
+    - {id: A1, ref: CG-SIM-0331, citizen: CIT-0331, service: business_permit, situation: on_time, at_step: 4, inject: [missing_current]}
+    - {id: A2, ref: CG-SIM-0332, citizen: CIT-0332, service: business_permit, situation: over_charter, at_step: 8}
+  task: {kind: office_sweep, office_id: bplo}
+  gold:
+    applications:
+      A2: {status: delayed, alerts: [citizen_delay_notice]}
+  required_tools: [list_overdue, get_workflow_state, get_step_sla, draft_alert]
+
+- id: W05_lcro_sweep_with_absent_registrar
+  title: Civil registry sweep; the City Civil Registrar is absent
+  category: sweep
+  seed: 305
+  as_of: "2026-03-04T14:00"
+  max_steps: 30
+  apps:
+    - {id: A1, ref: CG-SIM-0341, citizen: CIT-0341, service: birth_registration_timely, situation: over_charter, at_step: 4, inject: [role_unavailable]}
+    - {id: A2, ref: CG-SIM-0342, citizen: CIT-0342, service: court_order_registration, situation: over_charter, at_step: 7}
+    - {id: A3, ref: CG-SIM-0343, citizen: CIT-0343, service: marriage_registration_timely, situation: on_time, at_step: 3}
+  task: {kind: office_sweep, office_id: lcro}
+  gold:
+    applications:
+      A1: {status: delayed, alerts: [citizen_delay_notice, department_head_escalation], reasons: [role_unavailable]}
+      A2: {status: delayed, alerts: [citizen_delay_notice]}
+  required_tools: [list_overdue, get_workflow_state, get_step_sla, get_role_availability, draft_alert]

@@ -6,7 +6,10 @@ core2:
   invalid_json_retries: 1   # extra model call for one unparseable reply, then safe fallback
   invalid_args_retries: 2   # error observations (bad arguments, unknown tool) per run
   max_observation_chars: 900
-  max_prompt_chars: 7000    # ~1,750 tokens at 4 chars per token; context is 2,048
+  # Prompt size cap in characters, a PROXY for the 2,048-token context (docs/specs.md). JSON runs
+  # at roughly 3 to 3.5 characters per token (an estimate, not measured): measure with the real
+  # tokenizer before trusting it. Over the cap the agent stops with the safe fallback.
+  max_prompt_chars: 6500
   max_tokens: 200           # per model reply
   trajectory_log: data/simulated/core2_trajectories.jsonl
   # --- tools ------------------------------------------------------------------------------

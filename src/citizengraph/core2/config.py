@@ -28,7 +28,7 @@ class Core2Config(BaseModel):
     invalid_json_retries: int = Field(default=1, ge=0, le=3, strict=True)
     invalid_args_retries: int = Field(default=2, ge=0, le=8, strict=True)
     max_observation_chars: int = Field(default=900, ge=100, strict=True)
-    max_prompt_chars: int = Field(default=7000, ge=1000, strict=True)
+    max_prompt_chars: int = Field(default=6500, ge=1000, strict=True)
     max_tokens: int = Field(default=200, ge=16, strict=True)
     trajectory_log: str = "data/simulated/core2_trajectories.jsonl"
     row_limit: int = Field(default=10, ge=1, le=100, strict=True)

@@ -186,20 +186,20 @@ class Toolbox:
         return [
             ToolSpec(
                 "get_applications",
-                "List the applications for a reference code or a citizen code (compact rows).",
+                "Applications for a reference (CG-...) or citizen (CIT-...) code.",
                 (Param("ref", "id", "application reference (CG-...) or citizen code (CIT-...)"),),
                 self.get_applications,
             ),
             ToolSpec(
                 "get_workflow_state",
-                "Progress of one application now: current step, minutes in it, timestamp issues.",
+                "Current step of one application, minutes in it, timestamp issues.",
                 (app,),
                 self.get_workflow_state,
             ),
             ToolSpec(
                 "get_step_sla",
-                "Charter time and statutory cap for a step. With app_id it also compares that "
-                "application's time with both (exact, done in code).",
+                "Charter time and statutory cap of a step. With app_id: the exact comparison "
+                "for that application.",
                 (
                     Param("service_id", "id", "service id"),
                     Param("step_id", "id", "step id"),
@@ -209,8 +209,7 @@ class Toolbox:
             ),
             ToolSpec(
                 "working_days_elapsed",
-                "Working days after start up to and including end (weekends, holidays and "
-                "declared suspensions excluded).",
+                "Working days after start up to and including end.",
                 (
                     Param("start", "date", "start date YYYY-MM-DD"),
                     Param("end", "date", "end date YYYY-MM-DD"),
@@ -219,20 +218,19 @@ class Toolbox:
             ),
             ToolSpec(
                 "check_work_suspension",
-                "Is the date a declared work suspension, and is it a working day?",
+                "Is the date a declared work suspension? Is it a working day?",
                 (Param("date", "date", "date YYYY-MM-DD"),),
                 self.check_work_suspension,
             ),
             ToolSpec(
                 "get_step_roles",
-                "The role title (never a person's name) responsible for a step, if the charter "
-                "gives one.",
+                "Role title responsible for a step (never a person's name).",
                 (Param("step_id", "id", "step id"),),
                 self.get_step_roles,
             ),
             ToolSpec(
                 "get_role_availability",
-                "Is the role available (not marked absent) on a date?",
+                "Is the role marked absent on the date?",
                 (
                     Param("role", "role", "role title or role id from get_step_roles"),
                     Param("date", "date", "date YYYY-MM-DD"),
@@ -241,8 +239,8 @@ class Toolbox:
             ),
             ToolSpec(
                 "list_overdue",
-                "Applications of an office that are over their charter step time or the "
-                "statutory cap at as_of. External waits are never listed.",
+                "Office applications over the charter or statutory limit at as_of "
+                "(external waits are never listed).",
                 (
                     Param("office_id", "id", "office id, e.g. bplo, lcro, cho, cswdo"),
                     Param("as_of", "datetime", "local time YYYY-MM-DDTHH:MM"),
@@ -251,8 +249,7 @@ class Toolbox:
             ),
             ToolSpec(
                 "draft_alert",
-                "Draft an alert into the separate alert store (nothing else is written). Refused "
-                "when the facts do not support it.",
+                "Draft an alert into the alert store. Refused when the facts do not support it.",
                 (
                     app,
                     Param("kind", "enum", "alert kind", enum=ALERT_KINDS),
@@ -352,7 +349,6 @@ class Toolbox:
         if app is None:
             return self._not_found("application", app_id)
         state = workflow_state(app, self.graph)
-        service = self.graph.service(app.service_id)
         current = None
         if state.current is not None:
             entry = state.current_entry
@@ -370,9 +366,6 @@ class Toolbox:
         return {
             "app_id": app.app_id,
             "service_id": app.service_id,
-            "class": service.classification,
-            "submitted_at": fmt_dt(app.submitted_at),
-            "as_of": fmt_dt(self.now),
             "complete": state.complete,
             "steps_done": state.steps_done,
             "steps_total": len(state.steps),
@@ -391,17 +384,17 @@ class Toolbox:
         step = self._steps.get(step_id)
         if step is None or step.service_id != service_id:
             return self._not_found("step", step_id)
-        dtype = resolve_day_type(step, service_id, self._overrides())
-        allow = allowance(step, dtype, weekend_len=len(self.calendar.weekend))
         out: dict[str, Any] = {
-            "service_id": service_id,
             "step_id": step_id,
             "order": step.order,
             "class": service.classification,
-            "role": step.role,
             "external_agency": step.external_agency,
             "posting": True if step.id in self.config.posting_step_ids else None,
-            "charter": {
+        }
+        if app_id is None:
+            dtype = resolve_day_type(step, service_id, self._overrides())
+            allow = allowance(step, dtype, weekend_len=len(self.calendar.weekend))
+            out["charter"] = {
                 "basis": CHARTER_BASIS,
                 "comparable": allow.comparable,
                 "reason": allow.reason,
@@ -411,32 +404,33 @@ class Toolbox:
                 "unit": allow.unit,
                 "day_type": allow.day_type,
                 "allowed": _round(allow.allowed_minutes or allow.allowed_days),
-            },
-            "statutory": {
+            }
+            out["statutory"] = {
                 "basis": self.caps.basis,
                 "cap_working_days": self.caps.working_days.get(service.classification),
-            },
-        }
-        if app_id is not None:
-            app = self.store.get(app_id)
-            if app is None:
-                return self._not_found("application", app_id)
-            if app.service_id != service_id:
-                return {"error": "app_service_mismatch", "app_service": app.service_id}
-            out["check"] = self._check_block(app, step)
+            }
+            return out
+        app = self.store.get(app_id)
+        if app is None:
+            return self._not_found("application", app_id)
+        if app.service_id != service_id:
+            return {"error": "app_service_mismatch", "app_service": app.service_id}
+        out["check"] = self._check_block(app, step)
         return out
 
     def _check_block(self, app: Application, step: Step) -> dict[str, Any]:
         c = self._charter_check(app, step, self.now)
         s = self._statutory_check(app, self.now)
         return {
-            "as_of": fmt_dt(self.now),
             "charter": {
+                "basis": CHARTER_BASIS,
                 "verdict": c.verdict,
                 "reason": c.reason,
                 "measured": _round(c.measured),
                 "allowed": _round(c.allowed),
-                "kind": c.kind,
+                "unit": {"clock": "min", "working_days": "wd", "calendar_days": "cd"}.get(
+                    c.kind or ""
+                ),
                 "suspension_effect": True if c.suspension_effect else None,
                 "suspension_days": c.suspension_days or None,
             },
