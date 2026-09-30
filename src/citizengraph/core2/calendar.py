@@ -112,6 +112,23 @@ class Calendar:
                 left -= 1
         return d
 
+    def subtract_working_days(self, end: date | datetime, n: int) -> date:
+        """The latest working date ``d`` with exactly ``n`` working days in ``(d, end]``.
+
+        ``n = 0`` gives ``end``'s date, or the working day before it when ``end`` is not one.
+        """
+        if n < 0:
+            raise ValueError("n must not be negative")
+        d = as_date(end)
+        left = n
+        while left:
+            if self.is_working_day(d):
+                left -= 1
+            d -= timedelta(days=1)
+        while not self.is_working_day(d):
+            d -= timedelta(days=1)
+        return d
+
 
 def working_days_elapsed(
     start: date | datetime, end: date | datetime, calendar: Calendar | None = None

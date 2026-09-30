@@ -138,3 +138,15 @@ class TestCalendarObject:
         p.write_text("holidays: ['03/04/2026']\n", encoding="utf-8")
         with pytest.raises(ValueError):
             Calendar.from_yaml(p)
+
+
+class TestSubtract:
+    def test_is_the_inverse_of_working_days_elapsed(self):
+        c = cal(holidays=[WED], suspensions=[THU])
+        for n in range(1, 10):
+            start = c.subtract_working_days(NEXT_MON, n)
+            assert c.is_working_day(start)
+            assert working_days_elapsed(start, NEXT_MON, c) == n
+
+    def test_zero(self):
+        assert cal().subtract_working_days(TUE, 0) == TUE
