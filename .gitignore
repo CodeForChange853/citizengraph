@@ -9,6 +9,7 @@ node_modules/
 dist/
 .pytest_cache/
 .ruff_cache/
+*.egg-info/
 # never commit real citizen data or model artifacts
 data/private/
 models/
