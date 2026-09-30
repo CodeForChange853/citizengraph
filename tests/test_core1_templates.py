@@ -1,0 +1,260 @@
+"""Canonical Cypher templates: one source of truth for Core 1 (and its fallback / baseline)."""
+
+from __future__ import annotations
+
+import dataclasses
+import re
+from collections import defaultdict
+from pathlib import Path
+
+import pytest
+import yaml
+
+from citizengraph.core1 import templates as T
+from citizengraph.core1.slots import INTENTS, Slots
+from citizengraph.graph import InMemoryGraph
+from citizengraph.guardrail.lexer import PARAM, STRING, tokenize
+from citizengraph.guardrail.schema import OFFICIAL_SCHEMA, Schema
+from citizengraph.guardrail.validator import validate_cypher
+
+ROOT = Path(__file__).resolve().parents[1]
+ALL = sorted(T.TEMPLATES.values(), key=lambda t: t.key)
+
+
+def slots(intent="requirements", variants=None, service_id="business_permit"):
+    return Slots(
+        service_id=service_id,
+        intent=intent,
+        variants=variants or {},
+        phrase="x",
+        language="en",
+    )
+
+
+def params_in(cypher: str) -> set[str]:
+    return {t.value.lstrip("$") for t in tokenize(cypher) if t.kind == PARAM}
+
+
+def ids(t: T.Template) -> str:
+    return f"{t.intent}-{t.shape}-{'filtered' if t.filtered else 'plain'}"
+
+
+# ---- every template passes the guardrail (the rule this module lives by) ----------------------
+
+
+@pytest.mark.parametrize("template", ALL, ids=ids)
+def test_every_template_passes_the_guardrail(template):
+    result = validate_cypher(template.cypher)
+    assert result.ok, result.reasons
+
+
+@pytest.mark.parametrize("template", ALL, ids=ids)
+def test_templates_contain_no_literal_ids(template):
+    assert not [t for t in tokenize(template.cypher) if t.kind == STRING]
+    seed_words = {s.id for s in InMemoryGraph.from_dir().services()}
+    assert not [w for w in seed_words if w in template.cypher]
+
+
+# ---- parameter contract ------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("template", ALL, ids=ids)
+def test_parameters_are_exactly_the_documented_ones(template):
+    used = params_in(template.cypher)
+    assert used <= {"sid", "variant_ids"}
+    assert template.params == tuple(sorted(used))
+    assert "sid" in used
+    assert ("variant_ids" in used) == template.filtered
+
+
+def test_the_contract_is_documented_in_the_module():
+    doc = T.__doc__ or ""
+    for needle in ("$sid", "$variant_ids", "dimension:value", "Service.id"):
+        assert needle in doc
+
+
+# ---- coverage ----------------------------------------------------------------------------------
+
+
+def test_every_core1_intent_has_a_plain_list_template():
+    assert T.CORE1_INTENTS == tuple(i for i in INTENTS if i != "status")
+    for intent in T.CORE1_INTENTS:
+        assert (intent, "list", False) in T.TEMPLATES
+
+
+def test_the_required_multi_hop_shapes_exist():
+    text = {(t.intent, t.shape): t.cypher for t in ALL}
+    assert "[:CHARGES]" in text[("fees", "per_step")]
+    go_first = text[("where_to_secure", "go_first")]
+    assert "[:SATISFIED_BY]" in go_first and "[:IS_OFFICE]" in go_first
+    assert "count(" in text[("requirements", "count")]
+    assert "count(" in text[("steps", "count")]
+
+
+def test_variant_filters_exist_only_where_the_graph_can_filter():
+    filtered = {(t.intent, t.shape) for t in ALL if t.filtered}
+    assert filtered == {
+        ("requirements", "list"),
+        ("requirements", "count"),
+        ("fees", "list"),
+        ("fees", "per_step"),
+        ("where_to_secure", "list"),
+        ("where_to_secure", "go_first"),
+    }
+    for intent, shape in filtered:
+        assert T.supports_variants(intent, shape)
+        assert (intent, shape, False) in T.TEMPLATES
+    assert not T.supports_variants("steps", "list")
+    assert not T.supports_variants("office", "list")
+
+
+def test_templates_are_distinct():
+    texts = [t.cypher for t in ALL]
+    assert len(set(texts)) == len(texts)
+
+
+def test_row_limit_fits_the_configured_maximum():
+    limits = yaml.safe_load((ROOT / "config" / "limits.yaml").read_text(encoding="utf-8"))
+    assert T.ROW_LIMIT <= limits["core1"]["cypher_limit_max"]
+    for t in ALL:
+        assert re.search(r"LIMIT \d+\Z", t.cypher)
+
+
+def test_the_seed_fits_in_the_row_limit():
+    graph = InMemoryGraph.from_dir()
+    for s in graph.services():
+        assert len(graph.requirements(s.id)) <= T.ROW_LIMIT
+        assert len(graph.fees(s.id)) <= T.ROW_LIMIT
+        assert len(graph.steps(s.id)) <= T.ROW_LIMIT
+
+
+# ---- selection ---------------------------------------------------------------------------------
+
+
+def test_status_is_not_a_core1_intent():
+    with pytest.raises(T.NotCore1Intent):
+        T.select_template(slots("status"))
+
+
+def test_unknown_shape_is_an_error():
+    with pytest.raises(ValueError):
+        T.select_template(slots("office"), shape="count")
+
+
+def test_select_uses_the_filtered_template_only_when_variants_are_given_and_supported():
+    assert not T.select_template(slots("requirements")).filtered
+    assert T.select_template(slots("requirements", {"business_type": "corporation"})).filtered
+    assert T.select_template(slots("fees", {"taxpayer": "company"}), "per_step").filtered
+    # the graph has no variant links on steps: the variants are ignored, not turned into a filter
+    assert not T.select_template(slots("steps", {"business_type": "corporation"})).filtered
+
+
+def test_build_query_returns_the_documented_parameters():
+    q = T.build_query(
+        slots("requirements", {"business_type": "corporation", "applicant_type": "new"})
+    )
+    assert q.params == {
+        "sid": "business_permit",
+        "variant_ids": ["applicant_type:new", "business_type:corporation"],
+    }
+    assert validate_cypher(q.cypher).ok
+    plain = T.build_query(slots("steps", {"business_type": "corporation"}))
+    assert plain.params == {"sid": "business_permit"}
+
+
+def test_query_text_never_depends_on_the_service_or_variant_values():
+    a = T.build_query(slots("fees", {"taxpayer": "company"}, "occupational_permit"))
+    b = T.build_query(slots("fees", {"business_type": "association"}, "business_permit"))
+    assert a.cypher == b.cypher
+
+
+# ---- the schema is read at runtime -------------------------------------------------------------
+
+
+def test_a_property_removed_from_the_schema_disappears_from_the_templates():
+    smaller = Schema(
+        labels=OFFICIAL_SCHEMA.labels,
+        relationship_types=OFFICIAL_SCHEMA.relationship_types,
+        properties=OFFICIAL_SCHEMA.properties - {"min_required", "note"},
+    )
+    built = T.build_templates(smaller)
+    assert built.keys() == T.TEMPLATES.keys()
+    joined = "\n".join(t.cypher for t in built.values())
+    assert "min_required" not in joined and "note" not in joined
+    assert "min_required" in "\n".join(t.cypher for t in T.TEMPLATES.values())
+    for t in built.values():
+        assert validate_cypher(t.cypher, schema=smaller).ok
+
+
+def test_the_property_catalog_covers_the_whole_allow_list():
+    """If this fails, a property was added to guardrail/schema.py: say which label owns it in
+    NODE_PROPERTIES (core1/templates.py); the templates and prompts then follow by themselves."""
+    catalogued = {p for props in T.NODE_PROPERTIES.values() for p in props}
+    assert catalogued == set(OFFICIAL_SCHEMA.properties)
+    assert set(T.NODE_PROPERTIES) == set(OFFICIAL_SCHEMA.labels)
+    assert {rel for _, rel, _ in T.RELATIONSHIPS} == set(OFFICIAL_SCHEMA.relationship_types)
+
+
+def test_usage_reports_what_each_intent_needs():
+    labels, rels, props = T.usage("fees")
+    assert {"Service", "Fee", "Step", "Variant"} <= labels
+    assert {"HAS_FEE", "CHARGES", "APPLIES_WHEN", "HAS_STEP"} <= rels
+    assert {"amount_min", "amount_max", "dimension"} <= props
+    labels, rels, props = T.usage("office")
+    assert labels == {"Office", "Service"} and rels == {"OFFERS"}
+    assert props == {"id", "name"}
+
+
+# ---- the variant filter means what InMemoryGraph means -----------------------------------------
+# No Neo4j here, so the filter's logic is restated in Python, literally as the Cypher reads
+# (drop a record when it links a variant whose dimension the caller gave and none of the
+# record's links in that dimension was asked for). The real-Neo4j comparison is in
+# test_core1_templates_integration.py.
+
+
+def cypher_filter_keeps(record_variant_ids: list[str], asked: list[str], catalogue) -> bool:
+    by_id = {v.id: v for v in catalogue}
+    for vid in record_variant_ids:  # MATCH (r)-[:APPLIES_WHEN]->(v:Variant)
+        v = by_id[vid]
+        dimension_given = any(by_id[x].dimension == v.dimension for x in asked)  # EXISTS x
+        asked_link_same_dimension = any(  # EXISTS w
+            w in asked and by_id[w].dimension == v.dimension for w in record_variant_ids
+        )
+        if dimension_given and not asked_link_same_dimension:
+            return False  # NOT EXISTS { ... } fails
+    return True
+
+
+def test_the_filter_logic_agrees_with_the_in_memory_graph_on_every_combination():
+    graph = InMemoryGraph.from_dir()
+    catalogue = graph.seed.variants
+    by_dimension: dict[str, list[str]] = defaultdict(list)
+    for v in catalogue:
+        by_dimension[v.dimension].append(v.value)
+    # every selection of at most one value per dimension, including dimensions a service
+    # does not link at all (they must not filter anything)
+    combos: list[dict[str, str]] = [{}]
+    for dimension, values in by_dimension.items():
+        combos += [{**c, dimension: value} for c in combos for value in values]
+    checked = 0
+    for svc in graph.seed.services:
+        requirements = [r for r in graph.seed.requirements if r.service_id == svc.id]
+        fees = [f for f in graph.seed.fees if f.service_id == svc.id]
+        for combo in combos:
+            asked = sorted(f"{d}:{value}" for d, value in combo.items())
+            for records, want in (
+                (requirements, graph.requirements(svc.id, combo)),
+                (fees, graph.fees(svc.id, combo)),
+            ):
+                got = {
+                    x.id for x in records if cypher_filter_keeps(x.variant_ids, asked, catalogue)
+                }
+                assert got == {x.id for x in want}, (svc.id, combo)
+            checked += 1
+    assert checked > 1000
+
+
+def test_templates_are_frozen():
+    t = ALL[0]
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        t.cypher = "MATCH (n) RETURN n LIMIT 1"

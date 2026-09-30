@@ -1,0 +1,385 @@
+# Phrase templates for the synthetic training questions.
+#
+# Written by us by hand. No LLM API output, and nothing from eval/heldout/ (never read).
+# Only questions live here: no answer text from the charters.
+#
+# NEEDS-NATIVE-REVIEW: every `fil` and `mixed` string in this file (service names, variant
+# phrases, connectors, frames and families) is unverified Filipino or Taglish. A native speaker
+# must review it (CLAUDE.md rule 8). The full list is in docs/training_notes.md.
+#
+# Language labels: en = English; fil = predominantly Filipino (nativized loanwords such as
+# "permit" or "requirements" are fine); mixed = Taglish, Filipino frame with English clauses.
+#
+# Syntax: {service} is replaced by a service name; <a|b> picks one alternative (<a|> is optional).
+# A family is a list of paraphrases that always travel together into ONE split (train,
+# validation or test_synthetic); the dataset is split by family so paraphrases cannot leak.
+# Family ids are "<intent>.<shape>.<language>.<index starting at 1>".
+
+version: 1
+
+# Colloquial names. The official name from graph/seed/services.yaml is always used as well.
+service_names:
+  business_permit:
+    en: ["business permit", "permit to operate a business", "mayor's permit"]
+    fil: ["permit sa negosyo", "business permit"]
+  occupational_permit:
+    en: ["occupational permit", "worker's permit"]
+    fil: ["permit sa pagtatrabaho", "occupational permit"]
+  product_promotion_peddlers:
+    en: ["product promotion permit", "peddler's permit"]
+    fil: ["permit para sa mga peddler", "permit sa promosyon ng produkto"]
+  cockfight_permit:
+    en: ["cockfight permit", "permit for cockfighting"]
+    fil: ["permit sa sabong", "permit para sa sabong"]
+  fishing_permit:
+    en: ["fishing permit", "permit to fish"]
+    fil: ["permit sa pangingisda", "fishing permit"]
+  birth_registration_timely:
+    en: ["birth registration", "registering a birth on time", "birth certificate registration"]
+    fil: ["pagpaparehistro ng kapanganakan", "pagpaparehistro ng birth certificate"]
+  birth_registration_delayed:
+    en: ["late birth registration", "delayed birth registration", "delayed registration of birth"]
+    fil: ["naantalang pagpaparehistro ng kapanganakan", "late na pagpaparehistro ng birth"]
+  marriage_registration_timely:
+    en: ["marriage registration", "registering a marriage", "marriage certificate registration"]
+    fil: ["pagpaparehistro ng kasal", "pagpaparehistro ng marriage certificate"]
+  death_registration_timely:
+    en: ["death registration", "registering a death", "death certificate registration"]
+    fil: ["pagpaparehistro ng pagkamatay", "pagpaparehistro ng death certificate"]
+  certified_transcription:
+    en: ["certified copy of a civil registry document", "certified transcription"]
+    fil: ["certified copy ng dokumento sa civil registry", "sertipikadong kopya ng civil registry"]
+  court_order_registration:
+    en: ["registration of a court order", "court order registration"]
+    fil: ["pagpaparehistro ng court order", "pagpaparehistro ng utos ng korte"]
+  ausf_registration:
+    en: ["AUSF registration", "affidavit to use the surname of the father"]
+    fil: ["pagpaparehistro ng AUSF", "affidavit para gamitin ang apelyido ng ama"]
+  legal_instrument_other:
+    en: ["registration of a legal instrument", "legal instrument registration"]
+    fil: ["pagpaparehistro ng legal instrument", "pagpaparehistro ng legal na dokumento"]
+  cswdo_referrals:
+    en: ["social welfare referral", "referral from the social welfare office"]
+    fil: ["referral ng social welfare", "referral sa social welfare"]
+  cho_routine_immunization:
+    en: ["routine immunization", "child vaccination"]
+    fil: ["regular na bakuna", "bakuna para sa bata"]
+  cho_prenatal_consultation:
+    en: ["prenatal consultation", "prenatal check-up"]
+    fil: ["prenatal na konsultasyon", "pagpapatingin para sa buntis"]
+  cho_family_planning:
+    en: ["family planning", "family planning services"]
+    fil: ["family planning", "pagpaplano ng pamilya"]
+  cho_pharmacy_services:
+    en: ["pharmacy services", "medicine from the health office pharmacy"]
+    fil: ["serbisyo ng botika", "gamot mula sa botika ng health office"]
+  cho_death_certificate:
+    en: ["death certificate from the health office", "death certificate issuance"]
+    fil: ["death certificate mula sa health office", "pagkuha ng death certificate"]
+  cho_cadaver_transfer_permit:
+    en: ["permit to transfer a cadaver", "permit to move a dead body"]
+    fil: ["permit para ilipat ang bangkay", "permit sa paglilipat ng bangkay"]
+  cho_sanitary_permit:
+    en: ["sanitary permit", "sanitary permit for a business"]
+    fil: ["sanitary permit", "permit pang-sanitasyon"]
+  cho_dental_services:
+    en: ["dental services", "dental check-up"]
+    fil: ["serbisyong dental", "pagpapagamot ng ngipin"]
+  cho_animal_bite_center:
+    en: ["animal bite center services", "animal bite treatment"]
+    fil: ["serbisyo ng animal bite center", "gamutan sa kagat ng hayop"]
+  cho_post_mortem_examination:
+    en: ["post-mortem examination", "postmortem exam"]
+    fil: ["post-mortem examination", "pagsusuri sa bangkay"]
+  cho_medico_legal_consultation:
+    en: ["medico-legal consultation", "medico-legal exam"]
+    fil: ["medico-legal na konsultasyon", "medico-legal consultation"]
+  cho_medical_certificate:
+    en: ["medical certificate for employment", "medical certificate for work"]
+    fil: ["medical certificate para sa trabaho", "medical certificate para sa pagtatrabaho"]
+
+# How a citizen might say each variant value (id = dimension:value, graph/seed/variants.yaml).
+variants:
+  "business_type:single_proprietor":
+    en: ["a single proprietorship", "single proprietor"]
+    fil: ["single proprietor", "sole proprietor"]
+  "business_type:corporation":
+    en: ["a corporation", "corporation"]
+    fil: ["korporasyon", "corporation"]
+  "business_type:association":
+    en: ["an association", "association"]
+    fil: ["asosasyon", "association"]
+  "applicant_type:new":
+    en: ["a new business", "new application"]
+    fil: ["bagong negosyo", "bagong aplikasyon"]
+  "taxpayer:company":
+    en: ["a company", "company taxpayer"]
+    fil: ["kompanya", "company"]
+  "taxpayer:individual":
+    en: ["an individual", "individual taxpayer"]
+    fil: ["indibidwal", "individual"]
+  "cockfight_category:MD":
+    en: ["MD category", "category MD"]
+    fil: ["kategoryang MD", "MD"]
+  "cockfight_category:Derby":
+    en: ["Derby category", "a derby"]
+    fil: ["kategoryang Derby", "derby"]
+  "cockfight_category:2C":
+    en: ["2C category", "category 2C"]
+    fil: ["kategoryang 2C", "2C"]
+  "cockfight_category:3C":
+    en: ["3C category", "category 3C"]
+    fil: ["kategoryang 3C", "3C"]
+  "cockfight_category:4C":
+    en: ["4C category", "category 4C"]
+    fil: ["kategoryang 4C", "4C"]
+  "cockfight_category:5C":
+    en: ["5C category", "category 5C"]
+    fil: ["kategoryang 5C", "5C"]
+  "birth_status:marital":
+    en: ["parents who are married", "a child of married parents"]
+    fil: ["magulang na kasal", "anak ng mag-asawang kasal"]
+  "birth_status:non_marital":
+    en: ["parents who are not married", "a child of unmarried parents"]
+    fil: ["magulang na hindi kasal", "anak ng magulang na hindi kasal"]
+  "foreign_parent:yes":
+    en: ["a foreign parent", "one parent is a foreigner"]
+    fil: ["magulang na dayuhan", "may magulang na dayuhan"]
+
+# How a variant phrase is attached to a question (the question's final "?" or "." is removed
+# first). Shared by all families: they carry no intent wording.
+variant_frames:
+  en: ["{base} ({variant})", "{base} - {variant}", "{variant}: {base}", "{base}, {variant}"]
+  fil: ["{base} ({variant})", "{base} - {variant}", "{variant}: {base}", "{base}, para sa {variant}"]
+  mixed: ["{base} ({variant})", "{base} - {variant}", "{variant}: {base}", "{base}, for {variant}"]
+variant_joiners:
+  en: [" and ", ", "]
+  fil: [" at ", ", "]
+  mixed: [" and ", " at ", ", "]
+
+families:
+  requirements:
+    list:
+      en:
+        - ["What are the requirements for {service}?", "What requirements do I need for {service}?"]
+        - ["List of documents needed for {service}", "Documents to bring for {service}"]
+        - ["I want to apply for {service}. What should I prepare?", "I am applying for {service}, what do I prepare?"]
+        - ["what do i need to submit for {service}", "what papers do i need for {service}"]
+        - ["{service} requirements", "Checklist for {service}<, please|>"]
+        - ["<Hi, |Good day, >can you tell me what is required to get {service}?", "<Hello, |>what is required for {service}?"]
+      fil:
+        - ["Ano ang mga requirements para sa {service}?", "Ano-ano ang mga requirements sa {service}?"]
+        - ["Anong mga dokumento ang kailangan para sa {service}?", "Anong dokumento ang kailangan sa {service}?"]
+        - ["Ano ang dapat kong ihanda para sa {service}?", "Ano ang dapat kong dalhin para sa {service}?"]
+        - ["Ano ang mga papeles na kailangan sa {service}?", "Ano ang mga papeles para sa {service}?"]
+        - ["Pakisabi po kung ano ang kailangan sa {service}.", "Pakisabi po ang mga kailangan para sa {service}."]
+        - ["Mga kailangan para sa {service}, ano po ba?", "Mga requirements sa {service}, ano po?"]
+      mixed:
+        - ["Ano ang requirements for {service}?", "Ano po ang requirements for {service}?"]
+        - ["What documents ang kailangan for {service}?", "What papers ang kailangan sa {service}?"]
+        - ["Pwede ba malaman ang requirements ng {service}?", "Pwede po bang malaman ang requirements sa {service}?"]
+        - ["May checklist ba kayo ng requirements for {service}?", "May list ba ng requirements for {service}?"]
+        - ["Anong documents ang dadalhin ko for {service}?", "Anong papers ang ihahanda ko for {service}?"]
+        - ["{service} requirements po, ano ang needed?", "{service}, ano ang mga needed documents?"]
+    count:
+      en:
+        - ["How many requirements do I need for {service}?", "How many requirements does {service} have?"]
+        - ["How many documents are needed for {service}?", "How many documents do I need to bring for {service}?"]
+        - ["Number of requirements for {service}", "Number of documents for {service}"]
+        - ["how many papers do i bring for {service}", "how many things do i need for {service}"]
+      fil:
+        - ["Ilan ang mga kailangan para sa {service}?", "Ilan ang mga kailangan sa {service}?"]
+        - ["Ilang dokumento ang kailangan sa {service}?", "Ilang dokumento ang kailangan para sa {service}?"]
+        - ["Ilang papeles ang dadalhin ko para sa {service}?", "Ilang papeles ang kailangan sa {service}?"]
+        - ["Ilang requirements ang kailangan sa {service}?", "Ilang requirements po ang {service}?"]
+      mixed:
+        - ["Ilan ang requirements for {service}?", "Ilan po ang requirements ng {service}?"]
+        - ["How many documents ang kailangan sa {service}?", "How many papers ang kailangan for {service}?"]
+        - ["Ilang requirements po ang needed for {service}?", "Ilang documents po ang needed sa {service}?"]
+        - ["Ilan ang documents na dadalhin for {service}?", "Ilan ang papers na ihahanda for {service}?"]
+  fees:
+    list:
+      en:
+        - ["How much is {service}?", "How much does {service} cost?"]
+        - ["What is the fee for {service}?", "What are the fees for {service}?"]
+        - ["How much do I need to pay for {service}?", "How much should I pay for {service}?"]
+        - ["fees for {service}", "{service} fee"]
+        - ["Can you tell me the cost of {service}?", "<Hi, |>could you tell me the price of {service}?"]
+        - ["Is there a fee for {service}, and how much?", "Do I have to pay for {service}, and how much?"]
+      fil:
+        - ["Magkano ang bayad sa {service}?", "Magkano ang bayad para sa {service}?"]
+        - ["Magkano po ang babayaran para sa {service}?", "Magkano po ang babayaran sa {service}?"]
+        - ["Ano ang bayarin sa {service}?", "Ano ang mga bayarin para sa {service}?"]
+        - ["Magkano ang kailangan kong bayaran sa {service}?", "Magkano ang dapat kong bayaran para sa {service}?"]
+        - ["Magkano ang singil sa {service}?", "Magkano ang singil para sa {service}?"]
+        - ["May bayad ba ang {service}, magkano?", "May babayaran ba sa {service}, magkano po?"]
+      mixed:
+        - ["Magkano ang fee for {service}?", "Magkano po ang fee ng {service}?"]
+        - ["How much ang babayaran ko sa {service}?", "How much ang bayad sa {service}?"]
+        - ["Ano ang fees ng {service}?", "Ano po ang mga fees for {service}?"]
+        - ["Magkano po ang payment for {service}?", "Magkano ang payment sa {service}?"]
+        - ["May fee ba ang {service}? how much?", "May fee ba sa {service}, how much po?"]
+        - ["{service} fee po, magkano?", "{service} fee, magkano ang babayaran?"]
+    per_step:
+      en:
+        - ["How much do I pay at each step of {service}?", "How much do I pay in each step of {service}?"]
+        - ["Which step of {service} do I pay at, and how much?", "At which step do I pay for {service}, and how much?"]
+        - ["Breakdown of the fees per step for {service}", "Fees per step for {service}"]
+        - ["What payment is made at each step of {service}?", "What do I pay at every step of {service}?"]
+      fil:
+        - ["Magkano ang babayaran sa bawat hakbang ng {service}?", "Magkano ang bayad sa bawat hakbang ng {service}?"]
+        - ["Sa aling hakbang ako magbabayad sa {service}, at magkano?", "Sa anong hakbang ang bayad sa {service}, at magkano?"]
+        - ["Ilang bayad ang mayroon sa bawat hakbang ng {service}?", "Mga bayad sa bawat hakbang ng {service}"]
+        - ["Ano ang binabayaran sa bawat hakbang ng {service}?", "Ano ang mga bayad sa bawat hakbang sa {service}?"]
+      mixed:
+        - ["Magkano ang payment sa bawat step ng {service}?", "Magkano ang babayaran sa bawat step ng {service}?"]
+        - ["Saang step ako magbabayad sa {service}, at magkano?", "Sa anong step ang payment ng {service}, magkano?"]
+        - ["May fee ba per step ng {service}? magkano each?", "Fee per step ng {service}, magkano po?"]
+        - ["Ano ang fees sa bawat step ng {service}?", "Ano ang bayad per step sa {service}?"]
+  steps:
+    list:
+      en:
+        - ["What are the steps for {service}?", "What are the steps to get {service}?"]
+        - ["How does {service} work, step by step?", "Step by step process of {service}"]
+        - ["Walk me through the process of {service}", "Please walk me through {service}"]
+        - ["What is the procedure for {service}?", "What is the procedure to get {service}?"]
+        - ["process for {service}", "{service} process"]
+        - ["What do I do first, and then next, for {service}?", "What do I do first for {service}, and what comes after?"]
+      fil:
+        - ["Ano ang mga hakbang sa {service}?", "Ano ang mga hakbang para sa {service}?"]
+        - ["Paano ang proseso ng {service}?", "Paano po ang proseso sa {service}?"]
+        - ["Paano kumuha ng {service}?", "Paano po kumuha ng {service}?"]
+        - ["Ano ang mga dapat gawin sa {service}, isa-isa?", "Ano ang mga gagawin ko sa {service}, isa-isa?"]
+        - ["Pakipaliwanag po ang proseso ng {service}.", "Pakipaliwanag ang mga hakbang sa {service}."]
+        - ["Ano ang una kong gagawin sa {service}, at ano ang susunod?", "Ano ang una at susunod na gagawin sa {service}?"]
+      mixed:
+        - ["Ano ang steps for {service}?", "Ano po ang mga steps sa {service}?"]
+        - ["Paano ang process ng {service}?", "Paano po ang process sa {service}?"]
+        - ["Pa-explain naman ng process for {service}", "Pa-explain po ng steps sa {service}"]
+        - ["What are the steps para makakuha ng {service}?", "What are the steps para sa {service}?"]
+        - ["Step by step ng {service}, paano?", "Step by step po ng {service}, paano ba?"]
+        - ["Ano ang procedure sa {service}?", "Ano po ang procedure for {service}?"]
+    count:
+      en:
+        - ["How many steps are there in {service}?", "How many steps are there for {service}?"]
+        - ["How many steps does {service} have?", "How many steps does {service} take?"]
+        - ["Number of steps for {service}", "Number of steps in {service}"]
+        - ["how many steps to get {service}", "how many steps until i get {service}"]
+      fil:
+        - ["Ilan ang hakbang sa {service}?", "Ilan ang mga hakbang sa {service}?"]
+        - ["Ilang hakbang ang {service}?", "Ilang hakbang po ang {service}?"]
+        - ["Ilang proseso ang dadaanan sa {service}?", "Ilang proseso ang pagdadaanan sa {service}?"]
+        - ["Ilang hakbang ang kailangang gawin para sa {service}?", "Ilang hakbang ang gagawin ko sa {service}?"]
+      mixed:
+        - ["Ilan ang steps sa {service}?", "Ilan po ang steps ng {service}?"]
+        - ["How many steps ang {service}?", "How many steps po ang {service}?"]
+        - ["Ilang steps bago makakuha ng {service}?", "Ilang steps bago matapos ang {service}?"]
+        - ["Ilan ba ang process steps ng {service}?", "Ilan ang mga process steps for {service}?"]
+  processing_time:
+    list:
+      en:
+        - ["How long does {service} take?", "How long will {service} take?"]
+        - ["How many days to get {service}?", "How many days does {service} take?"]
+        - ["What is the processing time for {service}?", "What is the processing time of {service}?"]
+        - ["When will {service} be ready?", "When can I get {service}?"]
+        - ["how long is the wait for {service}", "how long do i wait for {service}"]
+        - ["Is {service} done the same day, or does it take longer?", "Is {service} quick, or does it take days?"]
+      fil:
+        - ["Gaano katagal ang {service}?", "Gaano po katagal ang {service}?"]
+        - ["Ilang araw bago makuha ang {service}?", "Ilang araw bago matapos ang {service}?"]
+        - ["Gaano katagal ang proseso ng {service}?", "Gaano katagal ang proseso sa {service}?"]
+        - ["Kailan matatapos ang {service}?", "Kailan makukuha ang {service}?"]
+        - ["Gaano katagal maghihintay para sa {service}?", "Gaano katagal ang paghihintay sa {service}?"]
+        - ["Isang araw lang ba o matagal ang {service}?", "Mabilis ba o matagal ang {service}?"]
+      mixed:
+        - ["How long ang process ng {service}?", "How long po ang process ng {service}?"]
+        - ["Gaano katagal ang processing time ng {service}?", "Gaano katagal ang processing time for {service}?"]
+        - ["Ilang days bago makuha ang {service}?", "Ilang days bago matapos ang {service}?"]
+        - ["Kailan ba ready ang {service}?", "Kailan po ready ang {service}?"]
+        - ["Processing time po ng {service}, gaano katagal?", "Processing time ng {service}, gaano ba katagal?"]
+        - ["Matagal ba ang {service}, how many days?", "Mabilis ba ang {service}, how many days?"]
+  where_to_secure:
+    list:
+      en:
+        - ["Where do I get the documents for {service}?", "Where do I get the papers for {service}?"]
+        - ["Where can I secure the requirements for {service}?", "Where can I get the requirements for {service}?"]
+        - ["Where do I get the requirements needed for {service}?", "Where do I obtain the requirements for {service}?"]
+        - ["which office issues the documents i need for {service}", "which office gives the papers i need for {service}"]
+        - ["Where to get the requirements of {service}", "Where to secure the documents of {service}"]
+        - ["Where should I go to get my requirements for {service}?", "Where should I go for the documents of {service}?"]
+      fil:
+        - ["Saan kukunin ang mga requirements para sa {service}?", "Saan kukunin ang mga requirements sa {service}?"]
+        - ["Saan ako kukuha ng mga dokumento para sa {service}?", "Saan ako kukuha ng dokumento sa {service}?"]
+        - ["Saan makakakuha ng mga papeles para sa {service}?", "Saan makakakuha ng mga papeles sa {service}?"]
+        - ["Saan ko makukuha ang mga kailangan sa {service}?", "Saan ko makukuha ang mga kailangan para sa {service}?"]
+        - ["Saan po nakukuha ang requirements ng {service}?", "Saan po nakukuha ang mga dokumento ng {service}?"]
+        - ["Saang opisina ako kukuha ng dokumento para sa {service}?", "Saang opisina ako kukuha ng requirements sa {service}?"]
+      mixed:
+        - ["Saan ko kukunin ang requirements for {service}?", "Saan ko kukunin ang documents for {service}?"]
+        - ["Where kukuha ng documents for {service}?", "Where ako kukuha ng requirements for {service}?"]
+        - ["Saan pwede makuha ang requirements ng {service}?", "Saan pwede makuha ang documents ng {service}?"]
+        - ["Saan ko ma-secure ang documents for {service}?", "Saan ko ma-secure ang requirements ng {service}?"]
+        - ["Where po makakakuha ng papers para sa {service}?", "Where po makukuha ang requirements ng {service}?"]
+        - ["Saan nagmumula ang mga documents for {service}?", "Saan galing ang mga requirements ng {service}?"]
+    go_first:
+      en:
+        - ["Which office do I need to visit first before {service}?", "Which office should I visit first before {service}?"]
+        - ["Do I need to get anything from another office before {service}?", "Is there anything I must get from another office before {service}?"]
+        - ["Where do I go first for {service}?", "Which office do I go to first for {service}?"]
+        - ["Is there something I must get from a different office first for {service}?", "Do I have to go to a different office first for {service}?"]
+      fil:
+        - ["Saang opisina ako dapat pumunta muna bago ang {service}?", "Saang opisina ako unang pupunta bago ang {service}?"]
+        - ["May kailangan ba akong kunin sa ibang opisina bago ang {service}?", "May kailangan ba akong kunin muna sa ibang opisina para sa {service}?"]
+        - ["Saan ako unang pupunta para sa {service}?", "Saan ako dapat unang pumunta para sa {service}?"]
+        - ["Mayroon bang dapat kunin muna sa ibang opisina para sa {service}?", "Kailangan ko bang pumunta muna sa ibang opisina para sa {service}?"]
+      mixed:
+        - ["Saan ako pupunta first for {service}?", "Saan po ako pupunta first para sa {service}?"]
+        - ["May kailangan ba akong kunin sa ibang office before {service}?", "May kailangan ba akong kunin from another office before {service}?"]
+        - ["Which office muna ang pupuntahan ko bago ang {service}?", "Anong office muna ang pupuntahan ko before {service}?"]
+        - ["May requirement ba from another office para sa {service}?", "May requirement ba galing sa ibang office para sa {service}?"]
+  who_may_avail:
+    list:
+      en:
+        - ["Who can apply for {service}?", "Who can request {service}?"]
+        - ["Who is eligible for {service}?", "Who is qualified for {service}?"]
+        - ["Who may avail of {service}?", "Who can avail of {service}?"]
+        - ["Am I qualified to get {service}?", "Am I allowed to get {service}?"]
+        - ["Who is allowed to request {service}?", "Who is allowed to apply for {service}?"]
+        - ["Is {service} open to everyone or only to some people?", "Is {service} for everyone?"]
+      fil:
+        - ["Sino ang maaaring mag-apply sa {service}?", "Sino ang maaaring kumuha ng {service}?"]
+        - ["Sino ang puwedeng kumuha ng {service}?", "Sino ang puwedeng humingi ng {service}?"]
+        - ["Sino ang kwalipikado para sa {service}?", "Sino ang kwalipikado sa {service}?"]
+        - ["Para kanino ang {service}?", "Para kanino po ang {service}?"]
+        - ["Sino ang maaaring humiling ng {service}?", "Sino ang pinapayagang humiling ng {service}?"]
+        - ["Maaari ba akong kumuha ng {service}?", "Puwede ba akong kumuha ng {service}?"]
+      mixed:
+        - ["Who can avail ng {service}?", "Who can avail po ng {service}?"]
+        - ["Sino ang eligible sa {service}?", "Sino po ang eligible sa {service}?"]
+        - ["Pwede ba akong mag-apply for {service}?", "Pwede po ba akong mag-apply sa {service}?"]
+        - ["Sino ba ang qualified for {service}?", "Sino po ang qualified sa {service}?"]
+        - ["Open ba sa lahat ang {service}?", "Open po ba sa lahat ang {service}?"]
+        - ["Sino ang allowed mag-request ng {service}?", "Sino ang allowed mag-apply sa {service}?"]
+  office:
+    list:
+      en:
+        - ["Which office handles {service}?", "Which office processes {service}?"]
+        - ["Which office do I go to for {service}?", "Which office should I go to for {service}?"]
+        - ["What office should I visit for {service}?", "What office do I visit for {service}?"]
+        - ["Where is {service} processed?", "Where is {service} handled?"]
+        - ["Which department issues {service}?", "Which department handles {service}?"]
+        - ["where can i apply for {service}", "where do i apply for {service}"]
+      fil:
+        - ["Saang opisina ang {service}?", "Saang opisina po ang {service}?"]
+        - ["Saan ako pupunta para sa {service}?", "Saan po ako pupunta para sa {service}?"]
+        - ["Anong opisina ang humahawak ng {service}?", "Anong opisina ang nag-aasikaso ng {service}?"]
+        - ["Saan po nag-aasikaso ng {service}?", "Saan nag-aasikaso ng {service}?"]
+        - ["Saan ako mag-aapply ng {service}?", "Saan ako pwedeng mag-apply ng {service}?"]
+        - ["Anong tanggapan ang may hawak ng {service}?", "Anong tanggapan ang nag-aasikaso ng {service}?"]
+      mixed:
+        - ["Saang office ang {service}?", "Saang office po ang {service}?"]
+        - ["Which office ang nag-aasikaso ng {service}?", "Which office po ang nag-aasikaso ng {service}?"]
+        - ["Saan ako mag-apply for {service}?", "Saan po ako mag-apply for {service}?"]
+        - ["Anong office ang handle ng {service}?", "Anong office po ang handle ng {service}?"]
+        - ["Saan po ang office para sa {service}?", "Saan ang office para sa {service}?"]
+        - ["Saang department ang {service}?", "Saang department po ang {service}?"]
