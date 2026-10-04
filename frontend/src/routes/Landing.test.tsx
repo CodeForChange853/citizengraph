@@ -7,7 +7,8 @@ import { AppRoutes } from "../App";
 import { DEMO_CYPHER, DEMO_QUESTION, GUARD_CHECKS } from "../landing/demo";
 import landingEn from "../landing/i18n/en.json";
 import landingFil from "../landing/i18n/fil.json";
-import { checkLandingPairs, checkLandingUseRules } from "../landing/palette";
+import { checkLandingPairs, checkLandingUseRules, COLORS, LANDING_THEME, PALETTES } from "../landing/palette";
+import { checkPalettePairs, checkPaletteRules, ROLES } from "../landing/paletteRules.js";
 import { SOUND_KEY } from "../landing/sound";
 import { renderApp } from "../test/utils";
 
@@ -269,9 +270,53 @@ describe("landing assets", () => {
     expect(fonts.filter((f) => !/"(@fontsource\/|\.\/)/.test(f))).toEqual([]);
   });
 
-  it("passes WCAG AA for every landing colour pair and keeps blue decorative and red for the alert", () => {
-    expect(checkLandingPairs().filter((r) => !r.pass)).toEqual([]);
-    expect(checkLandingUseRules()).toEqual([]);
+  it("uses the neon palette unless the build flag says gov, and both files define every role", () => {
+    expect(LANDING_THEME).toBe("neon");
+    expect(COLORS.stage).toBe(PALETTES.neon.colors.stage);
+    for (const theme of ["neon", "gov"] as const) {
+      expect(Object.keys(PALETTES[theme].roles).sort(), theme).toEqual([...ROLES].sort());
+    }
+  });
+
+  it("switches to the government palette with VITE_LANDING_THEME=gov", async () => {
+    vi.stubEnv("VITE_LANDING_THEME", "gov");
+    vi.resetModules();
+    try {
+      const flipped = await import("../landing/palette");
+      expect(flipped.LANDING_THEME).toBe("gov");
+      expect(flipped.COLORS.stage).toBe(PALETTES.gov.colors.stage);
+      expect((flipped.STAGE_VARS as Record<string, string>)["--lp-on-alert"]).toBe(PALETTES.gov.colors.text);
+    } finally {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    }
+  });
+
+  it("passes WCAG AA for every landing colour pair in both palettes, and each palette keeps its use rules", () => {
+    for (const theme of ["neon", "gov"] as const) {
+      expect(checkLandingPairs(theme).filter((r) => !r.pass), theme).toEqual([]);
+      expect(checkLandingUseRules(theme), theme).toEqual([]);
+    }
+  });
+
+  it("neon: text on an orange or cyan fill is the stage colour, never white, and orange text sits on stage or panel", () => {
+    const neon = PALETTES.neon;
+    expect(neon.colors[neon.roles.onAccent]).toBe(neon.colors.stage);
+    expect(neon.colors[neon.roles.onAlert]).toBe(neon.colors.stage);
+    const broken = structuredClone(neon);
+    broken.roles.onAlert = "heading"; // white on orange is 3.4:1
+    const pairs = checkPalettePairs(broken);
+    expect(pairs.filter((r) => !r.pass).map((r) => r.fgRole)).toEqual(["onAlert"]);
+    expect(checkPaletteRules(broken).join("\n")).toMatch(/text on "neon" must be "stage"/);
+  });
+
+  it("gov: red is only the SLA alert and never text; blue stays decorative", () => {
+    const gov = PALETTES.gov;
+    expect(gov.rules.alertOnly).toEqual(["alert"]);
+    expect(gov.decorative).toEqual(["line"]);
+    const broken = structuredClone(gov);
+    broken.roles.hot = "alert";
+    expect(checkPaletteRules(broken).join("\n")).toMatch(/is for the SLA alert only/);
   });
 
   it("uses red only in the SLA alert styles", () => {

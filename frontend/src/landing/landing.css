@@ -1,5 +1,6 @@
-/* Landing page ("terminal stage"). Colours come from palette.json through CSS variables set on .lp;
-   this file holds no colour values. Blue (--lp-line) is decoration only and never carries text. */
+/* Landing page ("terminal stage"). Colours come from palette.<theme>.json through CSS variables set on
+   .lp (one per role, see paletteRules.js); this file holds no colour values. --lp-line is decoration only
+   and never carries text. Text on an accent fill is --lp-on-accent; on the alert fill, --lp-on-alert. */
 
 .lp {
   --lp-mono: "Atkinson Hyperlegible Mono", ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
@@ -146,7 +147,7 @@
 }
 .lp-btn[aria-pressed="true"] {
   background: var(--lp-accent);
-  color: var(--lp-stage);
+  color: var(--lp-on-accent);
 }
 .lp-btn:focus-visible {
   outline-offset: -4px;
@@ -472,6 +473,7 @@
   padding: 0.125rem 0.625rem;
   border-radius: 9999px;
   background: var(--lp-alert);
+  color: var(--lp-on-alert);
   font-weight: 700;
 }
 /* The alert callout hangs off the late step by an L-shaped leader line. */
@@ -513,10 +515,10 @@
   text-decoration: none;
 }
 .lp a.lp-cta {
-  color: var(--lp-stage);
+  color: var(--lp-on-accent);
 }
 .lp-cta:focus-visible {
-  outline-color: var(--lp-text);
+  outline-color: var(--lp-heading);
 }
 .lp-foot {
   position: relative;

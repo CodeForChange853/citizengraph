@@ -1,62 +1,60 @@
-// The landing page's own colours. They live in palette.json (not in component code) so the repo's
+// The landing page's own colours. They live in palette.<theme>.json (not in component code) so the repo's
 // "no raw colour values" rule holds and `npm run contrast` can check every pair.
+//
+// One build flag picks the file: VITE_LANDING_THEME=neon (default) or gov. Components and styles only
+// ever name roles (see paletteRules.js), so flipping the flag restyles the whole page.
 import type { CSSProperties } from "react";
-import { contrast, MIN_RATIO, type PairKind } from "../design/contrast.js";
-import palette from "./palette.json";
+import gov from "./palette.gov.json";
+import neon from "./palette.neon.json";
+import {
+  checkPalettePairs,
+  checkPaletteRules,
+  ROLES,
+  type LandingPairResult,
+  type PaletteFile,
+  type Role,
+} from "./paletteRules.js";
 
-export type ColorName = keyof typeof palette.colors;
-export const COLORS: Record<ColorName, string> = palette.colors;
+export type { LandingPairResult, Role };
+export type LandingTheme = "neon" | "gov";
+
+export const PALETTES: Record<LandingTheme, PaletteFile> = { neon, gov };
+export const LANDING_THEME: LandingTheme = import.meta.env.VITE_LANDING_THEME === "gov" ? "gov" : "neon";
+const palette = PALETTES[LANDING_THEME];
+
+/** The hex value of each role in the selected palette. */
+export const COLORS = Object.fromEntries(ROLES.map((role) => [role, palette.colors[palette.roles[role]]!])) as Record<
+  Role,
+  string
+>;
 
 /** `#RRGGBB` plus an alpha byte, for canvas strokes and fills. */
-export function withAlpha(name: ColorName, alpha: number): string {
+export function withAlpha(role: Role, alpha: number): string {
   const byte = Math.round(Math.min(1, Math.max(0, alpha)) * 255);
-  return COLORS[name] + byte.toString(16).padStart(2, "0");
+  return COLORS[role] + byte.toString(16).padStart(2, "0");
 }
 
+const kebab = (role: string) => role.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+
 /**
- * CSS variables for the landing root. The last four re-point the app's theme roles inside the landing
- * page, so shared pieces (SampleDataTag, the focus ring) are drawn in stage colours in either theme.
+ * CSS variables for the landing root: `--lp-<role>` for every role. The last four re-point the app's
+ * theme roles inside the landing page, so shared pieces (SampleDataTag, the focus ring) are drawn in
+ * stage colours whatever the app theme is.
  */
 export const STAGE_VARS = {
-  "--lp-stage": COLORS.stage,
-  "--lp-panel": COLORS.panel,
-  "--lp-text": COLORS.text,
-  "--lp-accent": COLORS.accent,
-  "--lp-line": COLORS.line,
-  "--lp-edge": COLORS.edge,
-  "--lp-alert": COLORS.alert,
+  ...Object.fromEntries(ROLES.map((role) => [`--lp-${kebab(role)}`, COLORS[role]])),
   "--surface-2": COLORS.panel,
-  "--fg-muted": COLORS.text,
+  "--fg-muted": COLORS.muted,
   "--border-strong": COLORS.edge,
   "--focus": COLORS.accent,
 } as CSSProperties;
 
-export interface LandingPairResult {
-  label: string;
-  fg: string;
-  bg: string;
-  ratio: number;
-  min: number;
-  pass: boolean;
+/** Same maths as the token check, on the landing pairs of one palette (default: the selected one). */
+export function checkLandingPairs(theme: LandingTheme = LANDING_THEME): LandingPairResult[] {
+  return checkPalettePairs(PALETTES[theme]);
 }
 
-/** Same maths as the token check, on the landing pairs. */
-export function checkLandingPairs(): LandingPairResult[] {
-  return palette.pairs.map((p) => {
-    const ratio = contrast(COLORS[p.fg as ColorName], COLORS[p.bg as ColorName]);
-    const min = MIN_RATIO[p.kind as PairKind];
-    return { label: p.label, fg: p.fg, bg: p.bg, ratio, min, pass: ratio >= min };
-  });
-}
-
-/** Use rules: decorative colours are never a foreground of a checked pair; red only in alert pairs. */
-export function checkLandingUseRules(): string[] {
-  const problems: string[] = [];
-  for (const p of palette.pairs) {
-    if (palette.decorative.includes(p.fg)) problems.push(`${p.label}: "${p.fg}" is decorative only`);
-    const usesAlert = palette.alertOnly.includes(p.fg) || palette.alertOnly.includes(p.bg);
-    if (usesAlert && !/alert/i.test(p.label)) problems.push(`${p.label}: red is for the SLA alert only`);
-    if (palette.alertOnly.includes(p.fg) && p.kind === "text") problems.push(`${p.label}: red is never text`);
-  }
-  return problems;
+/** Colour-use rules of one palette (default: the selected one). See paletteRules.js. */
+export function checkLandingUseRules(theme: LandingTheme = LANDING_THEME): string[] {
+  return checkPaletteRules(PALETTES[theme]);
 }
