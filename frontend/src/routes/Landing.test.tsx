@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "../App";
 import { DEMO_CYPHER, DEMO_QUESTION, GUARD_CHECKS } from "../landing/demo";
+import { FakeAudioContext } from "../landing/fakeAudio";
 import landingEn from "../landing/i18n/en.json";
 import landingFil from "../landing/i18n/fil.json";
 import { checkLandingPairs, checkLandingUseRules, COLORS, LANDING_THEME, PALETTES } from "../landing/palette";
@@ -195,29 +196,15 @@ describe("landing on a short phone (390x700)", () => {
 /** Counts audio contexts: none may exist before the visitor asks for sound with a gesture. */
 function stubAudio() {
   const created = vi.fn();
-  class FakeAudioContext {
-    state = "running";
-    currentTime = 0;
-    destination = {};
-    constructor() {
-      created();
-    }
-    resume = vi.fn(async () => {});
-    suspend = vi.fn(async () => {});
-    close = vi.fn(async () => {});
-    createOscillator = vi.fn(() => ({
-      type: "sine",
-      frequency: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
-      connect: vi.fn(),
-      start: vi.fn(),
-      stop: vi.fn(),
-    }));
-    createGain = vi.fn(() => ({
-      gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
-      connect: vi.fn(),
-    }));
-  }
-  vi.stubGlobal("AudioContext", FakeAudioContext);
+  vi.stubGlobal(
+    "AudioContext",
+    class extends FakeAudioContext {
+      constructor() {
+        super();
+        created();
+      }
+    },
+  );
   return created;
 }
 
