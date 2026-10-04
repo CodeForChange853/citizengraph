@@ -238,7 +238,7 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
     p = lerp3(p, WATCH, merge);
     cyan.p = p;
     cyan.scale = mix(mix(mix(1, 1.55, open2), 0.55, lamp), 1, home7) * (1 + 0.07 * beat) * (1 - 0.75 * merge);
-    cyan.power = arrive * mix(1, 0.3, ramp(u, 5.0, 5.3) * (1 - home7)) * (1 + 0.45 * beat) * (1 - ramp(u, BEAT.cta[0], BEAT.cta[1]));
+    cyan.power = arrive * mix(1, 0.3, ramp(u, 5.0, 5.3) * (1 - home7)) * (1 + 0.22 * beat) * (1 - ramp(u, BEAT.cta[0], BEAT.cta[1]));
     // Core 2: slot, steps back while Core 1 works, waits at WATCH, takes the stage, then a corner, then home
     let o: V3 = lerp3([slot, 0, 0], [2.3 * fx, 0.7, -2.2], open2);
     o = lerp3(o, WATCH, ramp(u, 3.0, 3.3));
@@ -247,7 +247,7 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
     orange.p = o;
     const stage5 = ramp(u, 5.1, 5.4);
     orange.scale = mix(mix(mix(1, 0.5, open2), 1.45, stage5), 1, ramp(u, 7.02, 7.3)) * mix(1, 0.4, corner) * (1 + 0.07 * beat) * (1 - 0.75 * merge);
-    orange.power = arrive * mix(mix(1, 0.3, open2), 0.1, ramp(u, 3.0, 3.1)) * (1 - stage5) + stage5 * (1 + 0.45 * beat) * (1 - ramp(u, BEAT.cta[0], BEAT.cta[1]));
+    orange.power = arrive * mix(mix(1, 0.3, open2), 0.1, ramp(u, 3.0, 3.1)) * (1 - stage5) + stage5 * (1 + 0.22 * beat) * (1 - ramp(u, BEAT.cta[0], BEAT.cta[1]));
   }
 
   const glassA = inTitle
@@ -325,7 +325,7 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
   // ---- scene 4 and 8: the orb ------------------------------------------------------------------------------
   const orbGrow = ramp(u, BEAT.orb[0], BEAT.orb[1]) * (1 - ramp(u, BEAT.card[0], BEAT.card[1] - 0.02));
   const orbCta = ramp(u, BEAT.merge[1] - 0.1, BEAT.cta[1]);
-  const orb = { p: (u < 6 ? [0, 0, 0] : WATCH) as V3, size: u < 6 ? orbGrow : 0.62 * orbCta, a: u < 6 ? Math.min(1, orbGrow * 2) : orbCta };
+  const orb = { p: (u < 6 ? [0, 0, 0] : WATCH) as V3, size: u < 6 ? orbGrow : 1.25 * orbCta, a: u < 6 ? Math.min(1, orbGrow * 2) : orbCta };
 
   // ---- scene 5 to 6: the clock ring ------------------------------------------------------------------------------
   const ringFly = easeInOut(seg(u, 5.02, 5.32));

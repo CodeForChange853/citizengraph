@@ -102,7 +102,10 @@ export function useStory(playhead: Playhead, still: boolean, rootRef: RefObject<
     // any real input ends the film where it is
     function interrupt(event: Event) {
       if (!film.current.on) return;
-      if ((event.target as HTMLElement | null)?.closest?.("[data-film]")) return;
+      // the film button handles its own click (and Enter or Space on it)
+      const onButton = !!(event.target as HTMLElement | null)?.closest?.("[data-film]");
+      const key = (event as KeyboardEvent).key;
+      if (onButton && (event.type === "pointerdown" || key === "Enter" || key === " ")) return;
       stopFilm();
     }
     // a control inside a scene that is not on stage (the call to action, a chapter away): go to its scene
