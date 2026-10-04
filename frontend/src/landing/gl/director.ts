@@ -426,7 +426,7 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
   });
   anchors.service = { p: add(target, [0, -0.45, 0]), a: ramp(u, 3.66, 3.72) * (1 - ramp(u, 3.95, 4.0)) };
   const out = 1 - ramp(u, 6.93, 6.99);
-  anchors.outside = { p: add(pathPoint(path, 0.5), [0, -0.3, 0]), a: ramp(u, 6.32, 6.4) * out };
+  anchors.outside = { p: add(pathPoint(path, 0.5), [0, -0.3, 0]), a: ramp(u, 6.32, 6.4) * out * (wide ? 1 : 1 - ramp(u, BEAT.alert[0] - 0.06, BEAT.alert[0])) };
   anchors.alert = { p: add(head, [0, -0.35, 0]), a: ramp(u, BEAT.alert[0], BEAT.alert[0] + 0.06) * out };
 
   const moving = Math.max(window4(u, 0.6, 0.9, 1.7, 1.95), window4(u, 3.5, 3.56, 3.66, 3.72), window4(u, 5.0, 5.1, 5.25, 5.4));

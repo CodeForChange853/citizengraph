@@ -186,7 +186,7 @@ function makeThread() {
           const outside = s > THREAD_STOPS.steps[1] && s <= THREAD_STOPS.steps[2] ? frame.thread.grey : 0;
           const late = s > THREAD_STOPS.deadline ? frame.thread.late : 0;
           for (let c = 0; c < 3; c++) {
-            const base = orange[c]! * 0.85 * (1 - outside) + grey[c]! * 0.8 * outside;
+            const base = orange[c]! * 0.85 * (1 - outside) + grey[c]! * 0.6 * outside;
             colors[i * 3 + c] = base * (1 - late) + (orange[c]! * 1.2 + 0.5) * late;
           }
         }

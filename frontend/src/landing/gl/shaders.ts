@@ -60,7 +60,7 @@ void main() {
   vec3 q = vLocal * 3.2 + vec3(uTime * 0.12, -uTime * 0.2, uTime * 0.07);
   float plasma = fbm3(q + fbm3(q * 1.7) * 1.4);
   float veins = smoothstep(0.42, 0.75, plasma);
-  vec3 col = uColor * (0.14 + 1.6 * veins) + vec3(1.0) * veins * veins * 0.55;
+  vec3 col = uColor * (0.14 + 1.25 * veins) + vec3(1.0) * veins * veins * 0.22;
   col += uColor * rim * 1.6 + vec3(1.0) * pow(rim, 3.0) * 0.5;
   col *= 0.35 + 0.65 * facing + rim;
   gl_FragColor = vec4(col * uPower, 1.0);
