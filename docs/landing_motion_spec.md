@@ -82,7 +82,7 @@ only while the intro plays, never on a seek, a skip or a scroll.
 |---|---|---|---|---|
 | 1 | `ask` | 0 | 3,600 | t=0: faint ruled grid, crop marks, a glowing start point, blinking cyan caret. 0 to 520: the orange line draws across the stage (ease-out cubic), sparks at its head. From 600: the Taglish question is typed, 44 ms a character with a 90 ms pause between words. 180 ms after the last character: Enter. |
 | 2 | `contours` | 3,600 | 1,800 | Contour rings ripple out from the end of the question across the whole stage (each ring 0.4 of the beat, 0.1 apart, ease in-out). Sparks run along the line. The headline lands word by word, about one word per 230 ms, each word a ghost first and orange while it is the newest. |
-| 3 | `offices` | 5,400 | 2,800 | Office cells grow from their corners (0 to 45 %). 40 service nodes pop in on spokes (30 to 85 %). Callouts with leader lines (20 to 50 %). Corner crop marks round the graph, a step counter, and the office table (50 to 80 %). |
+| 3 | `offices` | 5,400 | 2,800 | Office cells grow from their corners (0 to 45 %). 40 service nodes pop in on spokes (30 to 85 %). Callouts with leader lines (20 to 50 %). Corner crop marks round the graph and a step counter. The counts are also real text (HUD chips above the graph). |
 | 4 | `query` | 8,200 | 4,400 | The illustrative query is typed (0 to 2,000). Four guardrail checks tick at 2,400 + n x 455 (the reference's beat spacing); each tick turns one crop mark of the graph cyan. |
 | 5 | `trail` | 12,600 | 1,000 | Scroll, stage pinned. 0 to 0.34: the glow trail leaves the question, enters the graph and lands on the service through its office. 0.14 to 0.48: the arc text is written behind the trail head. 0.5 to 0.8: the 40 nodes spiral in and the grid bends. 0.72 to 1: the orb (black core, orange ring, cyan rim), with the arc text round it. |
 | 6 | `answer` | 13,600 | 1,000 | A ring opens into the outline of the answer card (soft wipe); the card holds neutral placeholders under the sample tag. |
@@ -145,14 +145,59 @@ Canvas 2D only. Device pixel ratio capped at 2. The canvas redraws only when the
 while off-screen or in a hidden tab. Geometry is precomputed from a fixed seed; particles are a pure function
 of the timeline time, so frames keep no state and scrubbing backwards works.
 
-Adaptive quality (thresholds and measurements in section 8):
+Adaptive quality (measurements in section 8):
 
-| Level | Pixel ratio cap | Glow passes | Sparks | Rings and grid |
-|---|---|---|---|---|
-| 2 | 2 | 3 | all | every segment |
-| 1 | 1.5 | 2 | half | every segment |
-| 0 | 1 | 1 | none | every second segment |
+| Level | Pixel ratio cap | Glow passes | Sparks | Orb | Rings and grid |
+|---|---|---|---|---|---|
+| 2 | 2 | 3 | all | bloom, 18 streaks | every segment |
+| 1 | 1.5 | 2 | half | bloom, 9 streaks | every segment |
+| 0 | 1 | 1 | none | no bloom, no streaks | every second segment |
+
+Step-down rule (`quality.ts`). A frame is late when it arrives more than 25 ms after the previous one (under
+40 frames a second). The canvas drops one level as soon as 6 of the last 40 drawn frames were late, or when
+drawing alone has averaged over 10 ms across at least 20 frames. Gaps of 250 ms or more are idle time and are
+not counted; the first 500 ms after mount are ignored; the window restarts after each step; quality never goes
+back up during a visit.
+
+Why the earlier rule did not engage: it added 1 for a late frame, subtracted 1 for an on-time frame and stepped
+at a net 24. Under a 4x CPU slow-down only about one frame in four is late, so the on-time frames cancelled the
+late ones. In the baseline run it engaged only after about 9 s on this machine, and it is expected never to
+engage where the late frames are spread more evenly.
 
 ## 8. Measurements
 
-Filled in during Phase G.
+Headless Chromium 153 (Playwright build 1243) on the development laptop, built app served by `vite preview`,
+CPU slow-down through the DevTools protocol. Frame gaps are the times between animation frames in the page.
+These are numbers from one machine and one run each, not a benchmark of the system.
+
+Before (commit 15773d7):
+
+| Setup | Phase | Median | 95th | Max | Late (>25 ms) | Quality level over time |
+|---|---|---|---|---|---|---|
+| Desktop 1366x768, no slow-down | intro | 16.7 ms | 16.8 ms | 17 ms | 0 % | 2 |
+| Desktop 1366x768, 4x CPU | intro | 16.7 ms | 33.4 ms | 50 ms | 28 % | 2, then 1 at 8.9 s, 0 at 12.6 s |
+| Phone 390x700 at pixel ratio 3, no slow-down | intro | 16.7 ms | 16.8 ms | 33 ms | 0 % | 2 |
+| Phone 390x700 at pixel ratio 3, 4x CPU | intro | 16.7 ms | 33.4 ms | 50 ms | 22 % | 2, then 1 at 9.3 s; never 0 |
+
+After (Phase G):
+
+| Setup | Phase | Median | 95th | Max | Late (>25 ms) | Quality level over time |
+|---|---|---|---|---|---|---|
+| Desktop 1366x768, no slow-down | intro | 16.7 ms | 16.8 ms | 17 ms | 0 % | 2 |
+| Desktop 1366x768, no slow-down | scroll | 16.7 ms | 16.7 ms | 17 ms | 0 % | 2 |
+| Desktop 1366x768, 4x CPU | intro | 16.7 ms | 33.4 ms | 50 ms | 17 % | 2, then 1 at 5.5 s, 0 at 6.0 s |
+| Desktop 1366x768, 4x CPU | scroll | 16.7 ms | 33.3 ms | 83 ms | 14 % | 0 |
+| Phone 390x700 at pixel ratio 3, no slow-down | intro | 16.7 ms | 16.7 ms | 17 ms | 0 % | 2 (backing store 780x1400: ratio capped at 2) |
+| Phone 390x700 at pixel ratio 3, no slow-down | scroll | 16.7 ms | 16.7 ms | 17 ms | 0 % | 2 |
+| Phone 390x700 at pixel ratio 3, 4x CPU | intro | 16.7 ms | 16.8 ms | 50 ms | 3 % | 2, then 1 at 5.6 s (585x1050), 0 at 6.2 s (390x700) |
+| Phone 390x700 at pixel ratio 3, 4x CPU | scroll | 16.7 ms | 16.8 ms | 50 ms | 1 % | 0 |
+
+Reading: the step comes when beat 3 starts (5.4 s), which is where the load rises; beats 1 and 2 keep 60 frames
+a second even slowed down, so there is nothing to step down for earlier. On the slowed phone the lower levels
+bring the intro back to about 58 frames a second. On the slowed desktop the canvas is already at pixel ratio 1,
+so the remaining late frames come from page work outside the canvas and stay at 14 to 17 %.
+
+Flash check: 441 screenshots over the intro; the largest change of the mean frame level between two shots was
+0.002 of full scale (a general flash needs 0.10).
+
+Not measured: real phones, real low-end laptops, Safari, Firefox.

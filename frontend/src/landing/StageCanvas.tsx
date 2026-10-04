@@ -4,12 +4,10 @@ import { SERVICE_TOTAL } from "./demo";
 import { drawStage, type Quality, type StageLayout } from "./draw";
 import { buildTrail } from "./geometry";
 import { useTimeline } from "./hooks";
+import { FrameBudget, WARMUP_MS } from "./quality";
 import { POSTER_TIME } from "./timeline";
 
 const DPR_CAP: Record<Quality, number> = { 2: 2, 1: 1.5, 0: 1 };
-/** Drop a quality level when frames stay slower than this for a while (about 40 a second). */
-const SLOW_FRAME_MS = 25;
-const SLOW_FRAMES = 24;
 /** Space kept clear between the graph and the edge of its zone. */
 const PAD = 14;
 
@@ -41,7 +39,8 @@ export function StageCanvas({ zoneRef, still }: { zoneRef: RefObject<HTMLElement
     let visible = true;
     let frame = 0;
     let lastFrame = 0;
-    let slow = 0;
+    const budget = new FrameBudget();
+    const mountedAt = performance.now();
 
     function measure() {
       const box = canvas!.getBoundingClientRect();
@@ -81,18 +80,16 @@ export function StageCanvas({ zoneRef, still }: { zoneRef: RefObject<HTMLElement
     function render(now: number) {
       frame = 0;
       if (!visible || document.hidden || !layout) return; // stays dirty until shown again
-      // Adaptive frame budget: back-to-back frames that keep arriving late cost a quality level.
       const gap = now - lastFrame;
       lastFrame = now;
-      if (gap < 1000) {
-        slow = gap > SLOW_FRAME_MS ? slow + 1 : Math.max(0, slow - 1);
-        if (slow >= SLOW_FRAMES && quality > 0) {
-          quality = (quality - 1) as Quality;
-          slow = 0;
-          measure();
-        }
+      const started = performance.now();
+      drawStage(context, layout, still ? POSTER_TIME : timeline.time, quality);
+      const drawMs = performance.now() - started;
+      // Adaptive quality (see quality.ts): too many late frames, or slow drawing, costs a level.
+      if (quality > 0 && started - mountedAt > WARMUP_MS && budget.frame(gap, drawMs)) {
+        quality = (quality - 1) as Quality;
+        measure(); // resizes the backing store for the new pixel ratio and redraws
       }
-      if (layout) drawStage(context, layout, still ? POSTER_TIME : timeline.time, quality);
     }
 
     function schedule() {
