@@ -19,7 +19,12 @@
   "arc": "kinuha, hindi inimbento",
   "orbNote": "Maraming pahina ng charter, iisang sagot na kinuha mula rito",
   "sampleTitle": "Galing sa charter ang sagot, hindi sa model",
-  "sampleNote": "Halimbawang datos ang nasa card na ito. Hindi ito opisyal na listahan.",
+  "sampleBody": "Ang model ay sumusulat lang ng query. Bawat detalye sa answer card ay hanay na binasa mula sa graph ng charter.",
+  "rowBring": "Mga dadalhin",
+  "rowFee": "Mga bayarin",
+  "rowTime": "Mga hakbang at tagal",
+  "rowValue": "Binasa mula sa charter",
+  "sampleNote": "Halimbawang ayos lamang. Sadyang hindi inilagay dito ang mga halaga, oras at listahan.",
   "slaTitle": "May pangalawang agent na nagbabantay sa oras",
   "slaBody": "Ikinukumpara nito ang bawat hakbang sa oras na itinakda ng charter. Ang paghihintay sa ibang ahensya ay hindi ibinibilang na antala ng tanggapan.",
   "slaStep": "Hakbang {{n}}",
@@ -31,10 +36,27 @@
   },
   "slaAlert": "Gumagawa ng draft na alerto para suriin ng staff",
   "localTitle": "Tumatakbo sa sariling computer ng tanggapan",
-  "localBody": "Walang cloud service na ginagamit habang tumatakbo ito, at hindi nito binabago ang opisyal na talaan.",
+  "localBody": "Walang cloud service na ginagamit habang tumatakbo ito. Binabasa lang nito ang datos ng charter at hindi ito binabago.",
   "hudLocal": "Lokal",
   "hudOffline": "Offline",
   "hudReadOnly": "Read-only",
+  "readModel": {
+    "label": "Model",
+    "value": "file sa computer na ito"
+  },
+  "readNetwork": {
+    "label": "Network",
+    "value": "hindi kailangan habang tumatakbo"
+  },
+  "readGraph": {
+    "label": "Graph ng charter",
+    "value": "read-only"
+  },
+  "readTarget": {
+    "label": "Target na disenyo",
+    "value": "laptop na CPU lang, 16 GB"
+  },
+  "readNote": "Layunin ang target na disenyo, hindi resulta ng pagsukat.",
   "cta": "Magsimulang magtanong",
   "scrollHint": "Mag-scroll para sundan ang sagot"
 }

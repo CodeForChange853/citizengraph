@@ -99,6 +99,17 @@ describe("scroll story", () => {
     expect(storyTime({ vh, wrapTop: -3440, wrapHeight: 1520, stageHeight: 800, sections })).toBe(TIMELINE_END);
   });
 
+  it("finishes the last beat at the bottom of the page even when the last section is short", () => {
+    const sections = [
+      { top: -700, height: 400 },
+      { top: -300, height: 400 },
+      { top: 700, height: 200 },
+    ];
+    const layout = { vh, wrapTop: -3000, wrapHeight: 1520, stageHeight: 800, sections };
+    expect(storyTime(layout)).toBeLessThan(TIMELINE_END);
+    expect(storyTime({ ...layout, atBottom: true })).toBe(TIMELINE_END);
+  });
+
   it("ignores sections that have no size yet", () => {
     const empty = [0, 0, 0].map(() => ({ top: 0, height: 0 }));
     expect(storyTime({ vh, wrapTop: 0, wrapHeight: 0, stageHeight: 0, sections: empty })).toBe(INTRO_END);

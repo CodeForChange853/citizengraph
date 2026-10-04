@@ -53,12 +53,33 @@ describe("landing route", () => {
     expect(document.querySelector(".lp")).toBeNull();
   });
 
-  it("marks the sample card as sample data and shows only the mock API's facts", async () => {
+  it("marks the answer card as sample data and shows neutral placeholders only: no amount, time or count", async () => {
     await landing();
     const card = document.querySelector<HTMLElement>(".lp-card")!;
     expect(within(card).getByText("Sample data")).toBeInTheDocument();
     expect(within(card).getByRole("heading", { name: "Business Permit" })).toBeInTheDocument();
-    expect(card).toHaveTextContent("14 requirements · ₱235.50 · about 37 minutes");
+    expect(within(card).getAllByText("Read from the charter")).toHaveLength(3);
+    // nothing from the mock API's numbers, and no number at all
+    expect(card.textContent).not.toMatch(/[0-9₱]/);
+    expect(card.textContent).not.toMatch(/minute|peso|requirements?\b/i);
+    expect(card.querySelectorAll("li")).toHaveLength(0); // no invented checklist
+  });
+
+  it("claims no numbers anywhere except the charter's office and service counts and the design target", async () => {
+    const root = await landing();
+    const text = root.querySelector("main")!.textContent ?? "";
+    expect(text).not.toMatch(/₱|%|accura|benchmark|faster|percent/i);
+    const numbers = [...new Set(text.replace(/LIMIT 25|0[5-8] \/ 08|Step [1-4]/g, "").match(/\d+/g))].sort();
+    expect(numbers).toEqual(["16", "4", "40"]); // 4 offices, 40 services, "16 GB" design target
+  });
+
+  it("uses the word 'official' only in the not-official label, and claims no endorsement", async () => {
+    const root = await landing();
+    const label = "Thesis prototype, not an official government app";
+    expect((root.textContent ?? "").replaceAll(label, "")).not.toMatch(/official/i);
+    expect(JSON.stringify(landingEn)).not.toMatch(/official|endors|approved by|partner/i);
+    expect(JSON.stringify(landingFil)).not.toMatch(/opisyal|official/i);
+    expect(root.querySelectorAll("img, svg image")).toHaveLength(0); // no seals, emblems or marks
   });
 
   it("labels the demo query as illustrative and keeps it read-only, labelled and limited", async () => {

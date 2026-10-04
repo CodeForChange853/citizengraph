@@ -108,7 +108,7 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
             </div>
             <div className="lp-body">
               <div className="lp-hero">
-                <h1 className="lp-h1">
+                <h1 className="lp-h1 lp-glitch">
                   <Kinetic text={t("landing.title")} shown={headline} />
                 </h1>
                 <Terminal />

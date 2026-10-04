@@ -18,6 +18,8 @@ export interface StoryLayout {
   stageHeight: number;
   /** The sections of beats 6, 7 and 8: top relative to the viewport, and height. */
   sections: { top: number; height: number }[];
+  /** The page is scrolled to its end (short last sections still finish their beat). */
+  atBottom?: boolean;
 }
 
 /**
@@ -27,6 +29,7 @@ export interface StoryLayout {
  */
 export function storyTime(layout: StoryLayout): number {
   const { vh, wrapTop, wrapHeight, stageHeight, sections } = layout;
+  if (layout.atBottom && sections.some((section) => section.height > 0)) return TIMELINE_END;
   const travel = wrapHeight - stageHeight; // extra scroll distance while the stage is pinned
   const trail = travel > 8 ? clamp01(-wrapTop / travel) : clamp01(-wrapTop / (vh * 0.22));
   let time = beat("trail").start + trail * beat("trail").dur;
@@ -46,6 +49,7 @@ function readLayout(root: HTMLElement): StoryLayout | null {
   const box = wrap.getBoundingClientRect();
   return {
     vh: window.innerHeight,
+    atBottom: window.scrollY > 0 && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2,
     wrapTop: box.top,
     wrapHeight: box.height,
     stageHeight: stage.getBoundingClientRect().height,

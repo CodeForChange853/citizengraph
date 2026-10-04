@@ -19,7 +19,12 @@
   "arc": "retrieved, never generated",
   "orbNote": "Many charter pages, one retrieved answer",
   "sampleTitle": "The answer comes from the charter, not from the model",
-  "sampleNote": "This card shows sample data. It is not an official list.",
+  "sampleBody": "The model only writes the query. Every fact on an answer card is a row read from the charter graph.",
+  "rowBring": "What to bring",
+  "rowFee": "Fees",
+  "rowTime": "Steps and time",
+  "rowValue": "Read from the charter",
+  "sampleNote": "Sample layout. Amounts, times and lists are left out here on purpose.",
   "slaTitle": "A second agent watches the clock",
   "slaBody": "It compares each step with the time the charter allows. Waiting at an outside agency is not counted as a delay by the office.",
   "slaStep": "Step {{n}}",
@@ -31,10 +36,27 @@
   },
   "slaAlert": "Drafting an alert for staff review",
   "localTitle": "Runs on the office's own computer",
-  "localBody": "No cloud service is used while it runs, and it never changes the official records.",
+  "localBody": "No cloud service is used while it runs. It only reads the charter data and never changes it.",
   "hudLocal": "Local",
   "hudOffline": "Offline",
   "hudReadOnly": "Read-only",
+  "readModel": {
+    "label": "Model",
+    "value": "a file on this computer"
+  },
+  "readNetwork": {
+    "label": "Network",
+    "value": "not needed while it runs"
+  },
+  "readGraph": {
+    "label": "Charter graph",
+    "value": "read-only"
+  },
+  "readTarget": {
+    "label": "Design target",
+    "value": "CPU-only laptop, 16 GB"
+  },
+  "readNote": "The design target is a goal, not a measured result.",
   "cta": "Start asking",
   "scrollHint": "Scroll to follow the answer"
 }
