@@ -1,28 +1,29 @@
-import { motion } from "motion/react";
 import { Fragment } from "react";
 
-const SHOWN = { opacity: 1, y: 0 };
-const HIDDEN = { opacity: 0, y: "0.35em" };
+export type WordState = "off" | "ghost" | "new" | "on";
+
+/** The state of word `i` of `total` when a share `shown` (0 to 1) of the words has landed. */
+export function wordState(i: number, total: number, shown: number): WordState {
+  const count = Math.ceil(shown * total - 1e-6);
+  if (i < count - 1) return "on";
+  if (i === count - 1) return shown >= 1 ? "on" : "new"; // the newest word stays hot until the line is complete
+  return i === count && count > 0 ? "ghost" : "off"; // the next word is pre-set as a dim ghost
+}
 
 /**
  * Word-by-word type. `shown` is the share of words revealed (0 to 1) and comes from the timeline,
- * so the text can be scrubbed forwards and backwards. The words are always real text in the page.
+ * so the text can be scrubbed forwards and backwards. The words are always real text in the page;
+ * the states only change how they look (landing.css, .lp-word).
  */
 export function Kinetic({ text, shown }: { text: string; shown: number }) {
   const words = text.split(" ");
-  const count = Math.ceil(shown * words.length - 1e-6);
   return (
     <>
       {words.map((word, i) => (
         <Fragment key={i}>
-          <motion.span
-            className="lp-word"
-            initial={false}
-            animate={i < count ? SHOWN : HIDDEN}
-            transition={{ duration: 0.45, ease: [0.2, 0.7, 0.2, 1] }}
-          >
+          <span className="lp-word" data-state={wordState(i, words.length, shown)}>
             {word}
-          </motion.span>{" "}
+          </span>{" "}
         </Fragment>
       ))}
     </>

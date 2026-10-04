@@ -40,8 +40,4 @@ export function usePrefersReducedMotion(): boolean {
   );
 }
 
-/** Smooth 0..1 ramp between two points of a 0..1 progress. */
-export function ramp(p: number, from: number, to: number): number {
-  const x = Math.min(1, Math.max(0, (p - from) / (to - from)));
-  return x * x * (3 - 2 * x);
-}
+export { ramp } from "./ease";

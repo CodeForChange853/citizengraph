@@ -58,9 +58,10 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
       <main id="lp-main" ref={mainRef} tabIndex={-1}>
         <div className="lp-stagewrap" data-beat="trail">
           <div className="lp-stage">
-            <StageCanvas zoneRef={zoneRef} />
+            <StageCanvas zoneRef={zoneRef} still={reduced} />
+            <div className="lp-vignette" aria-hidden="true" />
             <div className="lp-top">
-              <div>
+              <div className="lp-id">
                 <p className="lp-brand">{t("app.name")}</p>
                 <p className="lp-proto">{t("app.prototype")}</p>
               </div>

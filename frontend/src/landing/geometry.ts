@@ -100,8 +100,8 @@ export const OFFICE_CELLS: OfficeCell[] = OFFICES.map((office, i) => ({
 
 /** Topographic contour rings round the middle of the graph: wobbly closed loops, as unit offsets. */
 export const RING_SEGMENTS = 96;
-export const RINGS: Pt[][] = Array.from({ length: 7 }, (_, k) => {
-  const radius = 0.13 + k * 0.105;
+export const RINGS: Pt[][] = Array.from({ length: 10 }, (_, k) => {
+  const radius = 0.07 + k * 0.105;
   const [a, b, c] = [rand() * 6.28, rand() * 6.28, rand() * 6.28];
   return Array.from({ length: RING_SEGMENTS + 1 }, (_, s) => {
     const angle = (s / RING_SEGMENTS) * Math.PI * 2;
@@ -135,8 +135,34 @@ function catmullRom(points: Pt[], perSegment: number): Pt[] {
   return out;
 }
 
-/** The glow trail: in from the edge, through the graph to the office hub, and on to the service. */
-export const TRAIL: Pt[] = catmullRom(
-  [{ x: 1.06, y: 0.6 }, { x: 0.82, y: 0.66 }, { x: 0.56, y: 0.55 }, { x: 0.4, y: 0.4 }, bplo.hub, TARGET],
-  18,
-);
+/**
+ * The glow trail, in graph units: it leaves the end of the question (`origin`, which lies outside the
+ * graph), rides the line for a while, bends into the graph, passes the office hub and lands on the service.
+ */
+export function buildTrail(origin: Pt): Pt[] {
+  const hub = bplo.hub;
+  const ride = { x: origin.x + (hub.x - origin.x) * 0.45, y: origin.y };
+  const bend = { x: hub.x + (origin.x - hub.x) * 0.16, y: origin.y + (hub.y - origin.y) * 0.55 };
+  return catmullRom([origin, ride, bend, hub, TARGET], 18);
+}
+
+/** Four fixed random numbers per particle: sparks are a pure function of these and of the time. */
+export interface Seed {
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+}
+const sparkRand = mulberry32(2026);
+export const SEEDS: Seed[] = Array.from({ length: 72 }, () => ({
+  a: sparkRand(),
+  b: sparkRand(),
+  c: sparkRand(),
+  d: sparkRand(),
+}));
+
+/** Beat 5: how each of the 40 nodes falls into the orb (when it starts, and how far it swings round). */
+export const COLLAPSE: { delay: number; turns: number }[] = Array.from({ length: 40 }, () => ({
+  delay: sparkRand() * 0.35,
+  turns: 0.5 + sparkRand() * 0.8,
+}));

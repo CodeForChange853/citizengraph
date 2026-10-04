@@ -4,7 +4,7 @@
 // The controller knows nothing about the DOM, the clock or audio, so it can be tested directly.
 
 export type BeatId = "ask" | "contours" | "offices" | "query" | "trail" | "answer" | "sla" | "local";
-export type CueKind = "key" | "enter" | "tick";
+export type CueKind = "key" | "enter" | "tick" | "blip";
 
 export interface Beat {
   id: BeatId;
@@ -16,12 +16,15 @@ export interface Cue {
   kind: CueKind;
 }
 
-/** Milliseconds for the intro beats; the scroll beats use the same unit so one number line covers all. */
+/**
+ * Milliseconds for the intro beats; the scroll beats use the same unit so one number line covers all.
+ * The numbers are specified in docs/landing_motion_spec.md, section 4.
+ */
 const DURATIONS: [BeatId, number][] = [
-  ["ask", 3200],
-  ["contours", 1600],
-  ["offices", 2400],
-  ["query", 3600],
+  ["ask", 3600],
+  ["contours", 1800],
+  ["offices", 2800],
+  ["query", 4400],
   ["trail", 1000],
   ["answer", 1000],
   ["sla", 1000],
@@ -42,8 +45,33 @@ export function beat(id: BeatId): Beat {
 
 export const INTRO_END = beat("trail").start;
 export const TIMELINE_END = beat("local").start + beat("local").dur;
+/**
+ * The still frame the canvas shows with reduced motion: the graph with the trail landed on the service,
+ * before the nodes fall into the orb (the graph is the more informative picture).
+ */
+export const POSTER_TIME = beat("trail").start + 0.46 * beat("trail").dur;
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+
+/** A beat's progress at a given time: 0 before the beat, 1 after it. */
+export function progressAt(id: BeatId, time: number): number {
+  const b = beat(id);
+  return clamp01((time - b.start) / b.dur);
+}
+
+/** Milliseconds into a beat at a given time (negative before it starts). */
+export function intoAt(id: BeatId, time: number): number {
+  return time - beat(id).start;
+}
+
+/** 1-based number of the beat a time falls in. */
+export function beatNumberAt(time: number): number {
+  let n = 1;
+  BEATS.forEach((b, i) => {
+    if (time >= b.start) n = i + 1;
+  });
+  return n;
+}
 
 export class Timeline {
   private t = 0;
@@ -68,13 +96,12 @@ export class Timeline {
 
   /** 0 before the beat, 1 after it. */
   progress(id: BeatId): number {
-    const b = beat(id);
-    return clamp01((this.t - b.start) / b.dur);
+    return progressAt(id, this.t);
   }
 
   /** Milliseconds into a beat (negative before it starts). */
   into(id: BeatId): number {
-    return this.t - beat(id).start;
+    return intoAt(id, this.t);
   }
 
   subscribe = (fn: () => void): (() => void) => {

@@ -34,6 +34,7 @@ describe("timeline controller", () => {
     expect(heard.filter((k) => k === "key")).toHaveLength(DEMO_QUESTION.replaceAll(" ", "").length);
     expect(heard.filter((k) => k === "enter")).toHaveLength(1);
     expect(heard.filter((k) => k === "tick")).toHaveLength(4);
+    expect(heard.filter((k) => k === "blip")).toHaveLength(OFFICES.length);
 
     const skipped: CueKind[] = [];
     const other = new Timeline(CUES);
