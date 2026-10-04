@@ -180,6 +180,9 @@
 }
 .lp-graphzone {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   order: -1;
   flex: 1 1 auto;
   min-height: 36svh;
@@ -289,10 +292,13 @@
 }
 
 .lp-stagehud {
-  position: absolute;
-  top: 0;
-  left: 0;
   transition: opacity 0.4s ease;
+}
+/* The graph itself: the canvas draws inside this box (less a small margin), the arc text over it. */
+.lp-plot {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* Word-by-word headlines. A word is off, then a dim ghost just before it lands, then "new" (the newest
@@ -457,7 +463,7 @@
 /* ---------- arc text and orb note (beat 5) ---------- */
 .lp-arc {
   position: absolute;
-  inset: 0;
+  inset: 14px; /* the same margin as the canvas keeps (StageCanvas, PAD) */
   pointer-events: none;
 }
 .lp-arc svg {
@@ -468,9 +474,9 @@
 }
 .lp-arc text {
   fill: var(--lp-hot);
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   paint-order: stroke;
   stroke: var(--lp-stage);
   stroke-width: 7px;

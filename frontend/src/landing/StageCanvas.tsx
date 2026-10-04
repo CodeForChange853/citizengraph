@@ -54,10 +54,8 @@ export function StageCanvas({ zoneRef, still }: { zoneRef: RefObject<HTMLElement
       canvas!.dataset.quality = String(quality);
 
       const z = zoneRef.current?.getBoundingClientRect();
-      // The graph leaves the HUD row above it clear.
-      const above = zoneRef.current?.querySelector(".lp-stagehud")?.getBoundingClientRect().height ?? 0;
       const zone = z
-        ? { x: z.left - box.left + PAD, y: z.top - box.top + PAD + above, w: z.width - PAD * 2, h: z.height - PAD * 2 - above }
+        ? { x: z.left - box.left + PAD, y: z.top - box.top + PAD, w: z.width - PAD * 2, h: z.height - PAD * 2 }
         : { x: PAD, y: PAD, w: width - PAD * 2, h: height - PAD * 2 };
       // The line under the question, and the end of the question on it.
       const rule = stage?.querySelector(".lp-amber")?.getBoundingClientRect();

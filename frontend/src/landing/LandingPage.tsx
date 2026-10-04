@@ -4,7 +4,7 @@ import { useRef, useState, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import type { Lang } from "../api/types";
 import { setLanguage } from "../i18n";
-import { ArcText } from "./ArcText";
+import { ArcText, OrbNote } from "./ArcText";
 import { CUES, OFFICES, SERVICE_TOTAL } from "./demo";
 import { Grain } from "./Grain";
 import { TimelineContext, useCompact, usePrefersReducedMotion, useTimelineValue } from "./hooks";
@@ -113,12 +113,15 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
                 </h1>
                 <Terminal />
               </div>
-              <div className="lp-graphzone" ref={zoneRef}>
+              <div className="lp-graphzone">
                 <ul className="lp-hudrow lp-stagehud" style={{ opacity: hud ? 1 : 0 }}>
                   <li className="lp-hud">{t("landing.hudOffices", { count: OFFICES.length })}</li>
                   <li className="lp-hud">{t("landing.hudServices", { count: SERVICE_TOTAL })}</li>
                 </ul>
-                <ArcText />
+                <div className="lp-plot" ref={zoneRef}>
+                  <ArcText />
+                  <OrbNote />
+                </div>
               </div>
             </div>
             {reduced ? null : (

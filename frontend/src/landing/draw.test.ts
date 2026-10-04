@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { drawStage, type Quality, type StageLayout } from "./draw";
 import { buildTrail } from "./geometry";
+import { COLORS, withAlpha } from "./palette";
 import { beat, INTRO_END, POSTER_TIME, TIMELINE_END } from "./timeline";
 
 /** A stand-in 2D context that records what was drawn (jsdom has no canvas). */
@@ -104,5 +105,16 @@ describe("stage picture", () => {
     const time = 300; // the line is drawing and sparks fly off its head
     expect(drawn(time, 0).length).toBeLessThan(drawn(time, 1).length);
     expect(drawn(time, 1).length).toBeLessThan(drawn(time, 2).length);
+  });
+
+  it("collapses the graph into the orb at the end of beat 5, and keeps the graph on the poster frame", () => {
+    const labels = (time: number) => drawn(time).filter((c) => c.op === "text:BPLO 07" && !c.style.endsWith("00"));
+    const end = beat("trail").start + beat("trail").dur;
+    expect(labels(end)).toHaveLength(0); // callouts gone
+    expect(labels(POSTER_TIME)).toHaveLength(1); // reduced motion still shows the labelled graph
+    // the orb: its core is filled with the stage colour and rimmed with the accent
+    const rims = (time: number) => drawn(time).filter((c) => c.op === "stroke" && c.style.startsWith(COLORS.accent));
+    expect(rims(end).length).toBeGreaterThan(rims(POSTER_TIME).length);
+    expect(drawn(end).some((c) => c.op === "fill" && c.style === withAlpha("stage", 1))).toBe(true);
   });
 });

@@ -17,6 +17,7 @@
     "limit": "LIMIT set"
   },
   "arc": "retrieved, never generated",
+  "orbNote": "Many charter pages, one retrieved answer",
   "sampleTitle": "The answer comes from the charter, not from the model",
   "sampleNote": "This card shows sample data. It is not an official list.",
   "slaTitle": "A second agent watches the clock",

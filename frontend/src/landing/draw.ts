@@ -3,7 +3,7 @@
 // same time always gives the same frame. All colours come from the palette roles.
 import { calloutAt, ENTER_AT, guardTicks, LINE_MS, SERVICE_TOTAL } from "./demo";
 import { clamp01, easeOutCubic, ramp } from "./ease";
-import { OFFICE_CELLS, RING_SEGMENTS, RINGS, SEEDS, TARGET, type Pt, type Seed } from "./geometry";
+import { COLLAPSE, OFFICE_CELLS, RING_SEGMENTS, RINGS, SEEDS, TARGET, type Pt, type Seed } from "./geometry";
 import { withAlpha, type Role } from "./palette";
 import { beat, BEATS, beatNumberAt, intoAt, progressAt } from "./timeline";
 
@@ -156,25 +156,52 @@ export function drawStage(ctx: Ctx, layout: StageLayout, time: number, quality: 
   const trail = progressAt("trail", time);
   const at = (p: Pt): XY => [zone.x + p.x * zone.w, zone.y + p.y * zone.h];
   const sparkCount = Math.round(SEEDS.length * SPARK_SHARE[quality]);
+  // Beat 5, second half: the graph falls into one point (collapse), which becomes the orb.
+  const collapse = ramp(trail, 0.5, 0.8);
+  const orb = ramp(trail, 0.72, 1);
+  const graph = 1 - ramp(trail, 0.5, 0.62); // how much of the graph's lines and labels is left
+  const cx = zone.x + zone.w / 2;
+  const cy = zone.y + zone.h / 2;
+  const unit = Math.min(zone.w, zone.h);
 
   // ---- Always there, from the very first frame: a faint ruled grid and the frame's crop marks.
   ctx.strokeStyle = withAlpha("line", 0.3 + 0.25 * ramp(askMs, 0, 400));
   ctx.lineWidth = 1;
   ctx.beginPath();
-  for (let x = (width % GRID) / 2; x <= width; x += GRID) {
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-  }
-  for (let y = lineY % GRID; y <= height; y += GRID) {
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
+  if (collapse <= 0) {
+    for (let x = (width % GRID) / 2; x <= width; x += GRID) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+    }
+    for (let y = lineY % GRID; y <= height; y += GRID) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+    }
+  } else {
+    // The grid bends toward the orb: every point is pulled to the centre, most strongly near it.
+    const reachSq = 2 * (unit * 0.42) ** 2;
+    const bend = (x: number, y: number): XY => {
+      const dx = x - cx;
+      const dy = y - cy;
+      const pull = collapse * 0.62 * Math.exp(-(dx * dx + dy * dy) / reachSq);
+      return [x - dx * pull, y - dy * pull];
+    };
+    const step = quality === 0 ? GRID : GRID / 2;
+    for (let x = (width % GRID) / 2; x <= width; x += GRID) {
+      ctx.moveTo(...bend(x, 0));
+      for (let y = step; y <= height + step; y += step) ctx.lineTo(...bend(x, y));
+    }
+    for (let y = lineY % GRID; y <= height; y += GRID) {
+      ctx.moveTo(...bend(0, y));
+      for (let x = step; x <= width + step; x += step) ctx.lineTo(...bend(x, y));
+    }
   }
   ctx.stroke();
   ctx.lineWidth = 1.5;
   cropMarks(ctx, 8, 8, width - 16, height - 16, 12, () => withAlpha("muted", 0.9));
 
   // ---- Beat 2: contour rings ripple out from the end of the question, across the whole stage.
-  if (contours > 0) {
+  if (contours > 0 && collapse < 1) {
     const scale = Math.max(width, height) * 1.05;
     const ringAt = (p: Pt): XY => [origin.x + p.x * scale, origin.y + p.y * scale];
     ctx.lineWidth = 1.25;
@@ -182,7 +209,7 @@ export function drawStage(ctx: Ctx, layout: StageLayout, time: number, quality: 
       const shown = ramp(contours, k * 0.065, k * 0.065 + 0.4);
       if (shown <= 0) return;
       const count = Math.ceil(shown * RING_SEGMENTS) + 1;
-      ctx.strokeStyle = withAlpha("line", 0.95 - 0.35 * offices);
+      ctx.strokeStyle = withAlpha("line", (0.95 - 0.35 * offices) * (1 - collapse));
       polyline(ctx, ring, count, ringAt, quality === 0 ? 2 : 1);
       ctx.stroke();
       if (shown < 1) {
@@ -197,7 +224,7 @@ export function drawStage(ctx: Ctx, layout: StageLayout, time: number, quality: 
   const lineP = easeOutCubic(askMs / LINE_MS);
   const lineX = Math.max(6, width * lineP);
   const settled = ramp(askMs, LINE_MS, LINE_MS + 700);
-  glowStroke(ctx, "glow", 1 - 0.5 * settled, quality, () => {
+  glowStroke(ctx, "glow", (1 - 0.5 * settled) * (1 - 0.7 * collapse), quality, () => {
     ctx.beginPath();
     ctx.moveTo(0, lineY);
     ctx.lineTo(lineX, lineY);
@@ -258,7 +285,7 @@ export function drawStage(ctx: Ctx, layout: StageLayout, time: number, quality: 
 
   // ---- Beat 3: the office cells grow from their corners, then each office's services pop in.
   const edges = ramp(offices, 0, 0.45);
-  ctx.strokeStyle = withAlpha("edge", 1);
+  ctx.strokeStyle = withAlpha("edge", graph);
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   const tips: XY[] = [];
@@ -290,7 +317,7 @@ export function drawStage(ctx: Ctx, layout: StageLayout, time: number, quality: 
   const nodeShown = (i: number) => ramp(offices, 0.3 + (0.55 * i) / SERVICE_TOTAL, 0.36 + (0.55 * i) / SERVICE_TOTAL);
   // spokes first, so the nodes sit on top of them
   ctx.lineWidth = 1;
-  ctx.strokeStyle = withAlpha("edge", 0.75);
+  ctx.strokeStyle = withAlpha("edge", 0.75 * graph);
   ctx.beginPath();
   for (const office of OFFICE_CELLS) {
     const [hx, hy] = at(office.hub);
@@ -302,18 +329,32 @@ export function drawStage(ctx: Ctx, layout: StageLayout, time: number, quality: 
       ctx.lineTo(hx + (x - hx) * shown, hy + (y - hy) * shown);
     }
   }
-  ctx.stroke();
+  if (graph > 0) ctx.stroke();
 
+  // The 40 service nodes. In the second half of beat 5 each one spirals into the centre.
   index = 0;
   ctx.fillStyle = withAlpha("text", 1);
   ctx.beginPath();
   for (const office of OFFICE_CELLS) {
     for (const node of office.nodes) {
+      const fall = COLLAPSE[index]!;
       const shown = nodeShown(index++);
       if (shown <= 0) continue;
-      const [x, y] = at(node);
-      ctx.moveTo(x + 3 * shown, y);
-      ctx.arc(x, y, 3 * shown, 0, TAU);
+      let [x, y] = at(node);
+      let size = 3 * shown;
+      if (collapse > 0) {
+        const e = ramp(collapse, fall.delay, fall.delay + 0.65);
+        if (e >= 1) continue; // swallowed
+        const dx = x - cx;
+        const dy = y - cy;
+        const angle = Math.atan2(dy, dx) + fall.turns * TAU * e * e;
+        const radius = Math.hypot(dx, dy) * (1 - e) ** 1.6;
+        x = cx + Math.cos(angle) * radius;
+        y = cy + Math.sin(angle) * radius;
+        size *= 1 - 0.5 * e;
+      }
+      ctx.moveTo(x + size, y);
+      ctx.arc(x, y, size, 0, TAU);
     }
   }
   ctx.fill();
@@ -323,7 +364,7 @@ export function drawStage(ctx: Ctx, layout: StageLayout, time: number, quality: 
   ctx.textBaseline = "middle";
   ctx.lineWidth = 1.5;
   OFFICE_CELLS.forEach((office, i) => {
-    const lit = ramp(offices, calloutAt(i), calloutAt(i) + 0.12);
+    const lit = ramp(offices, calloutAt(i), calloutAt(i) + 0.12) * graph;
     if (lit <= 0) return;
     const [x, y] = at(office.hub);
     ctx.fillStyle = withAlpha("stage", lit);
@@ -351,26 +392,90 @@ export function drawStage(ctx: Ctx, layout: StageLayout, time: number, quality: 
 
   // ---- Beat 5: the glow trail leaves the question, crosses the graph and lands on the service.
   const reach = ramp(trail, 0, 0.34);
-  const count = Math.max(2, Math.ceil(reach * (layout.trail.length - 1)) + 1);
-  glowStroke(ctx, "glow", 1, quality, () => polyline(ctx, layout.trail, count, at));
-  const [headX, headY] = at(layout.trail[count - 1]!);
-  head(ctx, headX, headY, 1, quality);
+  const trailAlpha = 1 - ramp(trail, 0.5, 0.64);
+  if (trailAlpha > 0) {
+    const count = Math.max(2, Math.ceil(reach * (layout.trail.length - 1)) + 1);
+    glowStroke(ctx, "glow", trailAlpha, quality, () => polyline(ctx, layout.trail, count, at));
+    const [headX, headY] = at(layout.trail[count - 1]!);
+    head(ctx, headX, headY, trailAlpha, quality);
 
-  const landed = ramp(trail, 0.3, 0.42);
-  if (landed > 0) {
-    const [x, y] = at(TARGET);
-    ctx.lineWidth = 2;
-    for (const delay of [0, 0.35]) {
-      const pulse = clamp01((landed - delay) / (1 - delay));
-      if (pulse <= 0) continue;
-      ctx.strokeStyle = withAlpha("glow", 1 - 0.55 * pulse);
+    const landed = ramp(trail, 0.3, 0.42);
+    if (landed > 0) {
+      const [x, y] = at(TARGET);
+      ctx.lineWidth = 2;
+      for (const delay of [0, 0.35]) {
+        const pulse = clamp01((landed - delay) / (1 - delay));
+        if (pulse <= 0) continue;
+        ctx.strokeStyle = withAlpha("glow", (1 - 0.55 * pulse) * trailAlpha);
+        ctx.beginPath();
+        ctx.arc(x, y, 5 + 13 * pulse, 0, TAU);
+        ctx.stroke();
+      }
+      ctx.fillStyle = withAlpha("glow", trailAlpha);
       ctx.beginPath();
-      ctx.arc(x, y, 5 + 13 * pulse, 0, TAU);
-      ctx.stroke();
+      ctx.arc(x, y, 5, 0, TAU);
+      ctx.fill();
+      // an impact: sparks where the trail lands (the scroll is the clock here)
+      if (sparkCount > 0) {
+        sparks(
+          ctx,
+          SEEDS.slice(8, 8 + Math.ceil(sparkCount * 0.22)),
+          (trail - 0.32) * 3,
+          () => 0,
+          (s) => 0.3 + s.b * 0.25,
+          () => [x, y],
+          (s) => [Math.cos(s.a * TAU) * (60 + s.c * 150), Math.sin(s.a * TAU) * (60 + s.c * 150) - 40],
+        );
+      }
     }
-    ctx.fillStyle = withAlpha("glow", 1);
+  }
+  if (orb > 0) drawOrb(ctx, cx, cy, unit * 0.13 * (0.35 + 0.65 * orb), orb, trail, quality);
+}
+
+/**
+ * The singularity orb: many charter pages become one retrieved answer. A dark core with a thin accent
+ * rim, inside a tilted accretion ring in the glow colour. The far half of the ring is drawn behind the
+ * core and the near half in front. The bloom stays inside the orb's own area: it is never a screen flash.
+ */
+function drawOrb(ctx: Ctx, cx: number, cy: number, radius: number, shown: number, trail: number, quality: Quality) {
+  const tilt = -0.32;
+  const rx = radius * 2.1;
+  const ry = radius * 0.62;
+  if (quality > 0) {
+    const bloom = ctx.createRadialGradient(cx, cy, radius * 0.6, cx, cy, radius * 3);
+    bloom.addColorStop(0, withAlpha("glow", 0.3 * shown));
+    bloom.addColorStop(1, withAlpha("glow", 0));
+    ctx.fillStyle = bloom;
     ctx.beginPath();
-    ctx.arc(x, y, 5, 0, TAU);
+    ctx.arc(cx, cy, radius * 3, 0, TAU);
     ctx.fill();
   }
+  const half = (from: number, to: number) =>
+    glowStroke(ctx, "glow", shown, quality, () => {
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, tilt, from, to);
+    });
+  half(Math.PI, TAU); // far side
+  // streaks swirling on the ring; they turn as the page is scrolled
+  const streaks = quality === 0 ? 0 : quality === 1 ? 9 : 18;
+  ctx.lineWidth = 1.25;
+  for (let i = 0; i < streaks; i++) {
+    const s = SEEDS[i]!;
+    const lane = 0.72 + s.b * 0.6;
+    const start = s.a * TAU + trail * (5 + s.c * 4);
+    ctx.strokeStyle = withAlpha("glow", (0.25 + 0.5 * s.d) * shown);
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx * lane, ry * lane, tilt, start, start + 0.35 + s.c * 0.5);
+    ctx.stroke();
+  }
+  ctx.fillStyle = withAlpha("stage", 1);
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = withAlpha("accent", 0.95 * shown);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, TAU);
+  ctx.stroke();
+  half(0, Math.PI); // near side, over the core
 }
