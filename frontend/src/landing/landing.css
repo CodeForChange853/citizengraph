@@ -27,13 +27,13 @@
   background-repeat: repeat;
 }
 
-/* "Skip intro": first in the tab order. Shown while the intro plays, otherwise only when focused. */
+/* "Skip intro": first in the tab order, floating at the bottom corner. Shown while the intro plays,
+   otherwise only when focused. */
 .lp-skip {
-  position: absolute;
+  position: fixed;
   z-index: 20;
-  top: 0.75rem;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 1rem;
+  bottom: 1rem;
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
@@ -90,7 +90,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem 0.75rem;
-  padding: 4rem 0 0.5rem;
+  padding: 0.75rem 0 0.5rem;
+}
+.lp-top > :first-child {
+  flex: 1 1 10rem;
+  min-width: 0;
 }
 .lp-brand {
   margin: 0;
@@ -153,7 +157,7 @@
   position: relative;
   order: -1;
   flex: 1 1 auto;
-  min-height: 34svh;
+  min-height: 36svh;
 }
 .lp-hero {
   display: flex;
@@ -314,7 +318,7 @@
   position: absolute;
   bottom: 0;
   left: 50%;
-  width: min(100%, 34rem);
+  width: min(100%, 26rem);
   transform: translateX(-50%);
   pointer-events: none;
 }

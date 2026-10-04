@@ -15,6 +15,7 @@ import { STAGE_VARS } from "./palette";
 import { usePlayback } from "./playback";
 import { SampleCard } from "./SampleCard";
 import { SlaBeat } from "./SlaBeat";
+import { StageCanvas } from "./StageCanvas";
 import "./strings";
 import { Terminal } from "./Terminal";
 import { Timeline } from "./timeline";
@@ -25,6 +26,7 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
   const { t, i18n } = useTranslation();
   const mainRef = useRef<HTMLElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const zoneRef = useRef<HTMLDivElement>(null);
   usePlayback(timeline, reduced);
 
   const playing = useTimelineValue((tl) => tl.playing);
@@ -48,6 +50,7 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
       <main id="lp-main" ref={mainRef} tabIndex={-1}>
         <div className="lp-stagewrap" ref={wrapRef}>
           <div className="lp-stage">
+            <StageCanvas zoneRef={zoneRef} />
             <div className="lp-top">
               <div>
                 <p className="lp-brand">{t("app.name")}</p>
@@ -77,7 +80,7 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
                 </h1>
                 <Terminal />
               </div>
-              <div className="lp-graphzone">
+              <div className="lp-graphzone" ref={zoneRef}>
                 <ul className="lp-hudrow lp-stagehud" style={{ opacity: hud ? 1 : 0 }}>
                   <li className="lp-hud">{t("landing.hudOffices", { count: OFFICES.length })}</li>
                   <li className="lp-hud">{t("landing.hudServices", { count: SERVICE_TOTAL })}</li>

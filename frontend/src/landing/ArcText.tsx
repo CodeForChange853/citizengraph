@@ -7,10 +7,10 @@ export function ArcText() {
   const p = useBeatProgress("trail");
   return (
     <div className="lp-arc" style={{ opacity: ramp(p, 0.05, 0.3) }}>
-      <svg viewBox="0 0 600 190" role="img" aria-label={t("landing.arc")}>
+      <svg viewBox="0 0 600 132" role="img" aria-label={t("landing.arc")}>
         <path
           id="lp-arc-path"
-          d="M 40 176 A 300 300 0 0 1 560 176"
+          d="M 40 124 A 520 520 0 0 1 560 124"
           pathLength={1}
           strokeDasharray={1}
           strokeDashoffset={1 - ramp(p, 0.05, 0.7)}

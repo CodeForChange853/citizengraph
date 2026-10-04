@@ -26,7 +26,7 @@ export function setReducedMotion(on: boolean) {
 
 async function landing() {
   renderApp(<AppRoutes />, { route: "/welcome" });
-  await screen.findByRole("heading", { level: 1 });
+  await screen.findByRole("heading", { level: 1 }, { timeout: 5000 }); // the first test also loads the lazy chunk
   return document.querySelector<HTMLElement>(".lp")!;
 }
 
