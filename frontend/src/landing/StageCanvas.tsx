@@ -270,7 +270,7 @@ export function StageCanvas({ zoneRef }: { zoneRef: RefObject<HTMLElement | null
       // Adaptive frame budget: back-to-back frames that keep arriving late cost a quality level.
       const gap = now - lastFrame;
       lastFrame = now;
-      if (gap < 100) {
+      if (gap < 1000) {
         slow = gap > SLOW_FRAME_MS ? slow + 1 : Math.max(0, slow - 1);
         if (slow >= SLOW_FRAMES && quality > 0) {
           quality = (quality - 1) as Quality;
