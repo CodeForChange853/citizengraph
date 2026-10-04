@@ -1,62 +1,106 @@
 {
-  "skipIntro": "Skip intro",
-  "replay": "Replay intro",
+  "skip": "Skip to the app",
   "soundOn": "Sound: on",
   "soundOff": "Sound: off",
-  "title": "Ask once. Bring the right papers.",
-  "questionLabel": "A citizen asks",
-  "stageAlt": "Diagram: the four city offices as four cells, with their {{count}} services as points. BPLO 7, LCRO 17, CHO 15, CSWDO 1.",
-  "hudOffices": "Offices: {{count}}",
-  "hudServices": "Services: {{count}}",
-  "cypherLabel": "Illustrative query, read-only",
-  "guardTitle": "Guardrail checks",
-  "guard": {
-    "readOnly": "Read-only",
-    "labels": "Labelled nodes and types",
-    "schema": "Inside the schema",
-    "limit": "LIMIT set"
-  },
-  "arc": "retrieved, never generated",
-  "orbNote": "Many charter pages, one retrieved answer",
-  "sampleTitle": "The answer comes from the charter, not from the model",
-  "sampleBody": "The model only writes the query. Every fact on an answer card is a row read from the charter graph.",
-  "rowBring": "What to bring",
-  "rowFee": "Fees",
-  "rowTime": "Steps and time",
-  "rowValue": "Read from the charter",
-  "sampleNote": "Sample layout. Amounts, times and lists are left out here on purpose.",
-  "slaTitle": "A second agent watches the clock",
-  "slaBody": "It compares each step with the time the charter allows. Waiting at an outside agency is not counted as a delay by the office.",
-  "slaStep": "Step {{n}}",
-  "sla": {
-    "onTime": "On time",
-    "external": "At an outside agency, not counted",
-    "late": "Past the allowed time",
-    "waiting": "Not started"
-  },
-  "slaAlert": "Drafting an alert for staff review",
-  "localTitle": "Runs on the office's own computer",
-  "localBody": "No cloud service is used while it runs. It only reads the charter data and never changes it.",
-  "hudLocal": "Local",
-  "hudOffline": "Offline",
-  "hudReadOnly": "Read-only",
-  "readModel": {
-    "label": "Model",
-    "value": "a file on this computer"
-  },
-  "readNetwork": {
-    "label": "Network",
-    "value": "not needed while it runs"
-  },
-  "readGraph": {
-    "label": "Charter graph",
-    "value": "read-only"
-  },
-  "readTarget": {
-    "label": "Design target",
-    "value": "CPU-only laptop, 16 GB"
-  },
-  "readNote": "The design target is a goal, not a measured result.",
-  "cta": "Start asking",
-  "scrollHint": "Scroll to follow the answer"
+  "film": "Watch the film",
+  "filmStop": "Stop the film",
+  "chapters": "Chapters",
+  "scroll": "Scroll to begin",
+  "scenes": {
+    "title": {
+      "name": "Two cores",
+      "kicker": "An AI for city services",
+      "headline": "Two cores. One answer.",
+      "support": "An AI guide for city services, and a second core that watches the deadlines.",
+      "poster": "Two glowing cores, one cyan and one orange, side by side inside a glass case."
+    },
+    "question": {
+      "name": "The question",
+      "kicker": "The question everyone asks",
+      "headline": "Every trip starts with: what do I bring?",
+      "support": "One missing paper means another trip and another morning in line.",
+      "poster": "A long corridor drawn in thin lines, with people waiting in a queue and sheets of paper in the air."
+    },
+    "guide": {
+      "name": "Core 1, the Guide",
+      "kicker": "Core 1 · The Guide",
+      "headline": "It understands you. Filipino, English, Taglish.",
+      "support": "Ask the way you talk. Core 1 is designed to work out which city service you mean.",
+      "langs": ["Filipino", "English", "Taglish"],
+      "poster": "The glass case open, the cyan core in front with rings spreading out from it."
+    },
+    "journey": {
+      "name": "One question, followed",
+      "kicker": "Core 1 · One question, followed through",
+      "askLabel": "A citizen asks",
+      "checked": "Checked for safety",
+      "service": "Business permit",
+      "offices": ["Business permits", "Civil registry", "City health", "Social welfare"],
+      "shots": [
+        {
+          "headline": "Checks every request.",
+          "support": "Before anything is looked up, your question is checked for safety."
+        },
+        {
+          "headline": "Finds the exact service.",
+          "support": "Your words become one exact service, out of 40 across 4 city offices."
+        },
+        {
+          "headline": "Reads only the city's charter.",
+          "support": "Requirements, fees, steps and the office come from the city's own Citizen Charter. Core 1 never changes the city's records."
+        },
+        {
+          "headline": "Never makes things up.",
+          "support": "Every item on your list is taken from the charter. Nothing is invented."
+        }
+      ],
+      "poster": "A beam from the cyan core fans out to four groups of points, one group for each city office. One point is lit."
+    },
+    "answer": {
+      "name": "The answer",
+      "kicker": "The answer",
+      "headline": "What to bring. Where to go. Straight from the charter.",
+      "support": "A checklist you can save and tick off, stored on your phone.",
+      "arc": "straight from the charter",
+      "cardTitle": "Your checklist",
+      "rows": ["What to bring", "Fees", "Steps", "Where to go"],
+      "rowValue": "From the charter",
+      "note": "Sample layout. A real answer lists the charter's own items.",
+      "poster": "A dark sphere with a bright orange ring, and a checklist card opening out of it."
+    },
+    "watch": {
+      "name": "Core 2, the Watch",
+      "kicker": "Core 2 · The Watch",
+      "headline": "It never stops watching the deadlines.",
+      "support": "For city staff. Core 2 is designed to follow each request and compare it with the deadlines in the charter and the law.",
+      "poster": "The orange core inside a clock ring with one hand."
+    },
+    "request": {
+      "name": "One request, followed",
+      "kicker": "Core 2 · One request, followed through",
+      "headline": "A person decides. Core 2 only drafts.",
+      "support": "When a step runs late, Core 2 drafts an early heads-up. Staff review it before anything is sent.",
+      "outside": "Waiting on another agency isn't blamed on the office",
+      "alertTitle": "Early heads-up, drafted for staff review",
+      "alertBody": "One step is past its deadline.",
+      "alertTag": "Prototype feature",
+      "poster": "A glowing thread through five steps. One stretch is grey. Past the fourth step's deadline the thread burns bright orange."
+    },
+    "together": {
+      "name": "Together",
+      "kicker": "Together",
+      "headline": "Citizens know what to bring. Offices see delays early.",
+      "support": "Two cores. One city.",
+      "poster": "Both cores side by side in the glass case, each with a ring pulsing round it."
+    },
+    "close": {
+      "name": "Start",
+      "kicker": "Citizen Graph",
+      "headline": "Ask your first question.",
+      "support": "Built from the published Citizen Charters of 4 city offices and their 40 services.",
+      "cta": "Start asking",
+      "reviewers": "For reviewers",
+      "poster": "A dark sphere with an orange ring."
+    }
+  }
 }

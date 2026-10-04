@@ -1,17 +1,18 @@
-// Sound for the intro: a terminal, and nothing else. Every sound is synthesized with Web Audio from a
-// short noise buffer and a few very short sine blips (docs/landing_motion_spec.md, section 5). There are
-// no audio files, no music and no held tones: the longest sound is under a tenth of a second.
+// Sound for the film: soft swells when a core ignites, a whoosh on camera moves, a light tick on each
+// checklist item, a low pulse under an alert. Everything is synthesized with Web Audio from one short
+// noise buffer and a few short sines (docs/landing_motion_spec.md, section 7). No audio files, no music,
+// nothing sustained: the longest sound is about half a second.
 // Rules: muted unless the visitor turned it on (the choice is remembered), nothing is created before
 // a user gesture, it stops while the tab is hidden, and it never plays with reduced motion.
 import { useEffect, useState } from "react";
 import { readJson, writeJson } from "../lib/storage";
-import type { CueKind, Timeline } from "./timeline";
+import type { CueKind, Playhead } from "./playhead";
 
 export const SOUND_KEY = "cg.landing.sound";
 /** Everything is quiet: this is the ceiling for the sum of all sounds. */
 export const MASTER_GAIN = 0.22;
 /** No sound lasts longer than this (seconds). */
-export const MAX_SOUND_S = 0.1;
+export const MAX_SOUND_S = 0.6;
 
 type AudioCtor = typeof AudioContext;
 
@@ -118,21 +119,48 @@ export class SoundEngine {
     osc.stop(now + Math.min(MAX_SOUND_S, seconds + 0.01));
   }
 
+  /** Noise through a band-pass whose centre sweeps: the body of a swell or a whoosh. Short, never held. */
+  private sweep(from: number, peakAt: number, to: number, attack: number, seconds: number, peak: number): void {
+    const { ctx, out, noise } = this;
+    if (!ctx || !out || !noise) return;
+    const now = ctx.currentTime;
+    const source = ctx.createBufferSource();
+    source.buffer = noise;
+    source.loop = true;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.Q.value = 1.1;
+    filter.frequency.setValueAtTime(from, now);
+    filter.frequency.exponentialRampToValueAtTime(peakAt, now + attack);
+    filter.frequency.exponentialRampToValueAtTime(to, now + seconds);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(peak, now + attack);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + seconds);
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(out);
+    source.start(now, vary(this.count + 0.5) * 0.12);
+    source.stop(now + Math.min(MAX_SOUND_S, seconds + 0.01));
+  }
+
   play = (kind: CueKind): void => {
     const ctx = this.ctx;
     if (!this.enabled || !ctx || ctx.state !== "running" || document.hidden) return;
-    const n = this.count++;
-    if (kind === "key") {
-      // each key a little different in pitch, length and loudness
-      this.burst("bandpass", 3200 + vary(n) * 2000, 1.4, 0.022 + vary(n + 0.3) * 0.012, 0.55 + vary(n + 0.7) * 0.3);
-    } else if (kind === "enter") {
-      this.burst("lowpass", 900, 0.7, 0.09, 0.9);
-      this.blip(150, 60, 0.08, 0.6);
+    this.count++;
+    if (kind === "ignite") {
+      // a soft swell: it rises for a moment and is gone
+      this.sweep(300, 1400, 700, 0.12, 0.5, 0.5);
+      this.blip(80, 130, 0.4, 0.22);
+    } else if (kind === "whoosh") {
+      this.sweep(500, 2600, 600, 0.16, 0.35, 0.3);
     } else if (kind === "tick") {
       this.burst("bandpass", 6000, 6, 0.018, 0.6);
       this.blip(2100, 2100, 0.03, 0.2);
     } else {
-      this.blip(1400, 1400, 0.022, 0.12);
+      // pulse: a low thump under an alert
+      this.burst("lowpass", 420, 0.7, 0.2, 0.55);
+      this.blip(70, 42, 0.26, 0.6);
     }
   };
 
@@ -145,14 +173,14 @@ export class SoundEngine {
 }
 
 /** The sound toggle's state. `available` is false with reduced motion: then there is no sound at all. */
-export function useSound(timeline: Timeline, reduced: boolean) {
+export function useSound(playhead: Playhead, reduced: boolean) {
   const [enabled, setEnabled] = useState(() => readJson<unknown>(SOUND_KEY, false) === true);
   const [engine] = useState(() => new SoundEngine());
 
   useEffect(() => {
     if (reduced) return;
     engine.arm(enabled);
-    const offCue = timeline.onCue(engine.play);
+    const offCue = playhead.onCue(engine.play);
     // A remembered "on" still waits for the first gesture on this visit.
     window.addEventListener("pointerdown", engine.unlock);
     window.addEventListener("keydown", engine.unlock);
@@ -164,7 +192,7 @@ export function useSound(timeline: Timeline, reduced: boolean) {
       document.removeEventListener("visibilitychange", engine.onVisibility);
       engine.arm(false);
     };
-  }, [engine, enabled, reduced, timeline]);
+  }, [engine, enabled, reduced, playhead]);
 
   useEffect(() => () => engine.close(), [engine]);
 

@@ -1,154 +1,150 @@
+import "@fontsource/archivo/latin-800.css";
 import "@fontsource/atkinson-hyperlegible-mono/latin-400.css";
 import "@fontsource/atkinson-hyperlegible-mono/latin-700.css";
-import { useRef, useState, type MouseEvent } from "react";
+import { lazy, Suspense, useCallback, useRef, useState, type MouseEvent } from "react";
 import { I18nextProvider, useTranslation } from "react-i18next";
-import type { Lang } from "../api/types";
-import { ArcText, OrbNote } from "./ArcText";
+import { CUES } from "./beats";
 import { LANDING_FIL_ENABLED, landingI18n } from "./copy";
-import { CUES, OFFICES, SERVICE_TOTAL } from "./demo";
-import { Grain } from "./Grain";
-import { TimelineContext, useCompact, usePrefersReducedMotion, useTimelineValue } from "./hooks";
-import { Kinetic } from "./Kinetic";
+import { PlayheadContext, StillContext, usePlayheadValue, usePrefersReducedMotion } from "./hooks";
 import "./landing.css";
-import { LocalBeat } from "./LocalBeat";
-import { STAGE_VARS } from "./palette";
-import { usePlayback } from "./playback";
-import { SampleCard } from "./SampleCard";
-import { SlaBeat } from "./SlaBeat";
+import { Playhead } from "./playhead";
+import { anchorPos, END, posToFraction, SCENE_COUNT, SCENES, TOTAL_VH } from "./scenes";
+import { Scenes } from "./SceneText";
 import { useSound } from "./sound";
-import { StageCanvas } from "./StageCanvas";
-import { Terminal } from "./Terminal";
-import { Timeline } from "./timeline";
+import { useStory } from "./story";
+import { STAGE_VARS } from "./tokens";
 
-const LANGS: Lang[] = ["en", "fil"];
+// three.js and the shaders: a chunk of its own, fetched after the page has painted.
+const Stage3D = lazy(() => import("./gl/Stage3D"));
 
-function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) {
-  const { t, i18n } = useTranslation();
-  const mainRef = useRef<HTMLElement>(null);
-  const zoneRef = useRef<HTMLDivElement>(null);
+/** True when this browser can give us a WebGL 2 context. Nothing is created in tests or on old devices. */
+function canWebGL(): boolean {
+  if (typeof WebGL2RenderingContext === "undefined") return false;
+  try {
+    return !!document.createElement("canvas").getContext("webgl2");
+  } catch {
+    return false;
+  }
+}
+
+const LANGS = ["en", "fil"] as const;
+
+function Dots() {
+  const { t } = useTranslation();
+  const current = usePlayheadValue((p) => Math.min(SCENE_COUNT - 1, Math.floor(p.target + 0.02)));
+  return (
+    <nav className="lp-dots" aria-label={t("landing.chapters")}>
+      <ol>
+        {SCENES.map((scene, i) => (
+          <li key={scene.id}>
+            <a href={`#lp-s-${scene.id}`} aria-current={current === i ? "step" : undefined} aria-label={`${i + 1}. ${t(`landing.scenes.${scene.id}.name`)}`}>
+              <span aria-hidden="true" />
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+function Counter() {
+  const { t } = useTranslation();
+  const current = usePlayheadValue((p) => Math.min(SCENE_COUNT - 1, Math.floor(p.pos + 0.02)));
+  const two = (n: number) => String(n).padStart(2, "0");
+  return (
+    <p className="lp-counter" aria-hidden="true">
+      <span>
+        {two(current + 1)} / {two(SCENE_COUNT)}
+      </span>
+      <span>{t(`landing.scenes.${SCENES[current]!.id}.name`)}</span>
+    </p>
+  );
+}
+
+function Page({ playhead, reduced }: { playhead: Playhead; reduced: boolean }) {
+  const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
-  usePlayback(timeline, reduced, rootRef);
-  const sound = useSound(timeline, reduced);
-
-  const playing = useTimelineValue((tl) => tl.playing);
-  const introDone = useTimelineValue((tl) => tl.introDone);
-  const headline = useTimelineValue((tl) => Math.round(tl.progress("contours") * 8) / 8);
-  const hud = useTimelineValue((tl) => tl.progress("offices") > 0.6);
-  const hint = useTimelineValue((tl) => tl.introDone && tl.progress("trail") === 0);
-  const compact = useCompact();
-  const lang: Lang = i18n.language === "fil" ? "fil" : "en";
+  const trackRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [gl, setGl] = useState<"off" | "loading" | "on">(() => (!reduced && canWebGL() ? "loading" : "off"));
+  const story = useStory(playhead, reduced, rootRef, trackRef, stageRef);
+  const sound = useSound(playhead, reduced);
+  const cuts = usePlayheadValue((p) => p.cuts);
+  const onLost = useCallback(() => setGl("off"), []);
+  const onReady = useCallback(() => setGl("on"), []);
+  const picture = reduced ? "off" : gl;
 
   function skip(event: MouseEvent) {
     event.preventDefault();
-    timeline.skipIntro();
-    mainRef.current?.focus({ preventScroll: true });
-  }
-
-  function replay() {
-    window.scrollTo(0, 0);
-    timeline.replay();
+    story.goTo(END);
+    document.getElementById("lp-cta")?.focus({ preventScroll: true });
   }
 
   return (
-    <div
-      ref={rootRef}
-      className="lp"
-      style={STAGE_VARS}
-      data-motion={reduced ? "static" : "full"}
-      data-playing={playing}
-      data-compact={compact}
-    >
-      <a className="lp-skip" href="#lp-main" data-idle={introDone} onClick={skip}>
-        {t("landing.skipIntro")}
+    <div ref={rootRef} className="lp" lang="en" style={STAGE_VARS} data-motion={reduced ? "static" : "full"} data-gl={picture} data-filming={story.filming}>
+      <a className="lp-skip" href="#lp-cta" onClick={skip}>
+        {t("landing.skip")}
       </a>
-      <Grain />
-      <main id="lp-main" ref={mainRef} tabIndex={-1}>
-        <div className="lp-stagewrap" data-beat="trail">
-          <div className="lp-stage">
-            <StageCanvas zoneRef={zoneRef} still={reduced} />
-            <div className="lp-vignette" aria-hidden="true" />
-            <div className="lp-top">
-              <div className="lp-id">
-                <p className="lp-brand">{t("app.name")}</p>
-                <p className="lp-proto">{t("app.prototype")}</p>
-              </div>
-              <div className="lp-controls">
-                <div className="lp-seg" role="group" aria-label={t("lang.label")} data-disabled={!LANDING_FIL_ENABLED}>
-                  {LANGS.map((code) => (
-                    <button
-                      key={code}
-                      type="button"
-                      className="lp-btn"
-                      aria-pressed={lang === code}
-                      aria-disabled={!LANDING_FIL_ENABLED}
-                      aria-label={t(`lang.${code}`)}
-                    >
-                      {code.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-                {sound.available ? (
-                  <button type="button" className="lp-btn" data-on={sound.enabled} aria-pressed={sound.enabled} onClick={sound.toggle}>
-                    {t(sound.enabled ? "landing.soundOn" : "landing.soundOff")}
-                  </button>
-                ) : null}
-                {introDone && !reduced ? (
-                  <button
-                    type="button"
-                    className="lp-btn"
-                    aria-label={t("landing.replay")}
-                    title={t("landing.replay")}
-                    onClick={replay}
-                  >
-                    <span aria-hidden="true">↻</span>
-                  </button>
-                ) : null}
-              </div>
+      <header className="lp-top">
+        <div className="lp-id">
+          <p className="lp-brand">{t("app.name")}</p>
+          <p className="lp-proto">{t("app.prototype")}</p>
+        </div>
+        <div className="lp-controls">
+          <div className="lp-seg" role="group" aria-label={t("lang.label")} data-disabled={!LANDING_FIL_ENABLED}>
+            {LANGS.map((code) => (
+              <button key={code} type="button" className="lp-btn" aria-pressed={code === "en"} aria-disabled={!LANDING_FIL_ENABLED} aria-label={t(`lang.${code}`)}>
+                {code.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          {sound.available ? (
+            <button type="button" className="lp-btn" data-on={sound.enabled} aria-pressed={sound.enabled} onClick={sound.toggle}>
+              {t(sound.enabled ? "landing.soundOn" : "landing.soundOff")}
+            </button>
+          ) : null}
+          {reduced ? null : (
+            <button type="button" className="lp-btn lp-film" data-film="" data-on={story.filming} onClick={story.filming ? story.stopFilm : story.startFilm}>
+              <span aria-hidden="true">{story.filming ? "■" : "▶"}</span> {t(story.filming ? "landing.filmStop" : "landing.film")}
+            </button>
+          )}
+        </div>
+      </header>
+      <main id="lp-main">
+        <div ref={trackRef} className="lp-track" style={{ "--lp-total": TOTAL_VH } as React.CSSProperties}>
+          {SCENES.map((scene, i) => (
+            <span key={scene.id} id={`lp-s-${scene.id}`} className="lp-mark" style={{ "--at": posToFraction(anchorPos(i)) } as React.CSSProperties} />
+          ))}
+          <div ref={stageRef} className="lp-stage" data-cut={cuts === 0 ? undefined : cuts % 2 ? "a" : "b"}>
+            {picture !== "off" ? (
+              <Suspense fallback={null}>
+                <Stage3D playhead={playhead} stageRef={stageRef} onLost={onLost} onReady={onReady} />
+              </Suspense>
+            ) : null}
+            <div className="lp-scenes">
+              <Scenes />
             </div>
-            <div className="lp-body">
-              <div className="lp-hero">
-                <h1 className="lp-h1 lp-glitch">
-                  <Kinetic text={t("landing.title")} shown={headline} />
-                </h1>
-                <Terminal />
-              </div>
-              <div className="lp-graphzone">
-                <ul className="lp-hudrow lp-stagehud" style={{ opacity: hud ? 1 : 0 }}>
-                  <li className="lp-hud">{t("landing.hudOffices", { count: OFFICES.length })}</li>
-                  <li className="lp-hud">{t("landing.hudServices", { count: SERVICE_TOTAL })}</li>
-                </ul>
-                <div className="lp-plot" ref={zoneRef}>
-                  <ArcText />
-                  <OrbNote />
-                </div>
-              </div>
-            </div>
-            {reduced ? null : (
-              <p className="lp-hint lp-mono" style={{ opacity: hint ? 1 : 0 }}>
-                <span>
-                  {t("landing.scrollHint")} <span aria-hidden="true">↓</span>
-                </span>
-              </p>
-            )}
+            <div className="lp-crop" aria-hidden="true" />
+            {reduced ? null : <Counter />}
           </div>
         </div>
-        <SampleCard />
-        <SlaBeat />
-        <LocalBeat />
       </main>
-      <footer className="lp-foot">{t("app.prototype")}</footer>
+      {reduced ? null : <Dots />}
+      <div className="lp-progress" aria-hidden="true" />
     </div>
   );
 }
 
 export function LandingPage() {
   const reduced = usePrefersReducedMotion();
-  const [timeline] = useState(() => new Timeline(CUES));
+  const [playhead] = useState(() => new Playhead(CUES));
   return (
     <I18nextProvider i18n={landingI18n}>
-      <TimelineContext.Provider value={timeline}>
-        <Stage timeline={timeline} reduced={reduced} />
-      </TimelineContext.Provider>
+      <PlayheadContext.Provider value={playhead}>
+        <StillContext.Provider value={reduced}>
+          <Page playhead={playhead} reduced={reduced} />
+        </StillContext.Provider>
+      </PlayheadContext.Provider>
     </I18nextProvider>
   );
 }

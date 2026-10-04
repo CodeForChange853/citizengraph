@@ -9,7 +9,7 @@ export class FakeAudioContext {
   sampleRate = 8000;
   destination = {};
   sources: { kind: "noise" | "sine"; stopAt: number }[] = [];
-  filters: { type: string; frequency: { value: number }; Q: { value: number } }[] = [];
+  filters: { type: string; frequency: { value: number; setValueAtTime: unknown; exponentialRampToValueAtTime: unknown }; Q: { value: number } }[] = [];
   gains: { gain: { value: number; peaks: number[] } }[] = [];
   constructor() {
     FakeAudioContext.made++;
@@ -21,7 +21,7 @@ export class FakeAudioContext {
   createBufferSource = () => {
     const record = { kind: "noise" as const, stopAt: Infinity };
     this.sources.push(record);
-    return { buffer: null, connect: vi.fn(), start: vi.fn(), stop: (at: number) => (record.stopAt = at) };
+    return { buffer: null, loop: false, connect: vi.fn(), start: vi.fn(), stop: (at: number) => (record.stopAt = at) };
   };
   createOscillator = () => {
     const record = { kind: "sine" as const, stopAt: Infinity };
@@ -35,7 +35,7 @@ export class FakeAudioContext {
     };
   };
   createBiquadFilter = () => {
-    const filter = { type: "", frequency: { value: 0 }, Q: { value: 0 }, connect: vi.fn() };
+    const filter = { type: "", frequency: { value: 0, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, Q: { value: 0 }, connect: vi.fn() };
     this.filters.push(filter);
     return filter;
   };

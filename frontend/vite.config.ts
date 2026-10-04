@@ -38,10 +38,19 @@ export default defineConfig({
       workbox: {
         // App shell: scripts, styles, fonts, icons and the page itself, so the app opens with no signal.
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+        // The landing page (/welcome), its 3D chunk and its fonts are not part of the app shell:
+        // they are fetched only on /welcome and cached then (runtimeCaching below).
+        globIgnores: ["**/Landing-*", "**/Stage3D-*", "**/archivo-*", "**/atkinson-hyperlegible-mono-*"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api\//],
         cleanupOutdatedCaches: true,
         runtimeCaching: [
+          {
+            // Landing assets have hashed names, so a cached copy never goes stale.
+            urlPattern: ({ url }) => /^\/assets\/(Landing|Stage3D|archivo|atkinson-hyperlegible-mono)-/.test(url.pathname),
+            handler: "CacheFirst",
+            options: { cacheName: "landing", expiration: { maxEntries: 40 } },
+          },
           {
             // The service list is a GET: show the last copy while a fresh one loads.
             // POST /chat is never cached; the last answers are kept on the device by chatStore.

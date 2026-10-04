@@ -1,27 +1,45 @@
 import { createContext, useContext, useSyncExternalStore } from "react";
-import type { BeatId, Timeline } from "./timeline";
+import { HOOK, WORDS } from "./beats";
+import { seg } from "./ease";
+import type { Playhead } from "./playhead";
 
-export const TimelineContext = createContext<Timeline | null>(null);
+export const PlayheadContext = createContext<Playhead | null>(null);
+/** True when the page is shown as still, stacked sections (reduced motion): everything is in its end state. */
+export const StillContext = createContext(false);
 
-export function useTimeline(): Timeline {
-  const timeline = useContext(TimelineContext);
-  if (!timeline) throw new Error("useTimeline needs a TimelineContext");
-  return timeline;
+export function usePlayhead(): Playhead {
+  const playhead = useContext(PlayheadContext);
+  if (!playhead) throw new Error("usePlayhead needs a PlayheadContext");
+  return playhead;
 }
+
+export const useStill = (): boolean => useContext(StillContext);
 
 /**
- * Read one value from the timeline. The component re-renders only when the selected value changes,
- * so select whole numbers or coarse steps, never the raw time.
+ * Read one value from the playhead. The component re-renders only when the selected value changes,
+ * so select whole numbers or coarse steps, never the raw position.
  */
-export function useTimelineValue<T extends number | boolean | string>(select: (t: Timeline) => T): T {
-  const timeline = useTimeline();
-  return useSyncExternalStore(timeline.subscribe, () => select(timeline));
+export function usePlayheadValue<T extends number | boolean | string>(select: (p: Playhead) => T): T {
+  const playhead = usePlayhead();
+  return useSyncExternalStore(playhead.subscribe, () => select(playhead));
 }
 
-/** A beat's progress in `steps` equal steps (0 to 1). */
-export function useBeatProgress(id: BeatId, steps = 40): number {
-  return useTimelineValue((t) => Math.round(t.progress(id) * steps) / steps);
+/** Share of a headline that has landed (0 to 1, in coarse steps) for words landing over [from, to] on the playhead. */
+export function useShown(from: number, to: number): number {
+  const still = useStill();
+  const shown = usePlayheadValue((p) => Math.round(seg(p.pos, from, to) * 24) / 24);
+  return still ? 1 : shown;
 }
+
+/** The same for the title, whose words land during the opening hook. */
+export function useHookShown(): number {
+  const still = useStill();
+  const shown = usePlayheadValue((p) => Math.round(seg(p.hook, HOOK.words[0], HOOK.words[1]) * 24) / 24);
+  return still ? 1 : shown;
+}
+
+/** Where a scene's headline words land on the playhead. */
+export const wordsWindow = (start: number, length = 1): [number, number] => [start + WORDS[0] * length, start + WORDS[1] * length];
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -32,25 +50,10 @@ function subscribeReduced(fn: () => void): () => void {
   return () => mq.removeEventListener("change", fn);
 }
 
-/** True when the device asks for reduced motion: static end states, no autoplay, no sound. */
+/** True when the device asks for reduced motion: still sections, no autoplay, no sound. */
 export function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(
     subscribeReduced,
     () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(QUERY).matches,
   );
-}
-
-export { ramp } from "./ease";
-
-/** Screens shorter than this get the compact stage, so the terminal and its checks stay on screen. */
-export const COMPACT_BELOW = 760;
-
-function subscribeResize(fn: () => void): () => void {
-  window.addEventListener("resize", fn);
-  return () => window.removeEventListener("resize", fn);
-}
-
-/** True when the viewport is under 760 px high (for example a 390x700 phone). */
-export function useCompact(): boolean {
-  return useSyncExternalStore(subscribeResize, () => window.innerHeight < COMPACT_BELOW);
 }

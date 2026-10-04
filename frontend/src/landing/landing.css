@@ -1,835 +1,1030 @@
-/* Landing page ("terminal stage"). Colours come from palette.<theme>.json through CSS variables set on
-   .lp (one per role, see paletteRules.js); this file holds no colour values. --lp-line is decoration only
-   and never carries text or bounds a control. Text on an accent fill is --lp-on-accent; on the alert
-   fill, --lp-on-alert. Motion numbers follow docs/landing_motion_spec.md. */
+/* The landing page (/welcome). Colours and fonts come from tokens.ts as --lp-* variables on .lp.
+   The stage is pinned; the scroll position is the playhead. story.ts writes --u (playhead), --vis
+   (scene visibility), --sx/--sy (where the subject of the picture sits) and --lp-f (progress). */
 
 .lp {
-  --lp-mono: "Atkinson Hyperlegible Mono", ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
-  --lp-soft: color-mix(in srgb, var(--lp-text) 14%, transparent);
-  --lp-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   position: relative;
-  min-height: 100svh;
+  min-height: 100vh;
   background: var(--lp-stage);
   color: var(--lp-text);
+  font-family: var(--lp-font-body);
+  font-size: 1rem;
+  line-height: 1.45;
+  --hot: var(--lp-neon);
+  --sx: 0.5;
+  --sy: 0.43;
 }
-.lp a {
-  color: var(--lp-accent);
+.lp *,
+.lp *::before,
+.lp *::after {
+  box-sizing: border-box;
 }
-.lp-mono {
-  font-family: var(--lp-mono);
+.lp p,
+.lp ul,
+.lp ol,
+.lp h1,
+.lp h2,
+.lp h3 {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lp :focus-visible {
+  outline: 3px solid var(--lp-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-/* Static film grain: one small noise tile, repeated. It never animates. */
-.lp-grain {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.05;
-  background-repeat: repeat;
-}
-/* Vignette: the stage darkens toward its corners, over the canvas and under the text. */
-.lp-vignette {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: radial-gradient(ellipse 85% 75% at 50% 45%, transparent 55%, var(--lp-stage) 115%);
-}
-
-/* "Skip intro": first in the tab order, floating at the bottom corner. Shown while the intro plays,
-   otherwise only when focused. */
+/* ---- skip link, header, controls ------------------------------------------------------------------ */
 .lp-skip {
   position: fixed;
-  z-index: 20;
-  right: 1rem;
-  bottom: 1rem;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  padding: 0 1rem;
-  border: 1px solid var(--lp-edge);
-  border-radius: 9999px;
-  background: var(--lp-panel);
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 30;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  background: var(--lp-accent);
+  color: var(--lp-stage);
   font-weight: 700;
-  white-space: nowrap;
+  text-decoration: none;
+  transform: translateY(-200%);
 }
-.lp-skip[data-idle="true"]:not(:focus) {
-  clip-path: inset(50%);
-  width: 1px;
-  height: 1px;
-  min-height: 0;
-  padding: 0;
-  overflow: hidden;
-  border: 0;
-}
-
-/* ---------- stage (beats 1 to 5) ---------- */
-.lp-stagewrap {
-  position: relative;
-}
-.lp-stage {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-height: 100svh;
-  padding: 0 1rem 1rem;
-  overflow: hidden;
-}
-/* With motion, a stage that fits the screen stays pinned while the scroll drives beat 5.
-   (playback.ts sets data-pinned; a stage taller than the screen simply scrolls.) */
-.lp[data-motion="full"] .lp-stagewrap[data-pinned="true"] {
-  min-height: 250svh; /* the pinned stage is one screen tall: 150svh of scroll for beat 5 */
-}
-.lp[data-motion="full"] .lp-stagewrap[data-pinned="true"] .lp-stage {
-  position: sticky;
-  top: 0;
-}
-.lp-hint {
-  position: relative;
-  z-index: 2;
-  margin: 0.5rem 0 0;
-  color: var(--lp-accent);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-align: center;
-  transition: opacity 0.4s ease;
-}
-.lp-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
+.lp-skip:focus {
+  transform: none;
 }
 .lp-top {
-  position: relative;
-  z-index: 3;
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 20;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 0.375rem 0.75rem;
-  padding: 0.75rem 0 0.5rem;
+  gap: 0.5rem 1rem;
+  padding: 1.1rem clamp(1.1rem, 3vw, 2.25rem) 0;
+  pointer-events: none;
 }
-.lp-id {
-  flex: 1 1 10rem;
-  min-width: 0;
+.lp-top > * {
+  pointer-events: auto;
 }
 .lp-brand {
-  margin: 0;
+  font-family: var(--lp-font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
   color: var(--lp-heading);
-  font-size: 1.125rem;
-  font-weight: 700;
 }
 .lp-proto {
-  margin: 0;
+  font-family: var(--lp-font-mono);
+  font-size: 0.7rem;
   color: var(--lp-muted);
-  font-size: 0.875rem;
-  line-height: 1.3;
 }
 .lp-controls {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   align-items: center;
-  gap: 0.5rem;
 }
 .lp-seg {
   display: inline-flex;
-  border: 1px solid var(--lp-edge);
-  border-radius: 9999px;
-  overflow: hidden;
+  gap: 2px;
 }
 .lp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  padding: 0 0.875rem;
-  border: 1px solid var(--lp-edge);
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--lp-stage) 70%, transparent);
+  font-family: var(--lp-font-mono);
+  font-size: 0.72rem;
+  line-height: 1;
+  min-height: 2rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--lp-line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lp-panel) 72%, transparent);
   color: var(--lp-text);
-  font: inherit;
-  font-weight: 700;
   cursor: pointer;
 }
-.lp-seg .lp-btn {
-  border: 0;
-  border-radius: 0;
+.lp-seg .lp-btn:first-child {
+  border-radius: 999px 0 0 999px;
 }
-.lp-btn[aria-pressed="true"] {
-  background: var(--lp-accent);
-  color: var(--lp-on-accent);
+.lp-seg .lp-btn:last-child {
+  border-radius: 0 999px 999px 0;
 }
-.lp-btn:focus-visible {
-  outline-offset: -4px;
+.lp-btn:hover {
+  border-color: var(--lp-muted);
 }
-.lp-btn[aria-pressed="true"]:focus-visible {
-  outline-color: var(--lp-on-accent);
-}
-
-.lp-body {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.lp-graphzone {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  order: -1;
-  flex: 1 1 auto;
-  min-height: 36svh;
-}
-.lp-hero {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.lp-h1 {
-  margin: 0;
-  color: var(--lp-heading);
-  font-size: clamp(1.75rem, 6.2vw, 3.25rem);
-  font-weight: 700;
-  line-height: 1.08;
-  text-wrap: balance;
-}
-@media (min-width: 60rem) and (min-aspect-ratio: 6/5) {
-  .lp-stage {
-    padding: 0 2.5rem 1.25rem;
-  }
-  .lp-body {
-    display: grid;
-    grid-template-columns: minmax(0, 31rem) minmax(0, 1fr);
-    align-items: center;
-    gap: 2.5rem;
-  }
-  .lp-graphzone {
-    order: 0;
-    align-self: stretch;
-  }
-  .lp-hero {
-    gap: 1.25rem;
-  }
-}
-
-/* Short screens (under 760 px high, set by useCompact): a tighter stage so the terminal, the query
-   and the four checks stay on screen together with the graph. */
-.lp[data-compact="true"] .lp-top {
-  padding: 0.375rem 0 0.25rem;
-}
-.lp[data-compact="true"] .lp-id {
-  display: flex;
-  flex: 1 1 100%;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 0.625rem;
-  order: 2;
-}
-.lp[data-compact="true"] .lp-brand {
-  font-size: 1rem;
-}
-.lp[data-compact="true"] .lp-proto {
-  font-size: 0.8125rem;
-}
-.lp[data-compact="true"] .lp-controls {
-  flex: 1 1 100%;
-}
-/* On a short screen the bottom corner belongs to the query and its checks: "Skip intro" moves up
-   beside the controls. */
-.lp[data-compact="true"] .lp-skip {
-  top: 0.375rem;
-  bottom: auto;
-}
-.lp[data-compact="true"] .lp-btn {
-  min-height: 2.75rem;
-  padding: 0 0.75rem;
-}
-.lp[data-compact="true"] .lp-body,
-.lp[data-compact="true"] .lp-hero {
-  gap: 0.5rem;
-}
-.lp[data-compact="true"] .lp-graphzone {
-  min-height: 9rem;
-}
-.lp[data-compact="true"] .lp-h1 {
-  font-size: clamp(1.375rem, 5.6vw, 2.25rem);
-}
-.lp[data-compact="true"] .lp-term {
-  padding: 0.5rem 0.75rem 0.625rem;
-}
-.lp[data-compact="true"] .lp-ask {
-  font-size: 1rem;
-  line-height: 1.35;
-}
-.lp[data-compact="true"] .lp-cypher {
-  margin-top: 0.375rem;
-}
-.lp[data-compact="true"] .lp-code {
-  font-size: 0.8125rem;
-  line-height: 1.4;
-}
-.lp[data-compact="true"] .lp-guard {
-  grid-template-columns: 1fr 1fr;
-  gap: 0.125rem 0.75rem;
-  margin-top: 0.375rem;
-  font-size: 0.8125rem;
-  line-height: 1.3;
-}
-.lp[data-compact="true"] .lp-stage {
-  padding-bottom: 0.5rem;
-}
-.lp[data-compact="true"] .lp-hint {
-  margin-top: 0.25rem;
-  font-size: 0.8125rem;
-  line-height: 1.2;
-}
-
-.lp-stagehud {
-  transition: opacity 0.4s ease;
-}
-/* The graph itself: the canvas draws inside this box (less a small margin), the arc text over it. */
-.lp-plot {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-/* Word-by-word headlines. A word is off, then a dim ghost just before it lands, then "new" (the newest
-   word, in the hot colour), then on. The states come from the timeline, so they scrub both ways. */
-.lp-word {
-  display: inline-block;
-  transition:
-    opacity 0.45s var(--lp-ease),
-    transform 0.45s var(--lp-ease),
-    color 0.3s ease;
-}
-.lp-word[data-state="off"] {
-  opacity: 0;
-  transform: translateY(0.35em);
-}
-.lp-word[data-state="ghost"] {
-  opacity: 0.28;
-  transform: translateY(0.12em);
-}
-.lp-word[data-state="new"] {
-  color: var(--lp-hot);
-}
-.lp[data-motion="static"] .lp-word {
-  transition: none;
-}
-
-/* HUD: small mono labels with corner crop marks. */
-.lp-hud {
-  --m: var(--lp-muted);
-  display: inline-block;
-  padding: 0.375rem 0.625rem;
-  font-family: var(--lp-mono);
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1.3;
-  text-transform: uppercase;
-  background:
-    linear-gradient(var(--m), var(--m)) top left / 0.5rem 1.5px no-repeat,
-    linear-gradient(var(--m), var(--m)) top left / 1.5px 0.5rem no-repeat,
-    linear-gradient(var(--m), var(--m)) top right / 0.5rem 1.5px no-repeat,
-    linear-gradient(var(--m), var(--m)) top right / 1.5px 0.5rem no-repeat,
-    linear-gradient(var(--m), var(--m)) bottom left / 0.5rem 1.5px no-repeat,
-    linear-gradient(var(--m), var(--m)) bottom left / 1.5px 0.5rem no-repeat,
-    linear-gradient(var(--m), var(--m)) bottom right / 0.5rem 1.5px no-repeat,
-    linear-gradient(var(--m), var(--m)) bottom right / 1.5px 0.5rem no-repeat;
-}
-.lp-hudrow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.625rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* ---------- terminal (beats 1 and 4) ---------- */
-.lp-term {
-  padding: 0.75rem 1rem 0.875rem;
-  border: 1px solid var(--lp-edge);
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--lp-panel) 90%, transparent);
-  font-family: var(--lp-mono);
-}
-.lp-term-label {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.5rem;
-  margin: 0 0 0.25rem;
-  color: var(--lp-muted);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.lp-ask {
-  margin: 0;
-  font-size: 1.0625rem;
-  line-height: 1.45;
-}
-.lp-prompt {
+.lp-btn[aria-pressed="true"],
+.lp-btn[data-on="true"] {
+  border-color: var(--lp-accent);
   color: var(--lp-accent);
-  font-weight: 700;
 }
-/* The word being typed is in the hot colour and underlined, as on the reference's prompt bar. */
-.lp-new {
-  color: var(--lp-hot);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-.lp-ghost {
-  visibility: hidden;
-}
-.lp-enter {
-  display: inline-block;
-  margin-left: 0.375rem;
-  padding: 0 0.3em;
-  border: 1px solid var(--lp-edge);
-  border-radius: 0.25rem;
-  color: var(--lp-muted);
-  font-size: 0.8125em;
-  line-height: 1.35;
-  transition: opacity 0.2s ease;
-}
-.lp-caret {
-  display: inline-block;
-  width: 0.5em;
-  height: 1.05em;
-  margin: 0 1px;
-  background: var(--lp-accent);
-  vertical-align: text-bottom;
-}
-/* About one blink a second: well under three flashes a second. */
-.lp[data-motion="full"] .lp-caret {
-  animation: lp-blink 1.1s steps(1, end) infinite;
-}
-@keyframes lp-blink {
-  50% {
-    opacity: 0;
-  }
-}
-/* The piece of the stage line that lies inside the terminal; the canvas carries it across the stage. */
-.lp-amber {
-  height: 2px;
-  margin-top: 0.5rem;
-  background: var(--lp-glow);
-  box-shadow: 0 0 0.75rem color-mix(in srgb, var(--lp-glow) 55%, transparent);
-  transform-origin: left center;
-}
-.lp-cypher {
-  margin-top: 0.625rem;
-  transition: opacity 0.4s ease;
-}
-.lp-code {
-  margin: 0.125rem 0 0;
-  font-family: var(--lp-mono);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-.lp-guard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: 0.125rem 1rem;
-  margin: 0.5rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.875rem;
-}
-.lp-guard li {
-  display: flex;
-  gap: 0.5rem;
-  transition: opacity 0.35s ease;
-}
-.lp-tick {
-  color: var(--lp-accent);
-  font-weight: 700;
-}
-
-/* ---------- arc text and orb note (beat 5) ---------- */
-.lp-arc {
-  position: absolute;
-  inset: 14px; /* the same margin as the canvas keeps (StageCanvas, PAD) */
-  pointer-events: none;
-}
-.lp-arc svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-.lp-arc text {
-  fill: var(--lp-hot);
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  paint-order: stroke;
-  stroke: var(--lp-stage);
-  stroke-width: 7px;
-  stroke-linejoin: round;
-}
-.lp-orbnote {
-  position: absolute;
-  right: 0;
-  bottom: 0.25rem;
-  left: 0;
-  margin: 0;
-  color: var(--lp-text);
-  font-family: var(--lp-mono);
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-align: center;
-}
-.lp-orbnote > span {
-  padding: 0.125rem 0.5rem;
-  background: var(--lp-stage);
-}
-
-/* ---------- scroll sections (beats 6 to 8) ---------- */
-.lp-section {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 1.5rem;
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 2.75rem 1rem;
-}
-.lp-copy,
-.lp-visual {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-  min-width: 0;
-}
-@media (min-width: 60rem) {
-  .lp-section {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    align-items: center;
-    gap: 3.5rem;
-    padding: 4rem 2.5rem;
-  }
-}
-.lp-kicker {
-  margin: 0;
-  color: var(--lp-muted);
-  font-family: var(--lp-mono);
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-.lp-h2 {
-  margin: 0;
-  color: var(--lp-heading);
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
-  font-weight: 700;
-  line-height: 1.12;
-  text-wrap: balance;
-}
-.lp-section p {
-  margin: 0;
-}
-
-/* Headline glitch: a small two-colour split on the word that has just landed. One run of 140 ms,
-   on that word only; never with reduced motion. */
-.lp[data-motion="full"] .lp-glitch .lp-word[data-state="new"] {
-  animation: lp-split 140ms steps(2, jump-none) 1;
-}
-@keyframes lp-split {
-  from {
-    text-shadow:
-      -2px 0 var(--lp-accent),
-      2px 0 var(--lp-hot);
-  }
-  to {
-    text-shadow: none;
-  }
-}
-
-/* Beat 6: the orb's ring opens into the outline of the answer card. --k runs from 1 (ring) to 0 (card). */
-.lp-cardwrap {
-  --k: 0;
-  --d: 6rem;
-  position: relative;
-}
-.lp-ring {
-  position: absolute;
-  top: 0;
-  right: calc((50% - var(--d) / 2) * var(--k));
-  bottom: calc((100% - var(--d)) * var(--k));
-  left: calc((50% - var(--d) / 2) * var(--k));
-  z-index: 1;
-  border: 1.5px solid color-mix(in srgb, var(--lp-glow) calc(var(--k) * 100%), var(--lp-edge));
-  border-radius: calc(1.25rem + (var(--d) / 2) * var(--k));
-  box-shadow: 0 0 calc(1.75rem * var(--k)) color-mix(in srgb, var(--lp-glow) 60%, transparent);
-  pointer-events: none;
-}
-.lp-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.25rem;
-  border-radius: 1.25rem;
-  background: var(--lp-panel);
-  clip-path: inset(
-    0 calc((50% - var(--d) / 2) * var(--k)) calc((100% - var(--d)) * var(--k)) calc((50% - var(--d) / 2) * var(--k)) round
-      calc(1.25rem + (var(--d) / 2) * var(--k))
-  );
-}
-.lp-card-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-.lp-card h3 {
-  margin: 0;
-  color: var(--lp-heading);
-  font-size: 1.375rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-/* Neutral placeholder rows: a label, the words "from the charter", and a bar where the fact would be. */
-.lp-rows {
-  display: grid;
-  gap: 0.5rem;
-  margin: 0;
-}
-.lp-row {
-  display: grid;
-  grid-template-columns: minmax(7rem, 2fr) 3fr;
-  align-items: center;
-  gap: 0.25rem 0.75rem;
-  padding: 0.5rem 0;
-  border-top: 1px solid var(--lp-soft);
-}
-.lp-row dt {
-  font-weight: 700;
-}
-.lp-row dd {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  margin: 0;
-  color: var(--lp-muted);
-  font-family: var(--lp-mono);
-  font-size: 0.875rem;
-}
-.lp-bar {
-  height: 0.5rem;
-  border-radius: 9999px;
-  background: var(--lp-soft);
-}
-
-/* Beat 7: a perspective grid floor behind the SLA timeline. Decoration only. */
-.lp-floor {
-  position: absolute;
-  z-index: -1;
-  right: -50vw;
-  bottom: 0;
-  left: -50vw;
-  height: 70%;
-  background-image:
-    repeating-linear-gradient(90deg, var(--lp-line) 0 1.5px, transparent 1.5px 4rem),
-    repeating-linear-gradient(0deg, var(--lp-line) 0 1.5px, transparent 1.5px 4rem);
-  transform: perspective(26rem) rotateX(62deg);
-  transform-origin: center bottom;
-  mask-image: linear-gradient(to top, black 10%, transparent 95%);
-  pointer-events: none;
-}
-.lp-sla {
-  overflow: hidden;
-  max-width: none;
-}
-@media (min-width: 60rem) {
-  .lp-sla {
-    grid-template-columns: minmax(0, 28rem) minmax(0, 34rem);
-    justify-content: center;
-  }
-}
-.lp-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  margin: 0;
-  padding: 0 0 0 1.25rem;
-  border-left: 2px solid var(--lp-edge);
-  list-style: none;
-}
-.lp-step {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.375rem 0.75rem;
-  padding: 0.625rem 0.875rem;
-  border: 1.5px solid var(--lp-edge);
-  border-radius: 0.75rem;
-  background: var(--lp-stage);
-}
-.lp-step::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: calc(-1.25rem - 1px);
-  width: 0.75rem;
-  height: 0.75rem;
-  border: 2px solid var(--lp-text);
-  border-radius: 9999px;
-  background: var(--lp-text);
-  transform: translate(-50%, -50%);
-}
-.lp-step-n {
-  color: var(--lp-heading);
-  font-family: var(--lp-mono);
-  font-weight: 700;
-}
-.lp-step[data-state="external"] {
-  border-style: dashed;
-}
-.lp-step[data-state="external"]::before,
-.lp-step[data-state="waiting"]::before {
-  background: var(--lp-stage);
-}
-.lp-step[data-state="waiting"] {
-  color: var(--lp-muted);
-}
-.lp-step[data-state="late"] {
-  border-color: var(--lp-alert);
-}
-.lp-step[data-state="late"]::before {
-  border-color: var(--lp-alert);
-  background: var(--lp-alert);
-}
-.lp-step[data-state="late"] .lp-step-state {
-  padding: 0.125rem 0.625rem;
-  border-radius: 9999px;
-  background: var(--lp-alert);
-  color: var(--lp-on-alert);
-  font-weight: 700;
-}
-/* The alert callout hangs off the late step by an L-shaped leader line. */
-.lp-alert {
-  position: relative;
-  flex: 1 0 100%;
-  margin: 0.375rem 0 0 1.5rem;
-  padding: 0.625rem 0.875rem;
-  border-left: 0.375rem solid var(--lp-alert);
-  background: var(--lp-panel);
-  color: var(--lp-text);
-  font-family: var(--lp-mono);
-  font-weight: 700;
-  --m: var(--lp-muted);
-}
-.lp-alert::before {
-  content: "";
-  position: absolute;
-  top: -0.375rem;
-  left: -1.375rem;
-  width: 0.75rem;
-  height: calc(50% + 0.375rem);
-  border-bottom: 1.5px solid var(--lp-text);
-  border-left: 1.5px solid var(--lp-text);
-}
-/* A soft bloom round the alert only: never a full-screen flash. */
-.lp-bloom {
-  box-shadow: 0 0 2rem color-mix(in srgb, var(--lp-alert) 45%, transparent);
-}
-
-/* Beat 8: a status read-out in the terminal look. */
-.lp-readout {
-  display: grid;
-  gap: 0;
-  margin: 0;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--lp-edge);
-  border-radius: 0.5rem;
-  background: var(--lp-panel);
-  font-family: var(--lp-mono);
-  font-size: 0.9375rem;
-}
-.lp-readout > div {
-  display: grid;
-  grid-template-columns: minmax(6.5rem, 2fr) 5fr;
-  gap: 0.25rem 0.75rem;
-  padding: 0.4375rem 0;
-  border-top: 1px solid var(--lp-soft);
-}
-.lp-readout > div:first-child {
-  border-top: 0;
-}
-.lp-readout dt {
-  color: var(--lp-muted);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.lp-readout dd {
-  margin: 0;
-}
-.lp-readout dd::before {
-  content: "> ";
-  color: var(--lp-accent);
-  font-weight: 700;
-}
-.lp-fine {
-  color: var(--lp-muted);
-  font-size: 0.875rem;
-}
-
-.lp-cta {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  min-height: 3.25rem;
-  padding: 0 1.75rem;
-  border-radius: 9999px;
-  background: var(--lp-accent);
-  font-size: 1.125rem;
-  font-weight: 700;
-  text-decoration: none;
-}
-.lp a.lp-cta {
-  color: var(--lp-on-accent);
-}
-.lp-cta:focus-visible {
-  outline-color: var(--lp-heading);
-}
-.lp-foot {
-  position: relative;
-  z-index: 2;
-  padding: 1.25rem 1rem 2rem;
-  border-top: 1px solid var(--lp-soft);
-  color: var(--lp-muted);
-  font-size: 0.875rem;
-  text-align: center;
-}
-.lp-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 /* Language lock: the toggle is shown but switched off (copy.ts, LANDING_FIL_ENABLED). */
 .lp-seg[data-disabled="true"] .lp-btn {
   opacity: 0.45;
   cursor: not-allowed;
+  border-color: var(--lp-line);
+  color: var(--lp-muted);
+}
+.lp-film {
+  border-color: var(--lp-neon);
+  color: var(--lp-heading);
+}
+.lp-film[data-on="true"] {
+  border-color: var(--lp-neon);
+  color: var(--lp-neon);
+}
+
+/* ---- the pinned stage ------------------------------------------------------------------------------ */
+.lp-track {
+  position: relative;
+  height: calc((var(--lp-total) + 100) * 1vh);
+}
+.lp-mark {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  top: calc(var(--at) * (100% - 100vh));
+  pointer-events: none;
+}
+.lp-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  container-type: size;
+  --lamp: 25.5cqh;
+  --orbd: 66cqh;
+}
+.lp-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.lp-scenes {
+  position: absolute;
+  inset: 0;
+}
+@keyframes lp-cut-a {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes lp-cut-b {
+  from {
+    opacity: 0;
+  }
+}
+/* a cut (chapter link, Home/End): dip to dark and come back, never a flash */
+.lp-stage[data-cut="a"] > .lp-canvas,
+.lp-stage[data-cut="a"] > .lp-scenes {
+  animation: lp-cut-a 220ms ease-out;
+}
+.lp-stage[data-cut="b"] > .lp-canvas,
+.lp-stage[data-cut="b"] > .lp-scenes {
+  animation: lp-cut-b 220ms ease-out;
+}
+
+.lp-scene {
+  position: absolute;
+  inset: 0;
+  opacity: var(--vis, 0);
+  pointer-events: none;
+}
+.lp-scene[data-core="guide"] {
+  --hot: var(--lp-accent);
+}
+.lp-scene a,
+.lp-scene button {
+  pointer-events: none;
+}
+.lp-scene[data-active="true"] a,
+.lp-scene[data-active="true"] button {
+  pointer-events: auto;
+}
+
+/* timing helpers: --t rises from 0 to 1 over [--a, --b] on the playhead; lp-win also falls over [--c, --d] */
+.lp-t,
+.lp-win {
+  --t: clamp(0, calc((var(--u, 0) - var(--a)) / (var(--b) - var(--a))), 1);
+}
+.lp-win {
+  --o: clamp(0, calc((var(--u, 0) - var(--c)) / (var(--d) - var(--c))), 1);
+  opacity: calc(var(--t) * (1 - var(--o)));
+}
+.lp-in {
+  opacity: var(--t, 0);
+  transform: translateY(calc((1 - var(--t, 0)) * 12px));
+}
+.lp-support.lp-in:not(.lp-t) {
+  transition: opacity 0.5s, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* ---- words ------------------------------------------------------------------------------------------ */
+.lp-copy {
+  position: absolute;
+  left: clamp(1.5rem, 6cqw, 6.5rem);
+  top: 50%;
+  width: min(37cqw, 33rem);
+  transform: translateY(-50%);
+}
+/* a soft dark pool behind the words, so thin lines of the picture never cut through them */
+.lp-copy::before {
+  content: "";
+  position: absolute;
+  inset: -3.5rem -4rem;
+  z-index: -1;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--lp-stage) 82%, transparent), transparent);
+  pointer-events: none;
+}
+.lp-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  margin-bottom: 0.9rem;
+  font-family: var(--lp-font-mono);
+  font-size: 0.74rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-muted);
+}
+.lp-kicker::before {
+  content: "";
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--hot);
+  box-shadow: 0 0 10px var(--hot);
+}
+.lp-headline {
+  position: relative;
+  font-family: var(--lp-font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 4.5cqw, 4.1rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--lp-heading);
+  text-wrap: balance;
+}
+.lp-support {
+  margin-top: 1.1rem;
+  max-width: 30rem;
+  font-size: clamp(1rem, 1.35cqw, 1.2rem);
+  color: var(--lp-text);
+}
+.lp-word {
+  display: inline-block;
+  transition:
+    opacity 0.38s,
+    transform 0.38s cubic-bezier(0.2, 0.7, 0.2, 1),
+    color 0.38s,
+    filter 0.38s;
+}
+.lp-word[data-state="off"] {
+  opacity: 0;
+  transform: translateY(0.3em);
+  filter: blur(6px);
+}
+.lp-word[data-state="ghost"] {
+  opacity: 0.16;
+}
+.lp-word[data-state="new"] {
+  color: var(--hot);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--hot) 60%, transparent);
+}
+
+/* glitch: a short colour split and one scanline as a headline arrives; 140 ms, once, inside the headline box */
+@keyframes lp-split {
+  0% {
+    text-shadow:
+      -3px 0 var(--lp-accent),
+      3px 0 var(--lp-neon);
+    transform: translateX(2px);
+  }
+  50% {
+    text-shadow:
+      2px 0 var(--lp-accent),
+      -2px 0 var(--lp-neon);
+    transform: translateX(-1px);
+  }
+  100% {
+    text-shadow: none;
+    transform: none;
+  }
+}
+@keyframes lp-scan {
+  from {
+    top: 0;
+    opacity: 0.7;
+  }
+  to {
+    top: 100%;
+    opacity: 0;
+  }
+}
+.lp-headline[data-landed="true"] {
+  animation: lp-split 140ms steps(3, end) 1;
+}
+.lp-headline[data-landed="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 2px;
+  background: var(--lp-heading);
+  opacity: 0;
+  animation: lp-scan 140ms linear 1;
+  pointer-events: none;
+}
+
+/* the title and the close are centred under the subject */
+.lp-scene[data-scene="title"] .lp-copy,
+.lp-scene[data-scene="close"] .lp-copy {
+  left: 50%;
+  top: 64cqh;
+  width: min(90cqw, 48rem);
+  transform: translateX(-50%);
+  text-align: center;
+}
+.lp-scene[data-scene="title"] .lp-kicker,
+.lp-scene[data-scene="close"] .lp-kicker {
+  justify-content: center;
+}
+.lp-scene[data-scene="title"] .lp-support,
+.lp-scene[data-scene="close"] .lp-support {
+  margin-inline: auto;
+}
+.lp-scene[data-scene="title"] .lp-headline {
+  font-size: clamp(2.4rem, 6cqw, 5.4rem);
+}
+.lp-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 1.6rem;
+  transform: translateX(-50%);
+  font-family: var(--lp-font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lp-muted);
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.lp-hint[data-on="true"] {
+  opacity: 1;
+}
+
+/* scene 3: four captions share one place */
+.lp-shots {
+  display: grid;
+}
+.lp-shot {
+  grid-area: 1 / 1;
+}
+
+/* ---- the subject box: where the picture's subject sits; cards and words line up with it ----- */
+.lp-subject {
+  position: absolute;
+  left: calc(var(--sx) * 100%);
+  top: calc(var(--sy) * 100%);
+  width: min(46cqw, 36rem);
+  height: 62cqh;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+}
+.lp-poster {
+  position: absolute;
+  left: calc(var(--sx) * 100%);
+  top: calc(var(--sy) * 100%);
+  width: min(46cqw, 62cqh);
+  transform: translate(-50%, -50%);
+  display: none;
+}
+.lp-posterart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.lp[data-gl="off"] .lp-poster {
+  display: block;
+}
+
+/* scene 2: three language callouts round Core 1 */
+.lp-langs {
+  pointer-events: none;
+}
+.lp-callout {
+  position: absolute;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--lp-accent) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lp-stage) 60%, transparent);
+  font-family: var(--lp-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--lp-accent);
+}
+.lp-callout::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 2.4rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--lp-accent) 60%, transparent);
+}
+.lp-callout[data-n="0"] {
+  left: 2%;
+  top: 14%;
+}
+.lp-callout[data-n="0"]::after,
+.lp-callout[data-n="2"]::after {
+  left: 100%;
+}
+.lp-callout[data-n="1"] {
+  right: 0;
+  top: 40%;
+}
+.lp-callout[data-n="1"]::after {
+  right: 100%;
+}
+.lp-callout[data-n="2"] {
+  left: 8%;
+  bottom: 12%;
+}
+
+/* scene 3: the question as glowing words, then chips, then one icon */
+.lp-askbox {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  --sw: clamp(0, calc((var(--u, 0) - var(--a2)) / (var(--b2) - var(--a2))), 1);
+  --chip: clamp(0, calc((var(--u, 0) - var(--a3)) / (var(--b3) - var(--a3))), 1);
+  --icon: clamp(0, calc((var(--u, 0) - var(--a4)) / (var(--b4) - var(--a4))), 1);
+  --fly: clamp(0, calc((var(--u, 0) - var(--a5)) / (var(--b5) - var(--a5))), 1);
+}
+.lp-asklabel,
+.lp-checked {
+  font-family: var(--lp-font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-muted);
+}
+.lp-asklabel {
+  margin-bottom: 0.9rem;
+}
+.lp-checked {
+  margin-top: 1.1rem;
+  color: var(--lp-accent);
+}
+.lp-question {
+  font-family: var(--lp-font-display);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3.3cqw, 2.9rem);
+  line-height: 1.22;
+  color: color-mix(in srgb, var(--lp-heading) calc(var(--sw) * 100%), var(--lp-accent));
+  text-shadow: 0 0 22px color-mix(in srgb, var(--lp-accent) 55%, transparent);
+  opacity: calc(1 - var(--icon));
+  transform: scale(calc(1 - 0.4 * var(--icon)));
+}
+.lp-qw {
+  display: inline-block;
+  margin: 0 0.12em;
+  opacity: var(--t);
+  filter: blur(calc((1 - var(--t)) * 10px));
+  transform: translateY(calc((1 - var(--t)) * 0.4em)) scale(calc(1.3 - 0.3 * var(--t)));
+}
+.lp-qw[data-key="false"] {
+  opacity: calc(var(--t) * (1 - 0.88 * var(--chip)));
+}
+.lp-qw[data-key="true"] {
+  padding: 0 calc(var(--chip) * 0.28em);
+  border-radius: 0.35em;
+  background: color-mix(in srgb, var(--lp-accent) calc(var(--chip) * 12%), transparent);
+  box-shadow: 0 0 0 calc(var(--chip) * 1.5px) var(--lp-accent);
+}
+.lp-service {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.2rem;
+  border: 1.5px solid var(--lp-accent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--lp-stage) 75%, transparent);
+  color: var(--lp-accent);
+  font-family: var(--lp-font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  white-space: nowrap;
+  box-shadow: 0 0 34px color-mix(in srgb, var(--lp-accent) 35%, transparent);
+  opacity: calc(var(--icon) * (1 - var(--fly)));
+  transform: translate(-50%, -50%) translateY(calc(var(--fly) * var(--lamp) * -1)) scale(calc((0.6 + 0.4 * var(--icon)) * (1 - 0.75 * var(--fly))));
+}
+.lp-service span {
+  color: var(--lp-heading);
+}
+
+/* labels pinned to points of the picture (the stage moves them; see gl/Stage3D.tsx) */
+.lp-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -100%;
+  visibility: hidden;
+  white-space: nowrap;
+  font-family: var(--lp-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lp-text);
+}
+.lp-offices .lp-label {
+  padding: 0.2rem 0.5rem;
+  border-left: 2px solid var(--lp-accent);
+  background: color-mix(in srgb, var(--lp-stage) 55%, transparent);
+}
+.lp-label-hot {
+  translate: -50% 0;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--lp-accent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lp-stage) 70%, transparent);
+  color: var(--lp-heading);
+}
+.lp-label-idle {
+  translate: -50% 0;
+  width: 13.5rem;
+  white-space: normal;
+  padding: 0.4rem 0.6rem;
+  border-left: 2px solid var(--lp-idle);
+  background: color-mix(in srgb, var(--lp-stage) 70%, transparent);
+  font-family: var(--lp-font-body);
+  font-size: 0.86rem;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.3;
+}
+
+/* scene 4: arc text round the orb, then the checklist card */
+.lp-arc {
+  position: absolute;
+  width: var(--orbd);
+  height: var(--orbd);
+  overflow: visible;
+}
+.lp-arc text {
+  fill: var(--lp-heading);
+  font-family: var(--lp-font-display);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+.lp-card {
+  width: min(86cqw, 21rem);
+  padding: 1rem 1.05rem 0.9rem;
+  border: 1px solid var(--lp-line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--lp-panel) 94%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--lp-neon) 25%, transparent),
+    0 0 70px color-mix(in srgb, var(--lp-neon) 22%, transparent);
+  opacity: min(1, calc(var(--t) * 4));
+  clip-path: inset(calc((1 - var(--t)) * 50%) 0 round 16px);
+}
+.lp-cardhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+}
+.lp-cardtitle {
+  font-family: var(--lp-font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--lp-heading);
+}
+.lp-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--lp-line);
+}
+.lp-box {
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1.5px solid var(--lp-muted);
+  border-radius: 5px;
+  transition:
+    background 0.25s,
+    border-color 0.25s;
+}
+.lp-box::after {
+  content: "✓";
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--lp-stage);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.lp-row[data-on="true"] .lp-box {
+  background: var(--lp-accent);
+  border-color: var(--lp-accent);
+}
+.lp-row[data-on="true"] .lp-box::after {
+  opacity: 1;
+}
+.lp-rowname {
+  color: var(--lp-heading);
+}
+.lp-rowvalue {
+  font-family: var(--lp-font-mono);
+  font-size: 0.7rem;
+  color: var(--lp-muted);
+}
+.lp-cardnote {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--lp-line);
+  font-size: 0.8rem;
+  color: var(--lp-muted);
+}
+
+/* scene 6: the alert card that drafts itself */
+.lp-alert {
+  translate: -50% 0;
+  width: min(15.5rem, 64cqw);
+  white-space: normal;
+  padding: 0.7rem 0.8rem 0.75rem;
+  border: 1px solid var(--lp-neon);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--lp-panel) 95%, transparent);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--lp-neon) 28%, transparent);
+  font-family: var(--lp-font-body);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.lp-alerttag {
+  font-family: var(--lp-font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-neon);
+}
+.lp-alerttitle {
+  margin-top: 0.3rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  color: var(--lp-heading);
+}
+.lp-alertbody {
+  margin-top: 0.25rem;
+  font-size: 0.84rem;
+  color: var(--lp-text);
+}
+.lp-draft {
+  display: grid;
+  gap: 0.32rem;
+  margin-top: 0.55rem;
+}
+.lp-draft span {
+  height: 0.38rem;
+  border-radius: 99px;
+  background: var(--lp-line);
+  transform-origin: left;
+  transform: scaleX(clamp(0, calc(var(--t) * 3), 1));
+}
+.lp-draft span:nth-child(2) {
+  width: 82%;
+  transform: scaleX(clamp(0, calc(var(--t) * 3 - 1), 1));
+}
+.lp-draft span:nth-child(3) {
+  width: 56%;
+  transform: scaleX(clamp(0, calc(var(--t) * 3 - 2), 1));
+}
+
+/* scene 8: the orb holds the call to action */
+.lp-cta {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.2rem;
+  width: clamp(9.5rem, 27cqh, 13.5rem);
+  aspect-ratio: 1;
+  border: 2px solid var(--lp-neon);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--lp-stage) 58%, color-mix(in srgb, var(--lp-stage) 40%, transparent) 100%);
+  color: var(--lp-heading);
+  font-family: var(--lp-font-display);
+  font-weight: 800;
+  font-size: clamp(1.1rem, 3.2cqh, 1.5rem);
+  text-decoration: none;
+  box-shadow:
+    0 0 46px color-mix(in srgb, var(--lp-neon) 55%, transparent),
+    inset 0 0 34px color-mix(in srgb, var(--lp-neon) 30%, transparent);
+  opacity: var(--t);
+  transform: scale(calc(0.7 + 0.3 * var(--t)));
+  transition: box-shadow 0.25s;
+}
+.lp-cta:hover {
+  box-shadow:
+    0 0 70px color-mix(in srgb, var(--lp-neon) 80%, transparent),
+    inset 0 0 40px color-mix(in srgb, var(--lp-neon) 45%, transparent);
+}
+.lp-cta:focus-visible {
+  border-radius: 50%;
+}
+.lp-closing {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem 1.2rem;
+  padding: 0 1rem;
+  font-family: var(--lp-font-mono);
+  font-size: 0.72rem;
+  color: var(--lp-muted);
+}
+.lp-quiet {
+  color: var(--lp-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lp-quiet:hover {
+  color: var(--lp-text);
+}
+
+/* ---- stage furniture: crop marks, scene counter, chapter dots, progress ------------------ */
+.lp-crop {
+  position: absolute;
+  inset: 0.7rem;
+  pointer-events: none;
+  --c: color-mix(in srgb, var(--lp-text) 40%, transparent);
+  background:
+    linear-gradient(var(--c), var(--c)) left top / 12px 1px,
+    linear-gradient(var(--c), var(--c)) left top / 1px 12px,
+    linear-gradient(var(--c), var(--c)) right top / 12px 1px,
+    linear-gradient(var(--c), var(--c)) right top / 1px 12px,
+    linear-gradient(var(--c), var(--c)) left bottom / 12px 1px,
+    linear-gradient(var(--c), var(--c)) left bottom / 1px 12px,
+    linear-gradient(var(--c), var(--c)) right bottom / 12px 1px,
+    linear-gradient(var(--c), var(--c)) right bottom / 1px 12px;
+  background-repeat: no-repeat;
+}
+.lp-counter {
+  position: absolute;
+  left: clamp(1.1rem, 3vw, 2.25rem);
+  bottom: 1.4rem;
+  display: flex;
+  gap: 0.9rem;
+  font-family: var(--lp-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lp-muted);
+}
+.lp-counter span:first-child {
+  color: var(--lp-text);
+}
+.lp[data-scene="8"] .lp-counter {
+  display: none;
+}
+.lp-dots {
+  position: fixed;
+  right: 0.45rem;
+  top: 50%;
+  z-index: 20;
+  transform: translateY(-50%);
+}
+.lp-dots a {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+}
+.lp-dots span {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--lp-muted);
+  border-radius: 50%;
+  transition:
+    transform 0.25s,
+    background 0.25s,
+    border-color 0.25s;
+}
+.lp-dots a:hover span {
+  border-color: var(--lp-heading);
+}
+.lp-dots a[aria-current] span {
+  background: var(--lp-heading);
+  border-color: var(--lp-heading);
+  transform: scale(1.5);
+}
+.lp-progress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 25;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--lp-accent), var(--lp-neon));
+  transform-origin: left;
+  transform: scaleX(var(--lp-f, 0));
+}
+
+/* ---- tall, narrow stages (phones): subject above, words below ----------------------------------- */
+@container (max-aspect-ratio: 115/100) {
+  .lp-copy {
+    left: 1.25rem;
+    right: 2.4rem;
+    top: 60cqh;
+    width: auto;
+    transform: none;
+  }
+  .lp-scene[data-scene="title"] .lp-copy,
+  .lp-scene[data-scene="close"] .lp-copy {
+    top: 61cqh;
+    width: auto;
+    left: 1.25rem;
+    right: 1.25rem;
+    transform: none;
+  }
+  .lp-headline {
+    font-size: clamp(1.55rem, 8cqw, 2.5rem);
+  }
+  .lp-scene[data-scene="title"] .lp-headline {
+    font-size: clamp(2rem, 10.5cqw, 3.2rem);
+  }
+  .lp-kicker {
+    margin-bottom: 0.55rem;
+    font-size: 0.66rem;
+  }
+  .lp-support {
+    margin-top: 0.7rem;
+    font-size: 0.98rem;
+  }
+  .lp-subject {
+    width: 90cqw;
+    height: 46cqh;
+  }
+  .lp-poster {
+    width: min(84cqw, 44cqh);
+  }
+  .lp-question {
+    font-size: clamp(1.35rem, 7cqw, 2rem);
+  }
+  .lp-counter {
+    display: none;
+  }
+}
+@container (max-aspect-ratio: 115/100) {
+  .lp-arc {
+    width: 46cqh;
+    height: 46cqh;
+  }
+  .lp-service {
+    --lamp: 15cqh;
+  }
+}
+@media (max-width: 40rem) {
+  .lp-top {
+    padding-top: 0.8rem;
+  }
+  .lp-proto {
+    font-size: 0.62rem;
+  }
+  .lp-btn {
+    font-size: 0.66rem;
+    padding: 0.4rem 0.55rem;
+  }
+}
+
+/* ---- reduced motion: no pinned stage; nine still sections, one after the other ---------------- */
+.lp[data-motion="static"] .lp-top {
+  position: static;
+  padding-bottom: 1rem;
+}
+.lp[data-motion="static"] .lp-track {
+  height: auto;
+}
+.lp[data-motion="static"] .lp-mark {
+  display: none;
+}
+.lp[data-motion="static"] .lp-stage {
+  position: static;
+  height: auto;
+  overflow: visible;
+  container-type: inline-size;
+}
+.lp[data-motion="static"] .lp-scenes,
+.lp[data-motion="static"] .lp-copy,
+.lp[data-motion="static"] .lp-subject,
+.lp[data-motion="static"] .lp-poster,
+.lp[data-motion="static"] .lp-label,
+.lp[data-motion="static"] .lp-closing,
+.lp[data-motion="static"] .lp-service,
+.lp[data-motion="static"] .lp-callout {
+  position: static;
+  transform: none;
+  translate: none;
+  width: auto;
+  height: auto;
+  visibility: visible;
+}
+.lp[data-motion="static"] .lp-scene {
+  position: relative;
+  inset: auto;
+  opacity: 1;
+  display: grid;
+  gap: 1.4rem;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 2.6rem 1.25rem;
+  border-top: 1px solid var(--lp-line);
+  pointer-events: auto;
+}
+.lp[data-motion="static"] .lp-scene a {
+  pointer-events: auto;
+}
+.lp[data-motion="static"] .lp-poster {
+  display: block;
+  max-width: 22rem;
+}
+.lp[data-motion="static"] .lp-crop,
+.lp[data-motion="static"] .lp-hint,
+.lp[data-motion="static"] .lp-arc,
+.lp[data-motion="static"] .lp-draft,
+.lp[data-motion="static"] .lp-progress {
+  display: none;
+}
+.lp[data-motion="static"] .lp-t,
+.lp[data-motion="static"] .lp-win,
+.lp[data-motion="static"] .lp-in,
+.lp[data-motion="static"] .lp-qw,
+.lp[data-motion="static"] .lp-question,
+.lp[data-motion="static"] .lp-service,
+.lp[data-motion="static"] .lp-card,
+.lp[data-motion="static"] .lp-cta {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  clip-path: none;
+}
+.lp[data-motion="static"] .lp-askbox {
+  --sw: 1;
+  --chip: 0;
+  display: grid;
+  gap: 0.8rem;
+  justify-items: start;
+  text-align: left;
+}
+.lp[data-motion="static"] .lp-shots {
+  gap: 1.3rem;
+}
+.lp[data-motion="static"] .lp-shot {
+  grid-area: auto;
+}
+.lp[data-motion="static"] .lp-headline,
+.lp[data-motion="static"] .lp-headline::after,
+.lp[data-motion="static"] .lp-word {
+  animation: none;
+  transition: none;
+}
+.lp[data-motion="static"] .lp-langs,
+.lp[data-motion="static"] .lp-offices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.lp[data-motion="static"] .lp-scene[data-scene="title"] .lp-copy,
+.lp[data-motion="static"] .lp-scene[data-scene="close"] .lp-copy {
+  text-align: left;
+}
+.lp[data-motion="static"] .lp-scene[data-scene="title"] .lp-kicker,
+.lp[data-motion="static"] .lp-scene[data-scene="close"] .lp-kicker {
+  justify-content: flex-start;
+}
+.lp[data-motion="static"] .lp-scene[data-scene="title"] .lp-support,
+.lp[data-motion="static"] .lp-scene[data-scene="close"] .lp-support {
+  margin-inline: 0;
+}
+.lp[data-motion="static"] .lp-closing {
+  justify-content: flex-start;
+  padding: 0;
 }
