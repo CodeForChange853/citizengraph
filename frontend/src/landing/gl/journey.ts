@@ -1,14 +1,18 @@
 // The objects of the two journeys (scenes 3 to 8): constellations, beams, orb, clock ring, thread.
 // They are built here and added to the stage as one group, so the stage file stays about the scaffold.
 import * as THREE from "three";
+import { Line2 } from "three/examples/jsm/lines/Line2.js";
+import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
+import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { tone } from "../tokens";
-import { STARS, TARGET_STAR, type Frame } from "./director";
+import { STARS, TARGET_STAR, THREAD_STOPS, threadPath, type Frame } from "./director";
 import * as S from "./journeyShaders";
 import { distance, hash } from "./vec";
 
 export interface Journey {
   group: THREE.Group;
-  update(frame: Frame, time: number, camera: THREE.PerspectiveCamera, px: number): void;
+  update(frame: Frame, time: number, camera: THREE.PerspectiveCamera, px: number, detail: boolean): void;
+  resize(width: number, height: number): void;
 }
 
 const additive = { transparent: true, blending: THREE.AdditiveBlending, depthWrite: false } as const;
@@ -120,14 +124,98 @@ function makeBeams() {
   };
 }
 
+/** A camera-facing quad with its own shader: the orb and the clock ring. */
+function makeDisc(fragmentShader: string, uniforms: Record<string, THREE.IUniform>, blending: Partial<THREE.ShaderMaterialParameters>) {
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1),
+    new THREE.ShaderMaterial({
+      vertexShader: S.ORB_VERT,
+      fragmentShader,
+      uniforms: { uCenter: { value: new THREE.Vector3() }, uSize: { value: 1 }, uAlpha: { value: 0 }, ...uniforms },
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+      ...blending,
+    }),
+  );
+  mesh.frustumCulled = false;
+  return mesh;
+}
+
+/** The thread of one request: a faint planned path, and the bright part that has been walked so far. */
+function makeThread() {
+  const orange = tone("neon");
+  const grey = tone("idle");
+  const material = new LineMaterial({ linewidth: 3, vertexColors: true, depthTest: false, ...additive });
+  const ghostMaterial = new LineMaterial({ linewidth: 1, color: new THREE.Color().setRGB(grey[0], grey[1], grey[2]), dashed: false, depthTest: false, ...additive });
+  const geometry = new LineGeometry();
+  const ghostGeometry = new LineGeometry();
+  const line = new Line2(geometry, material);
+  const ghost = new Line2(ghostGeometry, ghostMaterial);
+  line.frustumCulled = ghost.frustumCulled = false;
+  let builtFor = -1;
+  let count = 0;
+  let colors = new Float32Array(0);
+  let shade = "";
+  return {
+    line,
+    ghost,
+    resize(width: number, height: number) {
+      material.resolution.set(width, height);
+      ghostMaterial.resolution.set(width, height);
+    },
+    update(frame: Frame, aspect: number) {
+      const on = frame.thread.a > 0.003;
+      line.visible = ghost.visible = on;
+      if (!on) return;
+      if (builtFor !== frame.stars.squeeze) {
+        builtFor = frame.stars.squeeze;
+        const flat = threadPath(aspect).flat();
+        count = flat.length / 3;
+        geometry.setPositions(flat);
+        ghostGeometry.setPositions(flat);
+        colors = new Float32Array(count * 3);
+        shade = "";
+      }
+      // colours: orange where the office is working, grey while another agency has it, hot once it is late
+      const key = `${frame.thread.grey.toFixed(2)}-${frame.thread.late.toFixed(2)}`;
+      if (key !== shade) {
+        shade = key;
+        for (let i = 0; i < count; i++) {
+          const s = i / (count - 1);
+          const outside = s > THREAD_STOPS.steps[1] && s <= THREAD_STOPS.steps[2] ? frame.thread.grey : 0;
+          const late = s > THREAD_STOPS.deadline ? frame.thread.late : 0;
+          for (let c = 0; c < 3; c++) {
+            const base = orange[c]! * 0.85 * (1 - outside) + grey[c]! * 0.8 * outside;
+            colors[i * 3 + c] = base * (1 - late) + (orange[c]! * 1.2 + 0.5) * late;
+          }
+        }
+        geometry.setColors(colors);
+      }
+      geometry.instanceCount = Math.max(0, Math.round(frame.thread.draw * (count - 1)));
+      material.opacity = frame.thread.a;
+      ghostMaterial.opacity = frame.thread.a * 0.35;
+    },
+  };
+}
+
 export function buildJourney(): Journey {
   const group = new THREE.Group();
   const stars = makeStars();
   const beams = makeBeams();
-  group.add(beams.mesh, stars.links, stars.points);
+  const orb = makeDisc(
+    S.ORB_FRAG,
+    { uTime: { value: 0 }, uDetail: { value: 1 }, uHot: { value: v3(tone("neon")) } },
+    // premultiplied: the glow adds light, the black disc hides what is behind it
+    { blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor },
+  );
+  const clock = makeDisc(S.CLOCK_FRAG, { uTicks: { value: 0 }, uHand: { value: 0 }, uHot: { value: v3(tone("neon")) } }, { blending: THREE.AdditiveBlending });
+  const thread = makeThread();
+  orb.renderOrder = 3;
+  group.add(beams.mesh, stars.links, stars.points, orb, clock, thread.ghost, thread.line);
   return {
     group,
-    update(frame, time, camera, px) {
+    update(frame, time, camera, px, detail) {
       const su = stars.uniforms;
       stars.points.visible = stars.links.visible = frame.stars.a > 0.003;
       su.uAlpha.value = frame.stars.a;
@@ -137,6 +225,27 @@ export function buildJourney(): Journey {
       su.uPx.value = px;
       su.uTime.value = time;
       beams.update(frame, camera);
+
+      const ou = orb.material.uniforms;
+      orb.visible = frame.orb.a > 0.003 && frame.orb.size > 0.003;
+      (ou.uCenter!.value as THREE.Vector3).set(frame.orb.p[0], frame.orb.p[1], frame.orb.p[2]);
+      ou.uSize!.value = frame.orb.size * 5.4;
+      ou.uAlpha!.value = frame.orb.a;
+      ou.uTime!.value = time;
+      ou.uDetail!.value = detail ? 1 : 0;
+
+      const cu = clock.material.uniforms;
+      clock.visible = frame.clock.a > 0.003;
+      (cu.uCenter!.value as THREE.Vector3).set(frame.clock.p[0], frame.clock.p[1], frame.clock.p[2]);
+      cu.uSize!.value = (frame.clock.size * 2) / 0.9;
+      cu.uAlpha!.value = frame.clock.a;
+      cu.uTicks!.value = frame.clock.ticks;
+      cu.uHand!.value = frame.clock.hand;
+
+      thread.update(frame, camera.aspect);
+    },
+    resize(width, height) {
+      thread.resize(width, height);
     },
   };
 }

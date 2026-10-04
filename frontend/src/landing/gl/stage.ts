@@ -369,6 +369,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       bloom?.setSize(size.w * ratio * spec.bloom, size.h * ratio * spec.bloom);
     }
     camera.aspect = size.w / size.h;
+    journey.resize(size.w * ratio, size.h * ratio);
   }
 
   buildComposer();
@@ -469,7 +470,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       dust.material.uniforms.uAlpha!.value = frame.dust.a;
       dust.material.uniforms.uPx!.value = px;
 
-      journey.update(frame, time, camera, px);
+      journey.update(frame, time, camera, px, spec.sparks >= 0.5);
 
       glows.set(frame.glows.map((g: Glow) => ({ p: g.p, size: g.size, color: g.color, a: g.a })));
       rings.set(frame.rings.map((r: Ring) => ({ p: r.p, size: r.radius * 2 * S.RING_PAD, color: r.color, a: r.a, width: r.width })));

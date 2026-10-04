@@ -152,7 +152,7 @@
   overflow: hidden;
   container-type: size;
   --lamp: 25.5cqh;
-  --orbd: 66cqh;
+  --orbd: 74cqh;
 }
 .lp-canvas {
   position: absolute;
@@ -583,8 +583,8 @@
   fill: var(--lp-heading);
   font-family: var(--lp-font-display);
   font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.32em;
+  font-size: 9.5px;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 .lp-card {
@@ -592,7 +592,7 @@
   padding: 1rem 1.05rem 0.9rem;
   border: 1px solid var(--lp-line);
   border-radius: 16px;
-  background: color-mix(in srgb, var(--lp-panel) 94%, transparent);
+  background: var(--lp-panel);
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--lp-neon) 25%, transparent),
     0 0 70px color-mix(in srgb, var(--lp-neon) 22%, transparent);

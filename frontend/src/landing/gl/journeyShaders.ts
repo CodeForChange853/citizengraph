@@ -111,7 +111,7 @@ void main() {
   float ea = atan(e.y, e.x);
   float band = smoothstep(0.3, 0.42, er) * (1.0 - smoothstep(0.62, 0.95, er));
   float fine = uDetail > 0.5 ? streaks(ea, er, uTime * 0.22) : 0.6;
-  float disc = band * (0.35 + 1.1 * fine * fine) * (1.25 - er);
+  float disc = band * (0.15 + 2.2 * fine * fine * fine) * (1.25 - er);
   // the far half of the ring is hidden behind the disc
   float hidden = step(0.0, p.y) * (1.0 - smoothstep(HORIZON * 0.92, HORIZON * 1.02, r));
   disc *= 1.0 - hidden;
@@ -121,7 +121,7 @@ void main() {
   float rim = exp(-pow((r - HORIZON * 1.02) / 0.012, 2.0));
   float glow = exp(-r * r * 9.0) * 0.28;
 
-  vec3 col = uHot * (disc * 1.5 + halo * 0.9 + glow) + vec3(1.0, 0.86, 0.7) * (disc * disc * 0.9 + rim * 0.9) + vec3(0.55, 0.6, 0.68) * grid;
+  vec3 col = uHot * (disc * 0.62 + halo * 0.55 + glow * 0.5) + vec3(1.0, 0.86, 0.7) * (disc * disc * 0.22 + rim * 0.7) + vec3(0.55, 0.6, 0.68) * grid;
   // the disc itself is black and hides what is behind it; the front of the ring passes over it
   float hole = (1.0 - smoothstep(HORIZON * 0.94, HORIZON, r)) * (1.0 - clamp(disc * 2.0, 0.0, 1.0) * step(p.y, 0.0));
   gl_FragColor = vec4(col * edge * uAlpha * (1.0 - hole), hole * uAlpha);
