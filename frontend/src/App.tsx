@@ -12,6 +12,8 @@ import Saved from "./routes/Saved";
 
 // The design page is a developer tool: load it only when opened.
 const Design = lazy(() => import("./routes/Design"));
+// The animated introduction is heavy and optional: its own chunk, outside the shell.
+const Landing = lazy(() => import("./routes/Landing"));
 
 export function AppRoutes() {
   return (
@@ -22,6 +24,14 @@ export function AppRoutes() {
         <Route path="/saved" element={<Saved />} />
         <Route path="/help" element={<Help />} />
       </Route>
+      <Route
+        path="/welcome"
+        element={
+          <Suspense fallback={null}>
+            <Landing />
+          </Suspense>
+        }
+      />
       <Route
         path="/design"
         element={

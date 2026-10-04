@@ -1,0 +1,91 @@
+import { describe, expect, it } from "vitest";
+import { CUES, cypherChars, DEMO_CYPHER, DEMO_QUESTION, guardTicks, OFFICES, SERVICE_TOTAL, typedChars } from "./demo";
+import { beat, BEATS, INTRO_END, Timeline, TIMELINE_END, type CueKind } from "./timeline";
+
+describe("timeline controller", () => {
+  it("lays the eight beats end to end", () => {
+    expect(BEATS.map((b) => b.id)).toEqual(["ask", "contours", "offices", "query", "trail", "answer", "sla", "local"]);
+    for (let i = 1; i < BEATS.length; i++) expect(BEATS[i]!.start).toBe(BEATS[i - 1]!.start + BEATS[i - 1]!.dur);
+    expect(INTRO_END).toBe(beat("query").start + beat("query").dur);
+  });
+
+  it("does not move until it is played, and the intro stops at the end of beat 4", () => {
+    const tl = new Timeline(CUES);
+    tl.advance(500);
+    expect(tl.time).toBe(0);
+    tl.play();
+    tl.advance(INTRO_END + 5000);
+    expect(tl.time).toBe(INTRO_END);
+    expect(tl.playing).toBe(false);
+    expect(tl.progress("query")).toBe(1);
+    expect(tl.progress("trail")).toBe(0);
+  });
+
+  it("fires sound cues only while playing, each one once, never on a seek or a skip", () => {
+    const heard: CueKind[] = [];
+    const tl = new Timeline(CUES);
+    tl.onCue((kind) => heard.push(kind));
+    tl.seek(INTRO_END);
+    tl.seek(0);
+    expect(heard).toEqual([]);
+    tl.play();
+    for (let t = 0; t < INTRO_END; t += 16) tl.advance(16);
+    expect(heard.filter((k) => k === "key")).toHaveLength(DEMO_QUESTION.replaceAll(" ", "").length);
+    expect(heard.filter((k) => k === "enter")).toHaveLength(1);
+    expect(heard.filter((k) => k === "tick")).toHaveLength(4);
+
+    const skipped: CueKind[] = [];
+    const other = new Timeline(CUES);
+    other.onCue((kind) => skipped.push(kind));
+    other.play();
+    other.skipIntro();
+    expect(other.introDone).toBe(true);
+    expect(skipped).toEqual([]);
+  });
+
+  it("can be seeked anywhere and paused", () => {
+    const tl = new Timeline();
+    tl.seek(beat("sla").start + 500);
+    expect(tl.progress("sla")).toBe(0.5);
+    expect(tl.progress("answer")).toBe(1);
+    expect(tl.progress("local")).toBe(0);
+    tl.seek(TIMELINE_END + 999);
+    expect(tl.time).toBe(TIMELINE_END);
+    tl.replay();
+    tl.advance(100);
+    tl.pause();
+    tl.advance(100);
+    expect(tl.time).toBe(100);
+  });
+
+  it("notifies subscribers and lets them unsubscribe", () => {
+    const tl = new Timeline();
+    let calls = 0;
+    const off = tl.subscribe(() => calls++);
+    tl.seek(10);
+    off();
+    tl.seek(20);
+    expect(calls).toBe(1);
+  });
+});
+
+describe("demo script", () => {
+  it("types the whole question inside beat 1 and the whole query and all ticks inside beat 4", () => {
+    expect(typedChars(0)).toBe(0);
+    expect(typedChars(beat("ask").dur)).toBe(DEMO_QUESTION.length);
+    expect(cypherChars(0)).toBe(0);
+    expect(cypherChars(beat("query").dur)).toBe(DEMO_CYPHER.length);
+    expect(guardTicks(beat("query").dur)).toBe(4);
+    expect(Math.max(...CUES.map((c) => c.at))).toBeLessThan(INTRO_END);
+  });
+
+  it("never clicks more than a key at a time faster than typing speed", () => {
+    const keys = CUES.filter((c) => c.kind === "key").map((c) => c.at);
+    for (let i = 1; i < keys.length; i++) expect(keys[i]! - keys[i - 1]!).toBeGreaterThanOrEqual(40);
+  });
+
+  it("counts 40 services in four offices", () => {
+    expect(OFFICES).toHaveLength(4);
+    expect(SERVICE_TOTAL).toBe(40);
+  });
+});

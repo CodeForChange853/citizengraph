@@ -1,0 +1,38 @@
+{
+  "skipIntro": "Laktawan ang intro",
+  "replay": "Ulitin ang intro",
+  "soundOn": "Buksan ang tunog",
+  "soundOff": "Patayin ang tunog",
+  "title": "Isang tanong. Tamang papeles ang dala.",
+  "questionLabel": "Tanong ng mamamayan",
+  "stageAlt": "Dayagram: ang apat na tanggapan ng lungsod bilang apat na cell, at ang {{count}} serbisyo nila bilang mga tuldok. BPLO 7, LCRO 17, CHO 15, CSWDO 1.",
+  "hudOffices": "Tanggapan: {{count}}",
+  "hudServices": "Serbisyo: {{count}}",
+  "cypherLabel": "Halimbawang query, read-only",
+  "guardTitle": "Mga pagsusuri ng guardrail",
+  "guard": {
+    "readOnly": "Read-only",
+    "labels": "May pangalan ang mga label at type",
+    "schema": "Sakop ng schema ng charter",
+    "limit": "May LIMIT"
+  },
+  "arc": "kinuha, hindi inimbento",
+  "sampleTitle": "Galing sa charter ang sagot, hindi sa model",
+  "sampleNote": "Halimbawang datos ang nasa card na ito. Hindi ito opisyal na listahan.",
+  "slaTitle": "May pangalawang agent na nagbabantay sa oras",
+  "slaBody": "Ikinukumpara nito ang bawat hakbang sa oras na itinakda ng charter. Ang paghihintay sa ibang ahensya ay hindi ibinibilang na antala ng tanggapan.",
+  "slaStep": "Hakbang {{n}}",
+  "sla": {
+    "onTime": "Nasa oras",
+    "external": "Nasa ibang ahensya, hindi ibinibilang",
+    "late": "Lampas na sa takdang oras",
+    "waiting": "Hindi pa nasisimulan"
+  },
+  "slaAlert": "Gumagawa ng draft na alerto para suriin ng staff",
+  "localTitle": "Tumatakbo sa sariling computer ng tanggapan",
+  "localBody": "Walang cloud service na ginagamit habang tumatakbo ito, at hindi nito binabago ang opisyal na talaan.",
+  "hudLocal": "Lokal",
+  "hudOffline": "Offline",
+  "hudReadOnly": "Read-only",
+  "cta": "Magsimulang magtanong"
+}

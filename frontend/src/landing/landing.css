@@ -1,0 +1,525 @@
+/* Landing page ("terminal stage"). Colours come from palette.json through CSS variables set on .lp;
+   this file holds no colour values. Blue (--lp-line) is decoration only and never carries text. */
+
+.lp {
+  --lp-mono: "Atkinson Hyperlegible Mono", ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+  --lp-soft: color-mix(in srgb, var(--lp-text) 14%, transparent);
+  position: relative;
+  min-height: 100svh;
+  overflow-x: clip;
+  background: var(--lp-stage);
+  color: var(--lp-text);
+}
+.lp a {
+  color: var(--lp-accent);
+}
+.lp-mono {
+  font-family: var(--lp-mono);
+}
+
+/* Static film grain: one small noise tile, repeated. It never animates. */
+.lp-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  background-repeat: repeat;
+}
+
+/* "Skip intro": first in the tab order. Shown while the intro plays, otherwise only when focused. */
+.lp-skip {
+  position: absolute;
+  z-index: 20;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 1px solid var(--lp-edge);
+  border-radius: 9999px;
+  background: var(--lp-panel);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.lp-skip[data-idle="true"]:not(:focus) {
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+}
+
+/* ---------- stage (beats 1 to 5) ---------- */
+.lp-stagewrap {
+  position: relative;
+}
+.lp-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding: 0 1rem 1.25rem;
+}
+/* With motion, the stage stays put while the scroll drives beat 5. */
+@media (min-height: 700px) {
+  .lp[data-motion="full"] .lp-stagewrap {
+    min-height: 190svh;
+  }
+  .lp[data-motion="full"] .lp-stage {
+    position: sticky;
+    top: 0;
+  }
+}
+.lp-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+.lp-top {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  padding: 4rem 0 0.5rem;
+}
+.lp-brand {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+.lp-proto {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+.lp-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.lp-seg {
+  display: inline-flex;
+  border: 1px solid var(--lp-edge);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--lp-edge);
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--lp-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lp-seg .lp-btn {
+  border: 0;
+  border-radius: 0;
+}
+.lp-btn[aria-pressed="true"] {
+  background: var(--lp-accent);
+  color: var(--lp-stage);
+}
+.lp-btn:focus-visible {
+  outline-offset: -4px;
+}
+
+.lp-body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.lp-graphzone {
+  position: relative;
+  order: -1;
+  flex: 1 1 auto;
+  min-height: 34svh;
+}
+.lp-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.lp-h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 6.2vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.lp-lede {
+  margin: 0;
+  max-width: 34rem;
+}
+@media (min-width: 60rem) and (min-aspect-ratio: 6/5) {
+  .lp-stage {
+    padding: 0 2.5rem 2rem;
+  }
+  .lp-body {
+    display: grid;
+    grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
+    align-items: center;
+    gap: 2.5rem;
+  }
+  .lp-graphzone {
+    order: 0;
+    align-self: stretch;
+  }
+}
+
+.lp-stagehud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.4s ease;
+}
+.lp-word {
+  display: inline-block;
+}
+
+/* HUD: small mono labels with corner crop marks. */
+.lp-hud {
+  --m: var(--lp-text);
+  display: inline-block;
+  padding: 0.375rem 0.625rem;
+  font-family: var(--lp-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  background:
+    linear-gradient(var(--m), var(--m)) top left / 0.5rem 1.5px no-repeat,
+    linear-gradient(var(--m), var(--m)) top left / 1.5px 0.5rem no-repeat,
+    linear-gradient(var(--m), var(--m)) top right / 0.5rem 1.5px no-repeat,
+    linear-gradient(var(--m), var(--m)) top right / 1.5px 0.5rem no-repeat,
+    linear-gradient(var(--m), var(--m)) bottom left / 0.5rem 1.5px no-repeat,
+    linear-gradient(var(--m), var(--m)) bottom left / 1.5px 0.5rem no-repeat,
+    linear-gradient(var(--m), var(--m)) bottom right / 0.5rem 1.5px no-repeat,
+    linear-gradient(var(--m), var(--m)) bottom right / 1.5px 0.5rem no-repeat;
+}
+.lp-hudrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- terminal (beats 1 and 4) ---------- */
+.lp-term {
+  padding: 0.875rem 1rem 1rem;
+  border: 1px solid var(--lp-edge);
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--lp-panel) 92%, transparent);
+  font-family: var(--lp-mono);
+}
+.lp-term-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.lp-ask {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.45;
+}
+.lp-prompt {
+  color: var(--lp-accent);
+  font-weight: 700;
+}
+.lp-ghost {
+  visibility: hidden;
+}
+.lp-caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.05em;
+  margin: 0 1px;
+  background: var(--lp-accent);
+  vertical-align: text-bottom;
+}
+/* About one blink a second: well under three flashes a second. */
+.lp[data-motion="full"] .lp-caret {
+  animation: lp-blink 1.1s steps(1, end) infinite;
+}
+@keyframes lp-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.lp-amber {
+  height: 2px;
+  margin-top: 0.5rem;
+  background: var(--lp-accent);
+  box-shadow: 0 0 0.75rem color-mix(in srgb, var(--lp-accent) 55%, transparent);
+  transform-origin: left center;
+}
+.lp-cypher {
+  margin-top: 0.75rem;
+  transition: opacity 0.4s ease;
+}
+.lp-code {
+  margin: 0.25rem 0 0;
+  font-family: var(--lp-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.lp-guard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.125rem 1rem;
+  margin: 0.625rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+}
+.lp-guard li {
+  display: flex;
+  gap: 0.5rem;
+  transition: opacity 0.35s ease;
+}
+.lp-tick {
+  color: var(--lp-accent);
+  font-weight: 700;
+}
+
+/* ---------- arc text (beat 5) ---------- */
+.lp-arc {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: min(100%, 34rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.lp-arc svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.lp-arc path {
+  fill: none;
+  stroke: var(--lp-line);
+  stroke-width: 2;
+}
+.lp-arc text {
+  fill: var(--lp-accent);
+  font-size: 2.125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  paint-order: stroke;
+  stroke: var(--lp-stage);
+  stroke-width: 7px;
+  stroke-linejoin: round;
+}
+
+/* ---------- scroll sections (beats 6 to 8) ---------- */
+.lp-section {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 44rem;
+  min-height: 85svh;
+  margin: 0 auto;
+  padding: 3.5rem 1rem;
+}
+.lp[data-motion="static"] .lp-section {
+  min-height: 0;
+}
+.lp-h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.lp-section p {
+  margin: 0;
+}
+
+.lp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1.25rem;
+  border: 1px solid var(--lp-edge);
+  border-radius: 1.25rem;
+  background: var(--lp-panel);
+}
+.lp-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.lp-card h3 {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Beat 7: a perspective grid floor behind the SLA timeline. Decoration only. */
+.lp-floor {
+  position: absolute;
+  z-index: -1;
+  right: -40vw;
+  bottom: 0;
+  left: -40vw;
+  height: 60%;
+  background-image:
+    repeating-linear-gradient(90deg, var(--lp-line) 0 1.5px, transparent 1.5px 4rem),
+    repeating-linear-gradient(0deg, var(--lp-line) 0 1.5px, transparent 1.5px 4rem);
+  transform: perspective(26rem) rotateX(62deg);
+  transform-origin: center bottom;
+  mask-image: linear-gradient(to top, black 10%, transparent 95%);
+  pointer-events: none;
+}
+.lp-sla {
+  overflow: hidden;
+  max-width: none;
+}
+.lp-sla > :not(.lp-floor) {
+  width: 100%;
+  max-width: 42rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+.lp-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0 0 0 1.25rem;
+  border-left: 2px solid var(--lp-text);
+  list-style: none;
+}
+.lp-step {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1.5px solid var(--lp-edge);
+  border-radius: 0.875rem;
+  background: var(--lp-stage);
+}
+.lp-step::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(-1.25rem - 1px);
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background: var(--lp-text);
+  transform: translate(-50%, -50%);
+}
+.lp-step-n {
+  font-family: var(--lp-mono);
+  font-weight: 700;
+}
+.lp-step[data-state="external"] {
+  border-style: dashed;
+}
+.lp-step[data-state="late"] {
+  border-color: var(--lp-alert);
+}
+.lp-step[data-state="late"] .lp-step-state {
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  background: var(--lp-alert);
+  font-weight: 700;
+}
+/* The alert callout hangs off the late step by an L-shaped leader line. */
+.lp-alert {
+  position: relative;
+  flex: 1 0 100%;
+  margin: 0.375rem 0 0 1.5rem;
+  padding: 0.625rem 0.875rem;
+  border-left: 0.375rem solid var(--lp-alert);
+  background: var(--lp-stage);
+  font-family: var(--lp-mono);
+  font-weight: 700;
+  --m: var(--lp-text);
+}
+.lp-alert::before {
+  content: "";
+  position: absolute;
+  top: -0.375rem;
+  left: -1.375rem;
+  width: 0.75rem;
+  height: calc(50% + 0.375rem);
+  border-bottom: 1.5px solid var(--lp-text);
+  border-left: 1.5px solid var(--lp-text);
+}
+.lp-bloom {
+  box-shadow: 0 0 2rem color-mix(in srgb, var(--lp-alert) 45%, transparent);
+}
+
+.lp-cta {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 3.25rem;
+  padding: 0 1.75rem;
+  border-radius: 9999px;
+  background: var(--lp-accent);
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.lp a.lp-cta {
+  color: var(--lp-stage);
+}
+.lp-cta:focus-visible {
+  outline-color: var(--lp-text);
+}
+.lp-foot {
+  position: relative;
+  z-index: 2;
+  padding: 1.5rem 1rem 2.5rem;
+  border-top: 1px solid var(--lp-soft);
+  font-size: 0.875rem;
+  text-align: center;
+}
+.lp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

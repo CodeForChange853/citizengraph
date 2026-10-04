@@ -1,0 +1,27 @@
+{
+  "colors": {
+    "stage": "#050B1F",
+    "panel": "#081230",
+    "text": "#FFFFFF",
+    "accent": "#FCD116",
+    "line": "#0038A8",
+    "edge": "#8DAAEB",
+    "alert": "#CE1126"
+  },
+  "decorative": ["line"],
+  "alertOnly": ["alert"],
+  "pairs": [
+    { "fg": "text", "bg": "stage", "kind": "text", "label": "Landing: text on the stage" },
+    { "fg": "text", "bg": "panel", "kind": "text", "label": "Landing: text on a panel (terminal, sample card, sample tag)" },
+    { "fg": "accent", "bg": "stage", "kind": "text", "label": "Landing: accent text on the stage (prompt, arc text, links)" },
+    { "fg": "accent", "bg": "panel", "kind": "text", "label": "Landing: accent text on a panel (guardrail ticks)" },
+    { "fg": "stage", "bg": "accent", "kind": "text", "label": "Landing: call-to-action text on yellow" },
+    { "fg": "text", "bg": "alert", "kind": "text", "label": "Landing: SLA alert text on red" },
+    { "fg": "alert", "bg": "stage", "kind": "ui", "label": "Landing: SLA alert edge on the stage" },
+    { "fg": "accent", "bg": "stage", "kind": "ui", "label": "Landing: focus ring, caret and glow trail on the stage" },
+    { "fg": "accent", "bg": "panel", "kind": "ui", "label": "Landing: focus ring and caret on a panel" },
+    { "fg": "text", "bg": "stage", "kind": "ui", "label": "Landing: service nodes, crop marks and leader lines on the stage" },
+    { "fg": "edge", "bg": "stage", "kind": "ui", "label": "Landing: control and step outline on the stage" },
+    { "fg": "edge", "bg": "panel", "kind": "ui", "label": "Landing: panel and sample tag outline" }
+  ]
+}

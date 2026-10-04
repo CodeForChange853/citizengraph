@@ -1,5 +1,6 @@
 // Writes NEEDS-NATIVE-REVIEW.md: every Filipino string and whether a native speaker has verified it.
-// Sources: src/i18n/fil.json and the mock API's Filipino sentences in src/api/fixtures.json.
+// Sources: src/i18n/fil.json, the landing page strings in src/landing/i18n/fil.json (keys start with
+// `landing.`, loaded with the /welcome chunk) and the mock API's Filipino sentences in src/api/fixtures.json.
 //
 //   npm run i18n:review              regenerate the list (verified strings keep their tick)
 //   npm run i18n:review -- --accept  record the CURRENT Filipino strings as verified (run it only after
@@ -12,6 +13,8 @@ const url = (p) => new URL(p, import.meta.url);
 const read = (p) => JSON.parse(readFileSync(url(p), "utf8"));
 const en = read("../src/i18n/en.json");
 const fil = read("../src/i18n/fil.json");
+const landingEn = { landing: read("../src/landing/i18n/en.json") };
+const landingFil = { landing: read("../src/landing/i18n/fil.json") };
 const fixtures = read("../src/api/fixtures.json");
 const VERIFIED = "../src/i18n/fil.verified.json";
 
@@ -21,7 +24,7 @@ function flatten(obj, prefix = "") {
   );
 }
 
-const screen = flatten(fil);
+const screen = [...flatten(fil), ...flatten(landingFil)];
 const api = Object.entries(fixtures.text.fil).map(([k, v]) => [`api.${k}`, v]);
 const current = Object.fromEntries([...screen, ...api]);
 
@@ -38,7 +41,7 @@ const rows = (pairs, enMap, prefix = "") =>
     .map(([k, v]) => `| \`${k}\` | ${esc(enMap.get(k.slice(prefix.length)) ?? "")} | ${esc(v)} | ${tick(k, v)} |`)
     .join("\n");
 
-const enMap = new Map(flatten(en));
+const enMap = new Map([...flatten(en), ...flatten(landingEn)]);
 const enText = new Map(Object.entries(fixtures.text.en));
 const done = Object.entries(current).filter(([k, v]) => verified[k] === v).length;
 const total = Object.keys(current).length;
@@ -52,7 +55,7 @@ An empty last column means new or changed since then: it needs review again befo
 Waray is out of scope. Retrieved charter facts (requirements, steps, fees, office names) are in the charter's
 own English wording in both languages and are not translated.
 
-## Screen text (\`src/i18n/fil.json\`)
+## Screen text (\`src/i18n/fil.json\`; \`landing.*\` keys are in \`src/landing/i18n/fil.json\`)
 
 | Key | English | Filipino | Verified |
 |---|---|---|---|

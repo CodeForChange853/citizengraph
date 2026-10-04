@@ -1,0 +1,38 @@
+{
+  "skipIntro": "Skip intro",
+  "replay": "Replay intro",
+  "soundOn": "Turn sound on",
+  "soundOff": "Turn sound off",
+  "title": "Ask once. Bring the right papers.",
+  "questionLabel": "A citizen asks",
+  "stageAlt": "Diagram: the four city offices as four cells, with their {{count}} services as points. BPLO 7, LCRO 17, CHO 15, CSWDO 1.",
+  "hudOffices": "Offices: {{count}}",
+  "hudServices": "Services: {{count}}",
+  "cypherLabel": "Illustrative query, read-only",
+  "guardTitle": "Guardrail checks",
+  "guard": {
+    "readOnly": "Read-only",
+    "labels": "Labels and types named",
+    "schema": "Inside the charter schema",
+    "limit": "LIMIT set"
+  },
+  "arc": "retrieved, never generated",
+  "sampleTitle": "The answer comes from the charter, not from the model",
+  "sampleNote": "This card shows sample data. It is not an official list.",
+  "slaTitle": "A second agent watches the clock",
+  "slaBody": "It compares each step with the time the charter allows. Waiting at an outside agency is not counted as a delay by the office.",
+  "slaStep": "Step {{n}}",
+  "sla": {
+    "onTime": "On time",
+    "external": "At an outside agency, not counted",
+    "late": "Past the allowed time",
+    "waiting": "Not started"
+  },
+  "slaAlert": "Drafting an alert for staff review",
+  "localTitle": "Runs on the office's own computer",
+  "localBody": "No cloud service is used while it runs, and it never changes the official records.",
+  "hudLocal": "Local",
+  "hudOffline": "Offline",
+  "hudReadOnly": "Read-only",
+  "cta": "Start asking"
+}
