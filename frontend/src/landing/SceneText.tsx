@@ -105,7 +105,7 @@ function Guide() {
 
 function ServiceIcon() {
   return (
-    <svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 48 48" width="64" height="64" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M7 20 10 9h28l3 11" />
       <path d="M7 20a5.7 5.7 0 0 0 11.3 0 5.7 5.7 0 0 0 11.4 0A5.7 5.7 0 0 0 41 20" />
       <path d="M10 25v14h28V25" />

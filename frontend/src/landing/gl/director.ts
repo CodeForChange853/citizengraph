@@ -287,7 +287,7 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
       });
     } else if (i < ROW_COUNT && rowsIn > 0) {
       const t = easeOutCubic(seg(u, BEAT.rows[0] + 0.03 * i, BEAT.rows[0] + 0.1 + 0.03 * i));
-      const slotP = fromCamera(camP, basis, [0, 0.64 - 0.32 * i, -4.4]);
+      const slotP = fromCamera(camP, basis, [0, (wide ? 0.64 : 0.36) - (wide ? 0.32 : 0.27) * i, -4.4]);
       let p = lerp3(target, slotP, t);
       p = add(p, scale(basis.up, Math.sin(t * Math.PI) * 0.35));
       p = lerp3(p, [0, 0, 0], fall * fall);
@@ -296,7 +296,7 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
         p,
         q: mulQuat(camQ, eulerQuat(turn * 0.7, turn, turn * 0.4)),
         sx: mix(0.3, 3.6, t) * (1 - fall),
-        sy: mix(0.3, 0.36, t) * (1 - fall),
+        sy: mix(0.3, wide ? 0.36 : 0.31, t) * (1 - fall),
         a: rowsIn * Math.min(1, t * 4),
         row: ramp(t, 0.5, 1),
       });
@@ -374,14 +374,14 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
   // scene 3a: the safety sweep passes over the question
   const sweep = seg(u, BEAT.sweep[0], BEAT.sweep[1]);
   if (sweep > 0 && sweep < 1) {
-    rings.push({ p: [0, 0, 0.6], radius: 0.2 + 3.6 * sweep, width: 0.02, color: CYAN, a: Math.min(1, sweep * 8) * (1 - sweep) ** 0.7 });
-    rings.push({ p: [0, 0, 0.6], radius: 0.2 + 3.3 * sweep, width: 0.05, color: CYAN, a: 0.25 * Math.min(1, sweep * 8) * (1 - sweep) });
+    rings.push({ p: [0, 0, 0.6], radius: 0.2 + 3.6 * sweep, width: 0.007, color: CYAN, a: 0.9 * Math.min(1, sweep * 8) * (1 - sweep) ** 0.7 });
+    rings.push({ p: [0, 0, 0.6], radius: 0.2 + 3.35 * sweep, width: 0.004, color: CYAN, a: 0.35 * Math.min(1, sweep * 8) * (1 - sweep) });
   }
   // scene 3c: the one service lights
   if (lit > 0 && starsA > 0) {
-    glows.push({ p: target, size: 1.5, color: CYAN, a: 0.7 * lit * starsA });
+    glows.push({ p: target, size: 1.5, color: CYAN, a: 0.7 * lit * starsA * (1 - 0.6 * ramp(u, BEAT.rows[0], BEAT.rows[0] + 0.05)) });
     glows.push({ p: target, size: 0.3, color: WHITE, a: lit * starsA });
-    rings.push({ p: target, radius: 0.32, width: 0.04, color: WHITE, a: 0.8 * lit * starsA * (1 - ramp(u, 3.95, 4.02)) });
+    rings.push({ p: target, radius: 0.32, width: 0.04, color: WHITE, a: 0.8 * lit * starsA * (1 - ramp(u, BEAT.rows[0] - 0.02, BEAT.rows[0] + 0.03)) });
     bursts.push({ p: target, t: seg(u, BEAT.lit[0], BEAT.lit[0] + 0.14), color: CYAN, spread: 1.2 });
   }
   // scene 6: step markers, the deadline pulse, the head of the thread

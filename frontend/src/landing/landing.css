@@ -478,6 +478,7 @@
 }
 .lp-checked {
   margin-top: 1.1rem;
+  font-size: 0.82rem;
   color: var(--lp-accent);
 }
 .lp-question {
@@ -520,7 +521,7 @@
   color: var(--lp-accent);
   font-family: var(--lp-font-display);
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   white-space: nowrap;
   box-shadow: 0 0 34px color-mix(in srgb, var(--lp-accent) 35%, transparent);
   opacity: calc(var(--icon) * (1 - var(--fly)));

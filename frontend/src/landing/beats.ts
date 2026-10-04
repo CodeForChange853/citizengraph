@@ -34,9 +34,9 @@ export const BEAT = {
   checked: [3.2, 3.24],
   // scene 3b: words to chips to one icon, then the beam fans out to the four offices
   chips: [3.27, 3.33],
-  icon: [3.33, 3.38],
-  iconFly: [3.38, 3.43],
-  stars: [3.34, 3.46],
+  icon: [3.33, 3.36],
+  iconFly: [3.4, 3.44],
+  stars: [3.38, 3.47],
   fan: [3.4, 3.53],
   offices: [3.44, 3.5],
   // scene 3c: fly in, the beam narrows, one service lights
