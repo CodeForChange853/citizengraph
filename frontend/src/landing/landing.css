@@ -6,7 +6,6 @@
   --lp-soft: color-mix(in srgb, var(--lp-text) 14%, transparent);
   position: relative;
   min-height: 100svh;
-  overflow-x: clip;
   background: var(--lp-stage);
   color: var(--lp-text);
 }
@@ -65,15 +64,23 @@
   min-height: 100svh;
   padding: 0 1rem 1.25rem;
 }
-/* With motion, the stage stays put while the scroll drives beat 5. */
-@media (min-height: 700px) {
-  .lp[data-motion="full"] .lp-stagewrap {
-    min-height: 190svh;
-  }
-  .lp[data-motion="full"] .lp-stage {
-    position: sticky;
-    top: 0;
-  }
+/* With motion, a stage that fits the screen stays pinned while the scroll drives beat 5.
+   (playback.ts sets data-pinned; a stage taller than the screen simply scrolls.) */
+.lp[data-motion="full"] .lp-stagewrap[data-pinned="true"] {
+  min-height: 190svh; /* the pinned stage is one screen tall: 90svh of scroll for beat 5 */
+}
+.lp[data-motion="full"] .lp-stagewrap[data-pinned="true"] .lp-stage {
+  position: sticky;
+  top: 0;
+}
+.lp-hint {
+  position: relative;
+  z-index: 2;
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-align: center;
+  transition: opacity 0.4s ease;
 }
 .lp-canvas {
   position: absolute;

@@ -11,7 +11,7 @@ export function SampleCard() {
   const p = useBeatProgress("answer");
   const card = ramp(p, 0.3, 0.9);
   return (
-    <section className="lp-section" aria-labelledby="lp-answer-h">
+    <section className="lp-section" data-beat="answer" aria-labelledby="lp-answer-h">
       <h2 id="lp-answer-h" className="lp-h2">
         <Kinetic text={t("landing.sampleTitle")} shown={ramp(p, 0, 0.45)} />
       </h2>

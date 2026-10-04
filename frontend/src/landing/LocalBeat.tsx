@@ -10,7 +10,7 @@ export function LocalBeat() {
   const { t } = useTranslation();
   const p = useBeatProgress("local");
   return (
-    <section className="lp-section" aria-labelledby="lp-local-h">
+    <section className="lp-section" data-beat="local" aria-labelledby="lp-local-h">
       <h2 id="lp-local-h" className="lp-h2">
         <Kinetic text={t("landing.localTitle")} shown={ramp(p, 0, 0.4)} />
       </h2>

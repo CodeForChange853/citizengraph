@@ -26,15 +26,16 @@ const LANGS: Lang[] = ["en", "fil"];
 function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) {
   const { t, i18n } = useTranslation();
   const mainRef = useRef<HTMLElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
   const zoneRef = useRef<HTMLDivElement>(null);
-  usePlayback(timeline, reduced);
+  const rootRef = useRef<HTMLDivElement>(null);
+  usePlayback(timeline, reduced, rootRef);
   const sound = useSound(timeline, reduced);
 
   const playing = useTimelineValue((tl) => tl.playing);
   const introDone = useTimelineValue((tl) => tl.introDone);
   const headline = useTimelineValue((tl) => Math.round(tl.progress("contours") * 8) / 8);
   const hud = useTimelineValue((tl) => tl.progress("offices") > 0.6);
+  const hint = useTimelineValue((tl) => tl.introDone && tl.progress("trail") === 0);
   const lang: Lang = i18n.language === "fil" ? "fil" : "en";
 
   function skip(event: MouseEvent) {
@@ -49,13 +50,13 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
   }
 
   return (
-    <div className="lp" style={STAGE_VARS} data-motion={reduced ? "static" : "full"} data-playing={playing}>
+    <div ref={rootRef} className="lp" style={STAGE_VARS} data-motion={reduced ? "static" : "full"} data-playing={playing}>
       <a className="lp-skip" href="#lp-main" data-idle={introDone} onClick={skip}>
         {t("landing.skipIntro")}
       </a>
       <Grain />
       <main id="lp-main" ref={mainRef} tabIndex={-1}>
-        <div className="lp-stagewrap" ref={wrapRef}>
+        <div className="lp-stagewrap" data-beat="trail">
           <div className="lp-stage">
             <StageCanvas zoneRef={zoneRef} />
             <div className="lp-top">
@@ -111,6 +112,11 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
                 <ArcText />
               </div>
             </div>
+            {reduced ? null : (
+              <p className="lp-hint lp-mono" style={{ opacity: hint ? 1 : 0 }}>
+                {t("landing.scrollHint")} <span aria-hidden="true">↓</span>
+              </p>
+            )}
           </div>
         </div>
         <SampleCard />

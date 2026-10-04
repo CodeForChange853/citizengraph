@@ -34,5 +34,6 @@
   "hudLocal": "Local",
   "hudOffline": "Offline",
   "hudReadOnly": "Read-only",
-  "cta": "Start asking"
+  "cta": "Start asking",
+  "scrollHint": "Scroll to follow the answer"
 }

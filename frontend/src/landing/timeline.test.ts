@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CUES, cypherChars, DEMO_CYPHER, DEMO_QUESTION, guardTicks, OFFICES, SERVICE_TOTAL, typedChars } from "./demo";
+import { storyTime } from "./playback";
 import { beat, BEATS, INTRO_END, Timeline, TIMELINE_END, type CueKind } from "./timeline";
 
 describe("timeline controller", () => {
@@ -66,6 +67,40 @@ describe("timeline controller", () => {
     off();
     tl.seek(20);
     expect(calls).toBe(1);
+  });
+});
+
+describe("scroll story", () => {
+  const vh = 800;
+  const below = [1, 2, 3].map((i) => ({ top: vh * (1.9 + i), height: 700 }));
+
+  it("holds at the end of the intro at the top of the page", () => {
+    expect(storyTime({ vh, wrapTop: 0, wrapHeight: 1520, stageHeight: 800, sections: below })).toBe(INTRO_END);
+  });
+
+  it("draws beat 5 while the pinned stage is scrolled through", () => {
+    const half = storyTime({ vh, wrapTop: -360, wrapHeight: 1520, stageHeight: 800, sections: below });
+    expect(half).toBe(beat("trail").start + 0.5 * beat("trail").dur);
+    const done = storyTime({ vh, wrapTop: -720, wrapHeight: 1520, stageHeight: 800, sections: below });
+    expect(done).toBe(beat("answer").start);
+  });
+
+  it("runs each later beat as its section rises into view, and reaches the end at the bottom", () => {
+    const sections = [
+      { top: -900, height: 700 },
+      { top: -200, height: 700 },
+      { top: 500, height: 700 },
+    ];
+    const t = storyTime({ vh, wrapTop: -3000, wrapHeight: 1520, stageHeight: 800, sections });
+    expect(t).toBeGreaterThan(beat("local").start);
+    expect(t).toBeLessThan(TIMELINE_END);
+    sections[2] = { top: 60, height: 700 };
+    expect(storyTime({ vh, wrapTop: -3440, wrapHeight: 1520, stageHeight: 800, sections })).toBe(TIMELINE_END);
+  });
+
+  it("ignores sections that have no size yet", () => {
+    const empty = [0, 0, 0].map(() => ({ top: 0, height: 0 }));
+    expect(storyTime({ vh, wrapTop: 0, wrapHeight: 0, stageHeight: 0, sections: empty })).toBe(INTRO_END);
   });
 });
 

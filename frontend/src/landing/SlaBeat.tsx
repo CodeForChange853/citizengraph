@@ -11,7 +11,7 @@ export function SlaBeat() {
   const p = useBeatProgress("sla");
   const alert = ramp(p, 0.7, 0.95);
   return (
-    <section className="lp-section lp-sla" aria-labelledby="lp-sla-h">
+    <section className="lp-section lp-sla" data-beat="sla" aria-labelledby="lp-sla-h">
       <div className="lp-floor" aria-hidden="true" />
       <h2 id="lp-sla-h" className="lp-h2">
         <Kinetic text={t("landing.slaTitle")} shown={ramp(p, 0, 0.35)} />
