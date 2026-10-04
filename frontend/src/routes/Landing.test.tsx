@@ -1,13 +1,14 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "../App";
 import { DEMO_CYPHER, DEMO_QUESTION, GUARD_CHECKS } from "../landing/demo";
 import landingEn from "../landing/i18n/en.json";
 import landingFil from "../landing/i18n/fil.json";
 import { checkLandingPairs, checkLandingUseRules } from "../landing/palette";
+import { SOUND_KEY } from "../landing/sound";
 import { renderApp } from "../test/utils";
 
 /** jsdom has no matchMedia: this stands in for the device's "reduce motion" setting. */
@@ -129,6 +130,82 @@ describe("landing intro", () => {
     await user.click(screen.getByRole("button", { name: "Replay intro" }));
     expect(root).toHaveAttribute("data-playing", "true");
     expect(Number(screen.getByTestId("lp-typed").dataset.count)).toBeLessThan(DEMO_QUESTION.length);
+  });
+});
+
+/** Counts audio contexts: none may exist before the visitor asks for sound with a gesture. */
+function stubAudio() {
+  const created = vi.fn();
+  class FakeAudioContext {
+    state = "running";
+    currentTime = 0;
+    destination = {};
+    constructor() {
+      created();
+    }
+    resume = vi.fn(async () => {});
+    suspend = vi.fn(async () => {});
+    close = vi.fn(async () => {});
+    createOscillator = vi.fn(() => ({
+      type: "sine",
+      frequency: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+      connect: vi.fn(),
+      start: vi.fn(),
+      stop: vi.fn(),
+    }));
+    createGain = vi.fn(() => ({
+      gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+      connect: vi.fn(),
+    }));
+  }
+  vi.stubGlobal("AudioContext", FakeAudioContext);
+  return created;
+}
+
+describe("landing sound", () => {
+  it("is off by default: no audio context, nothing stored, and none after gestures elsewhere", async () => {
+    const created = stubAudio();
+    const user = userEvent.setup();
+    await landing();
+    const toggle = screen.getByRole("button", { name: "Sound: off" });
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    await user.click(screen.getByRole("link", { name: "Skip intro" }));
+    fireEvent.keyDown(window, { key: "a" });
+    expect(created).not.toHaveBeenCalled();
+    expect(localStorage.getItem(SOUND_KEY)).toBeNull();
+  });
+
+  it("starts only when the visitor turns it on, and remembers the choice", async () => {
+    const created = stubAudio();
+    const user = userEvent.setup();
+    await landing();
+    await user.click(screen.getByRole("button", { name: "Sound: off" }));
+    expect(screen.getByRole("button", { name: "Sound: on" })).toHaveAttribute("aria-pressed", "true");
+    expect(created).toHaveBeenCalledTimes(1);
+    expect(localStorage.getItem(SOUND_KEY)).toBe("true");
+    await user.click(screen.getByRole("button", { name: "Sound: on" }));
+    expect(localStorage.getItem(SOUND_KEY)).toBe("false");
+    expect(screen.getByRole("button", { name: "Sound: off" })).toBeInTheDocument();
+  });
+
+  it("waits for a gesture on the next visit even when sound was left on", async () => {
+    const created = stubAudio();
+    localStorage.setItem(SOUND_KEY, "true");
+    await landing();
+    expect(screen.getByRole("button", { name: "Sound: on" })).toBeInTheDocument();
+    expect(created).not.toHaveBeenCalled();
+    fireEvent.pointerDown(window);
+    expect(created).toHaveBeenCalledTimes(1);
+  });
+
+  it("has no sound at all with reduced motion", async () => {
+    const created = stubAudio();
+    localStorage.setItem(SOUND_KEY, "true");
+    setReducedMotion(true);
+    await landing();
+    expect(screen.queryByRole("button", { name: /Sound/ })).toBeNull();
+    fireEvent.pointerDown(window);
+    expect(created).not.toHaveBeenCalled();
   });
 });
 

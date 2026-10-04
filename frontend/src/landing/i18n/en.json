@@ -1,8 +1,8 @@
 {
   "skipIntro": "Skip intro",
   "replay": "Replay intro",
-  "soundOn": "Turn sound on",
-  "soundOff": "Turn sound off",
+  "soundOn": "Sound: on",
+  "soundOff": "Sound: off",
   "title": "Ask once. Bring the right papers.",
   "questionLabel": "A citizen asks",
   "stageAlt": "Diagram: the four city offices as four cells, with their {{count}} services as points. BPLO 7, LCRO 17, CHO 15, CSWDO 1.",

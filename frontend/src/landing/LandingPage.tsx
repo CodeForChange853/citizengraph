@@ -15,6 +15,7 @@ import { STAGE_VARS } from "./palette";
 import { usePlayback } from "./playback";
 import { SampleCard } from "./SampleCard";
 import { SlaBeat } from "./SlaBeat";
+import { useSound } from "./sound";
 import { StageCanvas } from "./StageCanvas";
 import "./strings";
 import { Terminal } from "./Terminal";
@@ -28,6 +29,7 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
   const wrapRef = useRef<HTMLDivElement>(null);
   const zoneRef = useRef<HTMLDivElement>(null);
   usePlayback(timeline, reduced);
+  const sound = useSound(timeline, reduced);
 
   const playing = useTimelineValue((tl) => tl.playing);
   const introDone = useTimelineValue((tl) => tl.introDone);
@@ -76,6 +78,11 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
                     </button>
                   ))}
                 </div>
+                {sound.available ? (
+                  <button type="button" className="lp-btn" data-on={sound.enabled} aria-pressed={sound.enabled} onClick={sound.toggle}>
+                    {t(sound.enabled ? "landing.soundOn" : "landing.soundOff")}
+                  </button>
+                ) : null}
                 {introDone && !reduced ? (
                   <button
                     type="button"

@@ -1,8 +1,8 @@
 {
   "skipIntro": "Laktawan ang intro",
   "replay": "Ulitin ang intro",
-  "soundOn": "Buksan ang tunog",
-  "soundOff": "Patayin ang tunog",
+  "soundOn": "Tunog: bukas",
+  "soundOff": "Tunog: sarado",
   "title": "Isang tanong. Tamang papeles ang dala.",
   "questionLabel": "Tanong ng mamamayan",
   "stageAlt": "Dayagram: ang apat na tanggapan ng lungsod bilang apat na cell, at ang {{count}} serbisyo nila bilang mga tuldok. BPLO 7, LCRO 17, CHO 15, CSWDO 1.",

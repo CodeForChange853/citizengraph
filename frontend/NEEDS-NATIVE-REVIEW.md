@@ -125,8 +125,8 @@ own English wording in both languages and are not translated.
 | `help.displayTitle` | Display and language | Hitsura at wika | ✓ |
 | `landing.skipIntro` | Skip intro | Laktawan ang intro |  |
 | `landing.replay` | Replay intro | Ulitin ang intro |  |
-| `landing.soundOn` | Turn sound on | Buksan ang tunog |  |
-| `landing.soundOff` | Turn sound off | Patayin ang tunog |  |
+| `landing.soundOn` | Sound: on | Tunog: bukas |  |
+| `landing.soundOff` | Sound: off | Tunog: sarado |  |
 | `landing.title` | Ask once. Bring the right papers. | Isang tanong. Tamang papeles ang dala. |  |
 | `landing.questionLabel` | A citizen asks | Tanong ng mamamayan |  |
 | `landing.stageAlt` | Diagram: the four city offices as four cells, with their {{count}} services as points. BPLO 7, LCRO 17, CHO 15, CSWDO 1. | Dayagram: ang apat na tanggapan ng lungsod bilang apat na cell, at ang {{count}} serbisyo nila bilang mga tuldok. BPLO 7, LCRO 17, CHO 15, CSWDO 1. |  |
