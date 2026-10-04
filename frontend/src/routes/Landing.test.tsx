@@ -87,13 +87,48 @@ describe("landing with reduced motion", () => {
     const root = await landing();
     expect(root).toHaveAttribute("data-motion", "static");
     expect(root).toHaveAttribute("data-playing", "false");
-    expect(screen.getByTestId("lp-typed")).toHaveTextContent(`> ${DEMO_QUESTION}`);
-    expect(screen.getByTestId("lp-code").textContent).toBe(DEMO_CYPHER);
+    expect(screen.getByTestId("lp-typed")).toHaveAttribute("data-count", String(DEMO_QUESTION.length));
+    expect(screen.getByTestId("lp-code")).toHaveAttribute("data-count", String(DEMO_CYPHER.length));
+    expect(screen.queryByRole("button", { name: "Replay intro" })).toBeNull();
     expect(root.querySelectorAll('.lp-guard li[data-on="true"]')).toHaveLength(GUARD_CHECKS.length);
     expect(root.querySelector(".lp-caret")).toBeNull();
     for (const el of root.querySelectorAll<HTMLElement>(".lp-step, .lp-alert, .lp-card, .lp-cta, .lp-arc")) {
       expect(el.style.opacity).toBe("1");
     }
+  });
+});
+
+describe("landing intro", () => {
+  it("plays by itself, with 'Skip intro' first in the tab order", async () => {
+    const user = userEvent.setup();
+    const root = await landing();
+    expect(root).toHaveAttribute("data-motion", "full");
+    expect(root).toHaveAttribute("data-playing", "true");
+    expect(Number(screen.getByTestId("lp-typed").dataset.count)).toBeLessThan(DEMO_QUESTION.length);
+    await user.tab();
+    expect(screen.getByRole("link", { name: "Skip intro" })).toHaveFocus();
+    expect(root.querySelector("a, button, [tabindex]")).toBe(screen.getByRole("link", { name: "Skip intro" }));
+  });
+
+  it("skips to the end of the intro: everything typed and ticked, nothing playing", async () => {
+    const user = userEvent.setup();
+    const root = await landing();
+    await user.click(screen.getByRole("link", { name: "Skip intro" }));
+    expect(root).toHaveAttribute("data-playing", "false");
+    expect(screen.getByTestId("lp-typed")).toHaveAttribute("data-count", String(DEMO_QUESTION.length));
+    expect(screen.getByTestId("lp-code")).toHaveAttribute("data-count", String(DEMO_CYPHER.length));
+    expect(root.querySelectorAll('.lp-guard li[data-on="true"]')).toHaveLength(GUARD_CHECKS.length);
+    expect(screen.getByRole("main")).toHaveFocus();
+    expect(screen.getByRole("link", { name: "Skip intro" })).toHaveAttribute("data-idle", "true");
+  });
+
+  it("can be replayed from the start", async () => {
+    const user = userEvent.setup();
+    const root = await landing();
+    await user.click(screen.getByRole("link", { name: "Skip intro" }));
+    await user.click(screen.getByRole("button", { name: "Replay intro" }));
+    expect(root).toHaveAttribute("data-playing", "true");
+    expect(Number(screen.getByTestId("lp-typed").dataset.count)).toBeLessThan(DEMO_QUESTION.length);
   });
 });
 

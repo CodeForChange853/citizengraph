@@ -18,7 +18,7 @@ export function Terminal() {
       <p className="lp-term-label">{t("landing.questionLabel")}</p>
       <p className="lp-ask">
         <span className="lp-sr">{DEMO_QUESTION}</span>
-        <span aria-hidden="true" data-testid="lp-typed">
+        <span aria-hidden="true" data-testid="lp-typed" data-count={typed}>
           <span className="lp-prompt">&gt; </span>
           {DEMO_QUESTION.slice(0, typed)}
           {code === 0 ? <span className="lp-caret" /> : null}
@@ -32,7 +32,7 @@ export function Terminal() {
         <pre className="lp-code">
           <code>
             <span className="lp-sr">{DEMO_CYPHER}</span>
-            <span aria-hidden="true" data-testid="lp-code">
+            <span aria-hidden="true" data-testid="lp-code" data-count={code}>
               {DEMO_CYPHER.slice(0, code)}
               {code > 0 && code < DEMO_CYPHER.length ? <span className="lp-caret" /> : null}
               <span className="lp-ghost">{DEMO_CYPHER.slice(code)}</span>

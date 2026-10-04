@@ -41,6 +41,11 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
     mainRef.current?.focus({ preventScroll: true });
   }
 
+  function replay() {
+    window.scrollTo(0, 0);
+    timeline.replay();
+  }
+
   return (
     <div className="lp" style={STAGE_VARS} data-motion={reduced ? "static" : "full"} data-playing={playing}>
       <a className="lp-skip" href="#lp-main" data-idle={introDone} onClick={skip}>
@@ -71,6 +76,17 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
                     </button>
                   ))}
                 </div>
+                {introDone && !reduced ? (
+                  <button
+                    type="button"
+                    className="lp-btn"
+                    aria-label={t("landing.replay")}
+                    title={t("landing.replay")}
+                    onClick={replay}
+                  >
+                    <span aria-hidden="true">↻</span>
+                  </button>
+                ) : null}
               </div>
             </div>
             <div className="lp-body">
