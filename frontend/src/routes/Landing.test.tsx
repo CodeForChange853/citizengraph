@@ -4,6 +4,8 @@ import { act, fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "../App";
+import i18n, { LANG_KEY, setLanguage } from "../i18n";
+import { LANDING_FIL_ENABLED } from "../landing/copy";
 import { DEMO_CYPHER, DEMO_QUESTION, GUARD_CHECKS } from "../landing/demo";
 import { FakeAudioContext } from "../landing/fakeAudio";
 import landingEn from "../landing/i18n/en.json";
@@ -270,17 +272,11 @@ function keys(obj: object, prefix = ""): string[] {
 }
 
 describe("landing strings", () => {
-  it("has a Filipino string for every English key and no extras", () => {
-    expect(keys(landingFil).sort()).toEqual(keys(landingEn).sort());
-  });
-
-  it("lists every Filipino landing string as not yet verified", () => {
-    const md = readFileSync("NEEDS-NATIVE-REVIEW.md", "utf8").split(/\r?\n/);
-    for (const key of keys(landingFil, "landing.")) {
-      const row = md.find((line) => line.startsWith(`| \`${key}\` |`));
-      expect(row, key).toBeDefined();
-      expect(row!.trimEnd().endsWith("|  |"), `${key} must not be ticked`).toBe(true);
-    }
+  it("has no Filipino copy: the stub is empty and the review list has no landing strings", () => {
+    expect(keys(landingFil)).toEqual([]);
+    expect(keys(landingEn).length).toBeGreaterThan(10);
+    expect(readFileSync("NEEDS-NATIVE-REVIEW.md", "utf8")).not.toMatch(/landing\./);
+    expect(LANDING_FIL_ENABLED).toBe(false);
   });
 
   it("marks the Taglish demo question for native review", () => {
@@ -288,11 +284,18 @@ describe("landing strings", () => {
     expect(demo).toMatch(/NEEDS-NATIVE-REVIEW.*\r?\nexport const DEMO_QUESTION/);
   });
 
-  it("switches the page to Filipino", async () => {
+  it("stays in English when the app is in Filipino, and leaves the app's stored language alone", async () => {
+    await setLanguage("fil");
     const user = userEvent.setup();
     await landing();
-    await user.click(screen.getByRole("button", { name: "Filipino" }));
-    expect(await screen.findByRole("link", { name: "Magsimulang magtanong" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start asking" })).toBeInTheDocument();
+    expect(screen.getAllByText("Thesis prototype, not an official government app").length).toBeGreaterThan(0);
+    const fil = screen.getByRole("button", { name: "Filipino" });
+    expect(fil).toHaveAttribute("aria-disabled", "true");
+    await user.click(fil);
+    expect(screen.getByRole("link", { name: "Start asking" })).toBeInTheDocument();
+    expect(i18n.language).toBe("fil");
+    expect(localStorage.getItem(LANG_KEY)).toBe("fil");
   });
 });
 

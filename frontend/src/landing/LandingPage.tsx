@@ -1,10 +1,10 @@
 import "@fontsource/atkinson-hyperlegible-mono/latin-400.css";
 import "@fontsource/atkinson-hyperlegible-mono/latin-700.css";
 import { useRef, useState, type MouseEvent } from "react";
-import { useTranslation } from "react-i18next";
+import { I18nextProvider, useTranslation } from "react-i18next";
 import type { Lang } from "../api/types";
-import { setLanguage } from "../i18n";
 import { ArcText, OrbNote } from "./ArcText";
+import { LANDING_FIL_ENABLED, landingI18n } from "./copy";
 import { CUES, OFFICES, SERVICE_TOTAL } from "./demo";
 import { Grain } from "./Grain";
 import { TimelineContext, useCompact, usePrefersReducedMotion, useTimelineValue } from "./hooks";
@@ -17,7 +17,6 @@ import { SampleCard } from "./SampleCard";
 import { SlaBeat } from "./SlaBeat";
 import { useSound } from "./sound";
 import { StageCanvas } from "./StageCanvas";
-import "./strings";
 import { Terminal } from "./Terminal";
 import { Timeline } from "./timeline";
 
@@ -74,15 +73,15 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
                 <p className="lp-proto">{t("app.prototype")}</p>
               </div>
               <div className="lp-controls">
-                <div className="lp-seg" role="group" aria-label={t("lang.label")}>
+                <div className="lp-seg" role="group" aria-label={t("lang.label")} data-disabled={!LANDING_FIL_ENABLED}>
                   {LANGS.map((code) => (
                     <button
                       key={code}
                       type="button"
                       className="lp-btn"
                       aria-pressed={lang === code}
+                      aria-disabled={!LANDING_FIL_ENABLED}
                       aria-label={t(`lang.${code}`)}
-                      onClick={() => void setLanguage(code)}
                     >
                       {code.toUpperCase()}
                     </button>
@@ -146,8 +145,10 @@ export function LandingPage() {
   const reduced = usePrefersReducedMotion();
   const [timeline] = useState(() => new Timeline(CUES));
   return (
-    <TimelineContext.Provider value={timeline}>
-      <Stage timeline={timeline} reduced={reduced} />
-    </TimelineContext.Provider>
+    <I18nextProvider i18n={landingI18n}>
+      <TimelineContext.Provider value={timeline}>
+        <Stage timeline={timeline} reduced={reduced} />
+      </TimelineContext.Provider>
+    </I18nextProvider>
   );
 }

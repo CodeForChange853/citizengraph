@@ -827,3 +827,9 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Language lock: the toggle is shown but switched off (copy.ts, LANDING_FIL_ENABLED). */
+.lp-seg[data-disabled="true"] .lp-btn {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
