@@ -7,7 +7,7 @@ import { setLanguage } from "../i18n";
 import { ArcText } from "./ArcText";
 import { CUES, OFFICES, SERVICE_TOTAL } from "./demo";
 import { Grain } from "./Grain";
-import { TimelineContext, usePrefersReducedMotion, useTimelineValue } from "./hooks";
+import { TimelineContext, useCompact, usePrefersReducedMotion, useTimelineValue } from "./hooks";
 import { Kinetic } from "./Kinetic";
 import "./landing.css";
 import { LocalBeat } from "./LocalBeat";
@@ -36,6 +36,7 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
   const headline = useTimelineValue((tl) => Math.round(tl.progress("contours") * 8) / 8);
   const hud = useTimelineValue((tl) => tl.progress("offices") > 0.6);
   const hint = useTimelineValue((tl) => tl.introDone && tl.progress("trail") === 0);
+  const compact = useCompact();
   const lang: Lang = i18n.language === "fil" ? "fil" : "en";
 
   function skip(event: MouseEvent) {
@@ -50,7 +51,14 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
   }
 
   return (
-    <div ref={rootRef} className="lp" style={STAGE_VARS} data-motion={reduced ? "static" : "full"} data-playing={playing}>
+    <div
+      ref={rootRef}
+      className="lp"
+      style={STAGE_VARS}
+      data-motion={reduced ? "static" : "full"}
+      data-playing={playing}
+      data-compact={compact}
+    >
       <a className="lp-skip" href="#lp-main" data-idle={introDone} onClick={skip}>
         {t("landing.skipIntro")}
       </a>
@@ -115,7 +123,9 @@ function Stage({ timeline, reduced }: { timeline: Timeline; reduced: boolean }) 
             </div>
             {reduced ? null : (
               <p className="lp-hint lp-mono" style={{ opacity: hint ? 1 : 0 }}>
-                {t("landing.scrollHint")} <span aria-hidden="true">↓</span>
+                <span>
+                  {t("landing.scrollHint")} <span aria-hidden="true">↓</span>
+                </span>
               </p>
             )}
           </div>

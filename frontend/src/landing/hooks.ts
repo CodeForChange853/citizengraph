@@ -41,3 +41,16 @@ export function usePrefersReducedMotion(): boolean {
 }
 
 export { ramp } from "./ease";
+
+/** Screens shorter than this get the compact stage, so the terminal and its checks stay on screen. */
+export const COMPACT_BELOW = 760;
+
+function subscribeResize(fn: () => void): () => void {
+  window.addEventListener("resize", fn);
+  return () => window.removeEventListener("resize", fn);
+}
+
+/** True when the viewport is under 760 px high (for example a 390x700 phone). */
+export function useCompact(): boolean {
+  return useSyncExternalStore(subscribeResize, () => window.innerHeight < COMPACT_BELOW);
+}

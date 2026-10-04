@@ -12,8 +12,8 @@
   "guardTitle": "Mga pagsusuri ng guardrail",
   "guard": {
     "readOnly": "Read-only",
-    "labels": "May pangalan ang mga label at type",
-    "schema": "Sakop ng schema ng charter",
+    "labels": "May label ang mga node at type",
+    "schema": "Sakop ng schema",
     "limit": "May LIMIT"
   },
   "arc": "kinuha, hindi inimbento",

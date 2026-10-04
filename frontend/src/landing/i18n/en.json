@@ -12,8 +12,8 @@
   "guardTitle": "Guardrail checks",
   "guard": {
     "readOnly": "Read-only",
-    "labels": "Labels and types named",
-    "schema": "Inside the charter schema",
+    "labels": "Labelled nodes and types",
+    "schema": "Inside the schema",
     "limit": "LIMIT set"
   },
   "arc": "retrieved, never generated",

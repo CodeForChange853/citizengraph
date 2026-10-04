@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "../App";
 import { DEMO_CYPHER, DEMO_QUESTION, GUARD_CHECKS } from "../landing/demo";
 import landingEn from "../landing/i18n/en.json";
@@ -131,6 +131,43 @@ describe("landing intro", () => {
     await user.click(screen.getByRole("button", { name: "Replay intro" }));
     expect(root).toHaveAttribute("data-playing", "true");
     expect(Number(screen.getByTestId("lp-typed").dataset.count)).toBeLessThan(DEMO_QUESTION.length);
+  });
+});
+
+function setViewport(width: number, height: number) {
+  Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+  Object.defineProperty(window, "innerHeight", { configurable: true, value: height });
+  fireEvent(window, new Event("resize"));
+}
+
+describe("landing on a short phone (390x700)", () => {
+  afterEach(() => setViewport(1024, 768));
+
+  it("uses the compact stage under 760 px of height and keeps the query and all four checks in it", async () => {
+    setViewport(390, 700);
+    const root = await landing();
+    expect(root).toHaveAttribute("data-compact", "true");
+    const stage = root.querySelector<HTMLElement>(".lp-stage")!;
+    expect(within(stage).getByText("Illustrative query, read-only")).toBeInTheDocument();
+    expect(stage.querySelectorAll(".lp-guard li")).toHaveLength(GUARD_CHECKS.length);
+    expect(within(stage).getByText("Thesis prototype, not an official government app")).toBeInTheDocument();
+  });
+
+  it("uses the full stage at 760 px and above, and follows a resize", async () => {
+    setViewport(1366, 768);
+    const root = await landing();
+    expect(root).toHaveAttribute("data-compact", "false");
+    act(() => setViewport(390, 759));
+    expect(root).toHaveAttribute("data-compact", "true");
+    act(() => setViewport(390, 760));
+    expect(root).toHaveAttribute("data-compact", "false");
+  });
+
+  it("has compact rules for the stage in the stylesheet", () => {
+    const css = readFileSync("src/landing/landing.css", "utf8");
+    for (const part of [".lp-term", ".lp-guard", ".lp-graphzone", ".lp-skip", ".lp-h1"]) {
+      expect(css).toContain(`.lp[data-compact="true"] ${part}`);
+    }
   });
 });
 
