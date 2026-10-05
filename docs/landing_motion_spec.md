@@ -123,17 +123,17 @@ words of support.
 
 | # | id | Scroll length | Film time | Headline | What you see | Matching cut into the next scene |
 |---|---|---|---|---|---|---|
-| 0 | `title` | 100 vh | 5 s | Two cores. One answer. | Black. One orange spark. It splits; two cores ignite inside a glass module: cyan (Core 1) and orange (Core 2). | The camera pushes through the module; its outline becomes the first frame of the corridor. |
+| 0 | `title` | 100 vh | 3 s after the 3 s hook | Two cores. One answer. | Black. One orange spark. It splits; two cores ignite inside a glass module: cyan (Core 1) and orange (Core 2). | The camera pushes through the module; its outline becomes the first frame of the corridor. |
 | 1 | `question` | 120 vh | 6 s | Every trip starts with: what do I bring? | A wireframe queue corridor with posts and ropes; sheets of paper lift and scatter past the camera. | The last frame of the corridor is the module, waiting at the end. |
 | 2 | `guide` | 120 vh | 6 s | It understands you. Filipino, English, Taglish. | The module splits open; the cyan core takes the stage with listening rings and three language callouts. | A listening ring becomes the safety sweep ring. |
-| 3 | `journey` | 400 vh (four shots) | 16 s | Checks every request. / Finds the exact service. / Reads only the city's charter. / Never makes things up. | (a) the sample question materialises as glowing words and a sweep ring passes over it; (b) the words decode into chips that merge into a service icon, and a beam fans out to four office constellations, 40 points; (c) the camera flies in, the beam narrows, one point lights; (d) sheets of paper fly out of it and line up as a checklist. | The 40 points and the sheets fall inward. |
+| 3 | `journey` | 400 vh (four shots) | 15 s | Checks every request. / Finds the exact service. / Reads only the city's charter. / Never makes things up. | (a) the sample question materialises as glowing words and a sweep ring passes over it; (b) the words decode into chips that merge into a service icon, and a beam fans out to four office constellations, 40 points; (c) the camera flies in, the beam narrows, one point lights; (d) sheets of paper fly out of it and line up as a checklist. | The 40 points and the sheets fall inward. |
 | 4 | `answer` | 150 vh | 7 s | What to bring. Where to go. Straight from the charter. | The points collapse into a singularity orb (lensing, warped floor grid, accretion ring, arc text). The orb resolves into a checklist card with neutral placeholders under the sample tag; items tick off. | The orb's ring flies to the orange core and becomes the clock ring. |
 | 5 | `watch` | 120 vh | 5 s | It never stops watching the deadlines. | The camera swings to the orange core inside a ticking clock ring. | The clock hand runs out into the thread. |
-| 6 | `request` | 250 vh (three shots) | 10 s | A person decides. Core 2 only drafts. | A glowing thread runs through the steps of one request. The stretch at an outside agency turns grey. One step runs over: an orange pulse, and an alert card drafts itself. Label: Prototype feature. | The thread reels back into the core. |
+| 6 | `request` | 250 vh (three shots) | 9 s | A person decides. Core 2 only drafts. | A glowing thread runs through the steps of one request. The stretch at an outside agency turns grey. One step runs over: an orange pulse, and an alert card drafts itself. Label: Prototype feature. | The thread reels back into the core. |
 | 7 | `together` | 120 vh | 5 s | Citizens know what to bring. Offices see delays early. | Both cores back in the module, beating in step. | The two cores merge. |
-| 8 | `close` | 100 vh | hold | Ask your first question. | The merged orb becomes a large call to action to `/`. The prototype label and a quiet "For reviewers" link to `/help`. | |
+| 8 | `close` | 100 vh | 3 s | Ask your first question. | The merged orb becomes a large call to action to `/`. The prototype label and a quiet "For reviewers" link to `/help`. | |
 
-Total scroll length 1,480 vh; the film runs 60 s.
+Total scroll length 1,480 vh; the film runs 62 s.
 
 Sub-shot timing (share of the scene, `beats.ts`): headline words land over the first 0.06 to 0.30 of a scene
 or shot; the support text follows at 0.30; the scene's own action runs from about 0.2 to 0.9; the last 0.1
@@ -148,7 +148,7 @@ weight of smooth scrolling without taking over the wheel. A jump of more than th
 chapter dot, Home/End) is a cut: the stage dips to dark and comes back over 220 ms; it never whips through
 the scenes in between.
 
-"Watch the film" scrolls the page by itself at the film pace above (about 60 s). Any wheel, touch, key or
+"Watch the film" scrolls the page by itself at the film pace above (62 s measured). Any wheel, touch, key or
 pointer press stops it where it is.
 
 Chapter dots are real links to anchors inside the scroll track; PageDown, Space, the arrow keys and Home/End
@@ -167,7 +167,7 @@ work because the page really scrolls. A thin bar at the top shows progress.
 - **Banned in any visible or accessible text:** model, LLM, SLM, neural, Cypher, query, graph, node, Neo4j,
   database, schema, guardrail, LIMIT, read-only, agent, SLA, pipeline, QLoRA, GGUF, CPU, RAM, GB, hardware,
   "design target", network, offline-first, local-first, cloud, server, API, latency, token, benchmark,
-  accuracy, and file locations. A vitest (`banned.test.tsx`) scans the copy file and the rendered page (text,
+  accuracy, and file locations (the test also bans terminal, prompt and offline). A vitest (`banned.test.tsx`) scans the copy file and the rendered page (text,
   `aria-label`, `alt`, `title`). The product name "Citizen Graph" is the one allowed use of "graph"; "agency"
   is not "agent" (whole-word match).
 - **Claims:** the page shows what each core does, never that it is proven. No numbers about speed, accuracy,
@@ -203,8 +203,7 @@ about 180 ms) is kept only as the origin of the `tick` recipe; there are no key 
   beat pair a second and brightens only the two cores.
 - Reduced motion: the stage is not pinned. All nine scenes are stacked as static readable sections, each with
   its headline, support text and a still poster; no autoplay, no hook, no film, no glitch, no sound, no WebGL.
-- No WebGL (or a lost context): the same pinned scroll story with the still posters cross-fading behind the
-  text. Nothing in the page depends on the 3D picture: every fact is real text.
+- No WebGL (or a lost context): the same pinned scroll story with the still posters in place of the picture. Nothing in the page depends on the 3D picture: every fact is real text.
 - The skip link is first in the tab order and goes to the call to action. Every control is a real link or
   button with a visible focus ring. Focusing a control inside a scene scrolls to that scene.
 - The canvas is decoration (`aria-hidden`); every scene is a labelled section in reading order, so a screen
@@ -222,15 +221,58 @@ about 180 ms) is kept only as the origin of the `tick` recipe; there are no key 
   cached at run time on first use. The main chunk does not grow.
 - Display type: Archivo (bundled). Body: Atkinson Hyperlegible. HUD micro text: Atkinson Hyperlegible Mono.
   No external requests.
-- Tokens: one file, `tokens.ts` (stage #050505, panel #121212, neon #FF4500, accent #00F0FF, text #E2E8F0,
+- Tokens: one file, `tokens.ts`, with the values in `tokens.json` beside it (stage #050505, panel #121212, neon #FF4500, accent #00F0FF, text #E2E8F0,
   heading #FFFFFF, muted #9CA3AF). The landing is not part of the contrast gate; body text is kept at light
   grey on near-black.
 - Quality scaling (`quality.ts`, the sliding-window rule from the first version: 6 late frames of the last 40,
-  a frame is late over 25 ms): level 3 pixel ratio up to 1.5 with bloom; level 2 pixel ratio 1 with bloom;
-  level 1 pixel ratio 1, half-resolution bloom, fewer particles; level 0 pixel ratio 0.75, no bloom. It only
-  steps down. The loop stops when the tab is hidden and drops to half rate when nothing has moved for 2 s.
+  a frame is late over 25 ms): full: pixel ratio up to 1.5, bloom, 4x multisampling; high: pixel ratio 1, bloom, 2x multisampling;
+  medium: pixel ratio 1, half-resolution bloom, fewer sparks, a simpler orb; low: pixel ratio 0.75, no bloom and
+  no last pass. The first 1.5 s after the canvas starts are not counted. It only steps down. The loop stops when the tab is hidden and drops to half rate when nothing has moved for 2 s.
   Target: 60 frames a second on a Ryzen 5 7520U with integrated graphics (a goal, not a gate).
 
 ## 10. Measurements
 
-Filled in at the end of Phase H.
+Headless Chromium 153 (Playwright build 1243) on the development laptop, built app served by `vite preview`.
+The laptop's own GPU was used through ANGLE and Direct3D 11: "AMD Radeon(TM) Graphics (0x1506)", the
+integrated graphics of the Ryzen 5 7520U family, which is the target. Frame gaps are the times between
+animation frames in the page; a frame is late over 25 ms. One run each, on one machine: these are checks of
+the page, not a benchmark of the system.
+
+| Setup | Phase | Median | 95th | Late (>25 ms) | Quality level |
+|---|---|---|---|---|---|
+| Desktop 1366x768 | hook (3.5 s after load) | 16.7 ms | 16.8 ms | 4 % | full |
+| Desktop 1366x768 | whole story scrolled in 24 s | 16.7 ms | 16.7 ms | 0 % | full |
+| Desktop 1366x768, CPU slowed 4x | hook | 16.7 ms | 50.1 ms | 14 % | full, then high at 4.0 s, medium at 4.4 s, low at 7.5 s |
+| Desktop 1366x768, CPU slowed 4x | scroll | 16.7 ms | 50.0 ms | 24 % | low (1024x576, no bloom) |
+| Phone 390x700 at pixel ratio 3 | hook | 16.7 ms | 16.8 ms | 4 % | full (585x1050: ratio capped at 1.5) |
+| Phone 390x700 at pixel ratio 3 | scroll | 16.7 ms | 16.7 ms | 0 % | full |
+| Phone 390x700 at pixel ratio 3, CPU slowed 4x | scroll | 16.7 ms | 33.4 ms | 18 % | low (292x525) |
+| Desktop 1536x864 at pixel ratio 1.25 | scroll | 16.7 ms | 16.8 ms | 1 % | full (1920x1080), then high and medium during the hook |
+
+The late frames during the hook are the page loading (the 3D chunk compiling its shaders), not the picture.
+CPU time per frame while scrolling, from the DevTools profiler: script 2.7 ms, style 2.7 ms, layout 0.3 ms.
+
+Two faults were found by measuring and fixed:
+
+- The scroll loop scheduled one extra frame callback per frame, so a long scroll slowed down steadily (23 %
+  late frames over the story, 76 % in the last scene). It now holds one callback at a time; a test pins that.
+- The progress variable was set on the page root, which restyled the whole page every frame (8.3 ms of style
+  work per frame). It is now a transform on the bar alone (2.7 ms).
+
+Flash check: the whole film (62 s) captured as 1,169 screenshots, about 55 ms apart, 683x384. The largest
+change of the mean frame level between two shots was 0.037 of full scale (a general flash needs 0.10); the
+brightest frame had a mean level of 0.225. In any one sixteenth of the frame, ten changes over 0.10 in the
+whole film, at most three within one second. The first run of this check found a real fault: a sheet of paper
+passing through the camera in scene 1 raised the frame level by 0.2 in a tenth of a second. Sheets now drift
+away from the camera's path and fade out before they come within 1.4 units of it; a test pins that.
+
+Other headless checks: no cross-origin requests and no console errors or warnings over the whole story; the
+home page fetches no landing asset; the precache holds none (19 entries, as before); after one visit the
+run-time cache holds the landing chunk, the 3D chunk and the two fonts. With reduced motion: nine still
+sections, no canvas, no animation frames, no audio context, the 3D chunk is not requested. With WebGL
+switched off: the pinned story with posters, no errors.
+
+Software-rendered WebGL (SwiftShader) draws the same picture but at one to three frames a second, so it says
+nothing about speed; it was used only to check that the page still works there.
+
+Not measured: real phones, other laptops and GPUs, Safari, Firefox, a throttled GPU.

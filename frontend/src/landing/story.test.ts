@@ -149,6 +149,15 @@ describe("director", () => {
     expect(arrived.cam.look).toEqual([0, 0, 0]);
   });
 
+  it("never lets a sheet of paper come close to the camera, where it would fill the view", () => {
+    for (let u = 0.8; u <= 2.2; u += 0.002) {
+      const f = frame(u);
+      for (const sheet of f.sheets) {
+        if (sheet.a > 0.25) expect(distance(sheet.p, f.cam.p), `at ${u.toFixed(3)}`).toBeGreaterThan(1.6);
+      }
+    }
+  });
+
   it("gives the stage to the cyan core in scene 2 and to the orange core in scene 5", () => {
     const guide = frame(2.7);
     expect(guide.cyan.scale).toBeGreaterThan(1.4);

@@ -25,7 +25,7 @@ void main() {
   float twinkle = 0.8 + 0.2 * sin(uTime * 1.7 + aSeed * 40.0);
   vTarget = aTarget * uLit;
   vA = uAlpha * twinkle * mix(1.0, 0.4, uLit * (1.0 - aTarget));
-  gl_PointSize = max(2.0, uPx * 0.16 * (0.7 + aSeed * 0.6) * (1.0 + 1.6 * vTarget) / -mv.z);
+  gl_PointSize = clamp(uPx * 0.16 * (0.7 + aSeed * 0.6) * (1.0 + 0.9 * vTarget) / -mv.z, 2.0, 22.0 + 12.0 * vTarget);
 }
 `;
 export const STAR_FRAG = /* glsl */ `

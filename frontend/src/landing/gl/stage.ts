@@ -440,7 +440,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
         half.group.position.x = half.side * (0.69 + frame.glass.open);
         half.group.rotation.y = -half.side * Math.min(0.5, frame.glass.open * 0.4);
         half.material.uniforms.uAlpha!.value = frame.glass.a;
-        half.seamMaterial.opacity = frame.glass.a * 0.55;
+        half.seamMaterial.opacity = frame.glass.a * 0.35;
       }
 
       corridor.visible = frame.corridor.a > 0.003;

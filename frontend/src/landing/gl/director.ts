@@ -273,18 +273,15 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
       const lift = easeOutCubic(t);
       const rest = eulerQuat(-0.35 + hash(i, 5) * 0.5, (hash(i, 6) - 0.5) * 1.2, (hash(i, 7) - 0.5) * 0.5);
       const spin = eulerQuat(t * (2 + hash(i, 8) * 4), t * (hash(i, 9) * 6 - 3), t * (hash(i, 10) * 4 - 2));
-      sheets.push({
-        p: [
-          side * (0.6 + hash(i, 1) * 0.75) + (hash(i, 3) - 0.5) * 2.2 * t,
-          -0.8 + hash(i, 2) * 0.6 + (0.5 + hash(i, 4) * 1.2) * lift + Math.sin(t * 6 + i) * 0.06,
-          z + 2.2 * t,
-        ],
-        q: mulQuat(rest, spin),
-        sx: 1,
-        sy: 1,
-        a: corridorA * (0.35 + 0.65 * Math.min(1, t * 3)),
-        row: 0,
-      });
+      // sheets drift outward, away from the camera's path, and fade before they come close:
+      // a sheet filling the view would be a flash
+      const p: V3 = [
+        side * (0.75 + hash(i, 1) * 0.6 + hash(i, 3) * 0.7 * t),
+        -0.8 + hash(i, 2) * 0.6 + (0.5 + hash(i, 4) * 1.2) * lift + Math.sin(t * 6 + i) * 0.06,
+        z + 2.2 * t,
+      ];
+      const near = ramp(Math.hypot(p[0] - camP[0], p[1] - camP[1], p[2] - camP[2]), 1.4, 3.4);
+      sheets.push({ p, q: mulQuat(rest, spin), sx: 1, sy: 1, a: corridorA * (0.35 + 0.65 * Math.min(1, t * 3)) * near, row: 0 });
     } else if (i < ROW_COUNT && rowsIn > 0) {
       const t = easeOutCubic(seg(u, BEAT.rows[0] + 0.03 * i, BEAT.rows[0] + 0.1 + 0.03 * i));
       const slotP = fromCamera(camP, basis, [0, (wide ? 0.64 : 0.36) - (wide ? 0.32 : 0.27) * i, -4.4]);
@@ -379,9 +376,9 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
   }
   // scene 3c: the one service lights
   if (lit > 0 && starsA > 0) {
-    glows.push({ p: target, size: 1.5, color: CYAN, a: 0.7 * lit * starsA * (1 - 0.6 * ramp(u, BEAT.rows[0], BEAT.rows[0] + 0.05)) });
-    glows.push({ p: target, size: 0.3, color: WHITE, a: lit * starsA });
-    rings.push({ p: target, radius: 0.32, width: 0.04, color: WHITE, a: 0.8 * lit * starsA * (1 - ramp(u, BEAT.rows[0] - 0.02, BEAT.rows[0] + 0.03)) });
+    glows.push({ p: target, size: 1.3, color: CYAN, a: 0.38 * lit * starsA * (1 - 0.85 * ramp(u, BEAT.rows[0], BEAT.rows[0] + 0.05)) });
+    glows.push({ p: target, size: 0.2, color: WHITE, a: 0.8 * lit * starsA * (1 - 0.7 * ramp(u, BEAT.rows[0], BEAT.rows[0] + 0.05)) });
+    rings.push({ p: target, radius: 0.32, width: 0.025, color: CYAN, a: 0.75 * lit * starsA * (1 - ramp(u, BEAT.rows[0] - 0.02, BEAT.rows[0] + 0.03)) });
     bursts.push({ p: target, t: seg(u, BEAT.lit[0], BEAT.lit[0] + 0.14), color: CYAN, spread: 1.2 });
   }
   // scene 6: step markers, the deadline pulse, the head of the thread
