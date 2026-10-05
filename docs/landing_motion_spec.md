@@ -259,12 +259,8 @@ Two faults were found by measuring and fixed:
 - The progress variable was set on the page root, which restyled the whole page every frame (8.3 ms of style
   work per frame). It is now a transform on the bar alone (2.7 ms).
 
-Flash check: the whole film (62 s) captured as 1,169 screenshots, about 55 ms apart, 683x384. The largest
-change of the mean frame level between two shots was 0.037 of full scale (a general flash needs 0.10); the
-brightest frame had a mean level of 0.225. In any one sixteenth of the frame, ten changes over 0.10 in the
-whole film, at most three within one second. The first run of this check found a real fault: a sheet of paper
-passing through the camera in scene 1 raised the frame level by 0.2 in a tenth of a second. Sheets now drift
-away from the camera's path and fade out before they come within 1.4 units of it; a test pins that.
+Flash check: a first check by mean frame level found a sheet of paper passing through the camera in scene 1
+(sheets now keep away from it; a test pins that). The full analysis is in section 11.
 
 Other headless checks: no cross-origin requests and no console errors or warnings over the whole story; the
 home page fetches no landing asset; the precache holds none (19 entries, as before); after one visit the
@@ -276,3 +272,51 @@ Software-rendered WebGL (SwiftShader) draws the same picture but at one to three
 nothing about speed; it was used only to check that the page still works there.
 
 Not measured: real phones, other laptops and GPUs, Safari, Firefox, a throttled GPU.
+
+## 11. Photosensitivity analysis
+
+A recording of the whole film (Playwright video, 1024x768, real GPU, 66 s) was analysed after WCAG 2.2
+success criterion 2.3.1, not by the frame mean alone. Method: frames at 25 a second, area-averaged to 256x192
+cells; relative luminance from linearised sRGB; per cell, a change of 0.10 or more from the last extreme with
+the darker state below 0.80 is a transition, and two opposing transitions are a flash; red flash the same
+with saturated red (R/(R+G+B) of 0.8 or more, change of (R-G-B)x320 over 20). The 10 degree field is 341x256
+px at 1024x768. Limit: three flashes in any one second over more than 25 % of a 10 degree field.
+
+| Recording | Measure | General flash | Red flash |
+|---|---|---|---|
+| Whole film | flashes over 25 % of a field in the worst second | 1 | 1 |
+| Whole film | largest area with 3 or more flashes in one second | 14.8 % of a field (35.2 s, scene 4) | 4.2 % |
+| Whole film | largest area with 4 or more flashes in one second | 3.7 % of a field (32.5 s, scene 3d) | 0.4 % |
+| Hard scrubbing | flashes over 25 % of a field in the worst second | 3 | 1 |
+| Hard scrubbing | largest area with 4 or more flashes in one second | 11.6 % of a field | 0.6 % |
+
+Both recordings pass. "Hard scrubbing" is a visitor dragging the whole story through in 8 s, back in 6 s, then
+five chapter jumps: it sits at the limit of three, so it passes without margin.
+
+What the first run of this analysis found, and what was changed:
+
+- **Scene 1 failed.** The wireframe corridor flying past gave 5 general flashes in one second and 31 % of a
+  field with 4 or more: bright thin lines sweeping over the same spot again and again. Near lines now fade out
+  (they cross the view fastest), the corridor is drawn at about 60 % of its former brightness, and sheets of
+  paper are dimmer and fade further from the camera.
+- **Scene 6 was at the line** (26 % of a field with 3 flashes) while the clock ring moved to its corner. The hand
+  turns slower, its sweep is fainter, the ticks dim while the ring moves, and the move takes longer.
+- **Hard scrubbing failed narrowly** (26 % with 4 or more). A scrubbing guard (`quality.ts`, `scrubOpacity`) now
+  dims the picture when the playhead moves faster than 0.7 scenes a second, down to a quarter at 1.6 and
+  beyond. The film's fastest scene runs at a third of a scene a second, so the film is never dimmed.
+
+Limits of this analysis: one recording of each kind, VP8-compressed, on one machine; 25 frames a second, so
+flicker above about 12 Hz is not seen; the quarter-resolution cells average fine lines, as the eye does at a
+distance, but a formal tool (the Harding FPA or PEAT) was not run. The first half second of each recording is
+the browser's blank page before the dark stage: one change, not a flash.
+
+## 12. When something fails to load
+
+| What fails | What the visitor gets |
+|---|---|
+| The 3D chunk (request fails, answers 404, or WebGL throws) | The pinned story with the still posters and the call to action (`PictureBoundary` in `LandingPage.tsx`) |
+| The 3D chunk stalls and never arrives | The same: posters fade in after 1.5 s of waiting |
+| The fonts | The story in the system font |
+| The landing chunk or its stylesheet (for example offline on a first visit) | A plain page: product name, prototype label, "Something went wrong. Please try again.", a link into the app and a "Try again" button (`LoadGuard.tsx`, the one landing file in the app shell) |
+
+Before this, a failed 3D chunk or landing chunk unmounted the whole app and left a blank page.

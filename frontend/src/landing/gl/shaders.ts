@@ -174,8 +174,11 @@ varying float vA;
 void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   float dist = -mv.z;
-  float fog = (1.0 - smoothstep(7.0, 30.0, dist)) * smoothstep(0.2, 1.6, dist);
-  vA = uAlpha * aGlow * (0.12 + 0.88 * fog);
+  // Far lines fade into the dark. Near lines fade out too: they cross the view fastest, and a bright line
+  // sweeping over the same spot again and again reads as flashing (see the photosensitivity check).
+  float far = 0.15 + 0.85 * (1.0 - smoothstep(7.0, 30.0, dist));
+  float near = smoothstep(2.0, 7.0, dist);
+  vA = uAlpha * aGlow * far * near;
   gl_Position = projectionMatrix * mv;
 }
 `;

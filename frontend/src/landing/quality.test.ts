@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { FrameBudget, IDLE_GAP_MS, LATE_LIMIT, WINDOW_FRAMES } from "./quality";
+import { FILM_SECONDS, SCENE_COUNT, SCENES } from "./scenes";
+import { CALM, DIMMEST, FrameBudget, IDLE_GAP_MS, LATE_LIMIT, RUSH, scrubOpacity, WINDOW_FRAMES } from "./quality";
 
 /** Feed gaps until the budget asks for a step down; returns the frame number, or -1 if it never does. */
 function firstStep(gaps: number[], draw = 2): number {
@@ -54,5 +55,23 @@ describe("adaptive quality budget", () => {
       if (budget.frame(gap, 2)) steps.push(i + 1);
     });
     expect(steps).toEqual([6, 12, 18, 24, 30]);
+  });
+});
+
+describe("scrubbing guard", () => {
+  it("leaves the film and ordinary scrolling at full brightness", () => {
+    const filmFastest = Math.max(...SCENES.map((s) => 1 / s.film));
+    expect(filmFastest).toBeLessThan(CALM);
+    expect(SCENE_COUNT / FILM_SECONDS).toBeLessThan(CALM);
+    expect(scrubOpacity(0)).toBe(1);
+    expect(scrubOpacity(filmFastest)).toBe(1);
+    expect(scrubOpacity(CALM)).toBe(1);
+  });
+
+  it("dims the picture when the story is dragged through several scenes a second", () => {
+    expect(scrubOpacity((CALM + RUSH) / 2)).toBeCloseTo((1 + DIMMEST) / 2);
+    expect(scrubOpacity(RUSH)).toBe(DIMMEST);
+    expect(scrubOpacity(20)).toBe(DIMMEST);
+    expect(DIMMEST).toBeLessThanOrEqual(0.3);
   });
 });

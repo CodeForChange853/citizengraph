@@ -444,7 +444,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       }
 
       corridor.visible = frame.corridor.a > 0.003;
-      corridor.material.uniforms.uAlpha!.value = frame.corridor.a * 0.8;
+      corridor.material.uniforms.uAlpha!.value = frame.corridor.a * 0.5;
 
       let shown = 0;
       frame.sheets.forEach((sheet, i) => {

@@ -242,7 +242,7 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
     // Core 2: slot, steps back while Core 1 works, waits at WATCH, takes the stage, then a corner, then home
     let o: V3 = lerp3([slot, 0, 0], [2.3 * fx, 0.7, -2.2], open2);
     o = lerp3(o, WATCH, ramp(u, 3.0, 3.3));
-    const corner = ramp(u, 6.0, 6.14) * (1 - ramp(u, 7.02, 7.3));
+    const corner = ramp(u, 6.0, 6.24) * (1 - ramp(u, 7.02, 7.3));
     o = add(o, [-1.9 * fx * corner + slot * ramp(u, 7.02, 7.3) * (1 - merge), 1.0 * corner, 0]);
     orange.p = o;
     const stage5 = ramp(u, 5.1, 5.4);
@@ -280,7 +280,7 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
         -0.8 + hash(i, 2) * 0.6 + (0.5 + hash(i, 4) * 1.2) * lift + Math.sin(t * 6 + i) * 0.06,
         z + 2.2 * t,
       ];
-      const near = ramp(Math.hypot(p[0] - camP[0], p[1] - camP[1], p[2] - camP[2]), 1.4, 3.4);
+      const near = 0.6 * ramp(Math.hypot(p[0] - camP[0], p[1] - camP[1], p[2] - camP[2]), 2.2, 6);
       sheets.push({ p, q: mulQuat(rest, spin), sx: 1, sy: 1, a: corridorA * (0.35 + 0.65 * Math.min(1, t * 3)) * near, row: 0 });
     } else if (i < ROW_COUNT && rowsIn > 0) {
       const t = easeOutCubic(seg(u, BEAT.rows[0] + 0.03 * i, BEAT.rows[0] + 0.1 + 0.03 * i));
@@ -329,10 +329,10 @@ export function direct(u: number, hook: number, time: number, aspect: number): F
   const clockA = ramp(u, 5.0, 5.06) * (1 - ramp(u, 7.0, 7.12));
   const clock = {
     p: u < 5.32 ? lerp3([0, 0, 0], WATCH, ringFly) : orange.p,
-    size: mix(0.35, 1.3, ramp(u, 5.05, 5.35)) * mix(1, 0.42, ramp(u, 6.0, 6.14)),
+    size: mix(0.35, 1.3, ramp(u, 5.05, 5.35)) * mix(1, 0.42, ramp(u, 6.0, 6.24)),
     a: clockA,
-    ticks: ramp(u, BEAT.clock[0], BEAT.clock[1]),
-    hand: time * 0.9 + u * 5,
+    ticks: ramp(u, BEAT.clock[0], BEAT.clock[1]) * (1 - 0.8 * window4(u, 6.0, 6.03, 6.22, 6.3)), // quiet while the ring moves
+    hand: time * 0.7 + u * 2, // slow: a fast hand over the bright ring would flicker
   };
 
   // ---- scene 6: the thread ----------------------------------------------------------------------------------------

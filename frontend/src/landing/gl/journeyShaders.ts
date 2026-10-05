@@ -150,7 +150,7 @@ void main() {
   float tick = smoothstep(0.5 - 0.09 - aw, 0.5 - 0.09, cell) * step(inner, r) * step(r, 0.9);
   float behind = fract((uHand - angle) / (2.0 * PI)); // 0 at the hand, growing behind it
   float reach = step(0.5, r) * step(r, 0.9);
-  float sweep = pow(1.0 - behind, 6.0) * reach * 0.45;
+  float sweep = pow(1.0 - behind, 6.0) * reach * 0.28;
   float handLine = (1.0 - smoothstep(0.0, 0.006 + aw * 0.02, min(behind, 1.0 - behind))) * step(0.42, r) * step(r, 0.9);
   vec3 col = uHot * (circle * 0.9 + sweep * uTicks) + vec3(1.0) * (tick * 0.75 * uTicks + handLine * uTicks);
   gl_FragColor = vec4(col * uAlpha, 1.0);

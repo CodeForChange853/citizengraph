@@ -49,3 +49,19 @@ export class FrameBudget {
     this.draws = [];
   }
 }
+
+/**
+ * Scrubbing guard. The film and ordinary scrolling move the story well under one scene a second. A visitor
+ * who drags the scrollbar through several scenes a second would turn the scene changes into flicker, so
+ * above CALM scenes a second the picture dims, down to DIMMEST at RUSH and beyond (measured: section 10 of
+ * docs/landing_motion_spec.md).
+ */
+export const CALM = 0.7;
+export const RUSH = 1.6;
+export const DIMMEST = 0.25;
+
+/** How bright the picture is shown (1 to DIMMEST) for a playhead speed in scenes a second. */
+export function scrubOpacity(speed: number): number {
+  const t = Math.min(1, Math.max(0, (speed - CALM) / (RUSH - CALM)));
+  return 1 - (1 - DIMMEST) * t * t * (3 - 2 * t);
+}

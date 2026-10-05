@@ -2,7 +2,7 @@
 // of its own, loaded by the landing page after its first paint and only when WebGL is there.
 import { useEffect, useRef, type RefObject } from "react";
 import type { Playhead } from "../playhead";
-import { FrameBudget, WARMUP_MS } from "../quality";
+import { FrameBudget, scrubOpacity, WARMUP_MS } from "../quality";
 import { direct, type AnchorId } from "./director";
 import { createStage, LOWEST_LEVEL, type Stage } from "./stage";
 
@@ -44,6 +44,9 @@ export default function Stage3D({ playhead, stageRef, onLost, onReady }: Props) 
     let onScreen = true;
     let first = true;
     let size = { w: 1, h: 1 };
+    let lastPos = playhead.pos;
+    let speed = 0;
+    let shownOpacity = 1;
 
     function findLabels() {
       labels.clear();
@@ -75,6 +78,18 @@ export default function Stage3D({ playhead, stageRef, onLost, onReady }: Props) 
       skip = now - lastMove > IDLE_AFTER_MS ? !skip : false;
       if (skip) return;
       clock += Math.min(gap, 100) / 1000;
+
+      // scrubbing guard: dim the picture while the story is dragged through faster than it is meant to run
+      if (gap > 0) {
+        const current = Math.abs(playhead.pos - lastPos) / (Math.min(gap, 100) / 1000);
+        speed += (current - speed) * Math.min(1, gap / 180);
+        lastPos = playhead.pos;
+        const opacity = scrubOpacity(speed);
+        if (Math.abs(opacity - shownOpacity) > 0.01) {
+          shownOpacity = opacity;
+          canvas!.style.opacity = opacity.toFixed(2);
+        }
+      }
 
       const started = performance.now();
       const frame = direct(playhead.pos, playhead.hook, clock, size.w / size.h);
