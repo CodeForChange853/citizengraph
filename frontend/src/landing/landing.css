@@ -411,6 +411,17 @@
 .lp[data-gl="off"] .lp-poster {
   display: block;
 }
+/* The 3D picture is still loading: after a moment the posters stand in, so a slow or stalled
+   connection never leaves the stage empty. They go when the picture is ready. */
+@keyframes lp-late {
+  from {
+    opacity: 0;
+  }
+}
+.lp[data-gl="loading"] .lp-poster {
+  display: block;
+  animation: lp-late 0.5s 1.5s both;
+}
 
 .lp-posterart {
   fill: none;

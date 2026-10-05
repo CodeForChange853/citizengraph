@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* The landing page (/welcome) has its own stylesheet and uses no utilities: keep its words out of the scan,
+   or utilities such as .static and .transform are generated into this app-shell stylesheet for nothing. */
+@source not "./landing";
 @import "./design/tokens.css";
 
 @theme {

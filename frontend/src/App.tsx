@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { ApiProvider } from "./api/ApiProvider";
 import { createQueryClient } from "./api/queryClient";
 import { Shell } from "./components/Shell";
+import { LoadGuard } from "./landing/LoadGuard";
 import Chat from "./routes/Chat";
 import Home from "./routes/Home";
 import Help from "./routes/Help";
@@ -27,9 +28,11 @@ export function AppRoutes() {
       <Route
         path="/welcome"
         element={
-          <Suspense fallback={null}>
-            <Landing />
-          </Suspense>
+          <LoadGuard>
+            <Suspense fallback={null}>
+              <Landing />
+            </Suspense>
+          </LoadGuard>
         }
       />
       <Route

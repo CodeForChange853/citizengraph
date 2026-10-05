@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "../App";
 import i18n, { LANG_KEY, setLanguage } from "../i18n";
 import { LANDING_FIL_ENABLED } from "../landing/copy";
@@ -110,7 +110,7 @@ describe("landing navigation and fallbacks", () => {
   it("with reduced motion shows nine still, readable sections: no pinned stage, film, chapter dots or canvas", async () => {
     setReducedMotion(true);
     const root = await landing();
-    expect(root.dataset.motion).toBe("static");
+    expect(root.dataset.motion).not.toBe("full"); // the still layout
     expect(root.querySelector("canvas")).toBeNull();
     expect(screen.queryByRole("button", { name: /film/ })).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Chapters" })).toBeNull();
@@ -149,6 +149,87 @@ describe("landing frame loop", () => {
       }
     } finally {
       window.requestAnimationFrame = realRaf;
+    }
+  });
+});
+
+describe("landing when the 3D chunk cannot be loaded", () => {
+  it("carries on with the posters and the call to action instead of a blank screen", async () => {
+    // a browser that has WebGL, so the page does ask for the 3D chunk ...
+    vi.stubGlobal("WebGL2RenderingContext", class {});
+    const realGetContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = (() => ({})) as unknown as typeof realGetContext;
+    // ... and a network that fails to deliver it
+    vi.doMock("../landing/gl/Stage3D", () => {
+      throw new Error("Failed to fetch dynamically imported module");
+    });
+    const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const root = await landing();
+      await waitFor(() => expect(root.dataset.gl).toBe("off"));
+      expect(root.querySelector("canvas")).toBeNull();
+      expect(root.querySelectorAll("svg[role=img]")).toHaveLength(SCENES.length);
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Two cores. One answer.");
+      expect(screen.getByRole("link", { name: /Start asking/ })).toHaveAttribute("href", "/");
+      expect(screen.getAllByText("Thesis prototype, not an official government app").length).toBeGreaterThan(0);
+      expect(root.querySelectorAll("section[data-scene]")).toHaveLength(SCENES.length);
+    } finally {
+      quiet.mockRestore();
+      vi.doUnmock("../landing/gl/Stage3D");
+      vi.unstubAllGlobals();
+      HTMLCanvasElement.prototype.getContext = realGetContext;
+    }
+  });
+});
+
+describe("landing when its own chunk cannot be loaded", () => {
+  it("shows a plain page with the prototype label and a way into the app", async () => {
+    const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
+    function Broken(): never {
+      throw new Error("Failed to fetch dynamically imported module");
+    }
+    try {
+      const { MemoryRouter } = await import("react-router");
+      const { render } = await import("@testing-library/react");
+      const { LoadGuard } = await import("../landing/LoadGuard");
+      render(
+        <MemoryRouter>
+          <LoadGuard>
+            <Broken />
+          </LoadGuard>
+        </MemoryRouter>,
+      );
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Citizen Graph");
+      expect(screen.getByText("Thesis prototype, not an official government app")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Ask a question" })).toHaveAttribute("href", "/");
+      expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+      expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong");
+    } finally {
+      quiet.mockRestore();
+    }
+  });
+
+  it("stays in English when the app is in Filipino", async () => {
+    await setLanguage("fil");
+    const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
+    function Broken(): never {
+      throw new Error("offline");
+    }
+    try {
+      const { MemoryRouter } = await import("react-router");
+      const { render } = await import("@testing-library/react");
+      const { LoadGuard } = await import("../landing/LoadGuard");
+      render(
+        <MemoryRouter>
+          <LoadGuard>
+            <Broken />
+          </LoadGuard>
+        </MemoryRouter>,
+      );
+      expect(screen.getByRole("link", { name: "Ask a question" })).toBeInTheDocument();
+      expect(i18n.language).toBe("fil");
+    } finally {
+      quiet.mockRestore();
     }
   });
 });

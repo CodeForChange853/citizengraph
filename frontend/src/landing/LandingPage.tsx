@@ -1,7 +1,7 @@
 import "@fontsource/archivo/latin-800.css";
 import "@fontsource/atkinson-hyperlegible-mono/latin-400.css";
 import "@fontsource/atkinson-hyperlegible-mono/latin-700.css";
-import { lazy, Suspense, useCallback, useRef, useState, type MouseEvent } from "react";
+import { Component, lazy, Suspense, useCallback, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import { CUES } from "./beats";
 import { LANDING_FIL_ENABLED, landingI18n } from "./copy";
@@ -24,6 +24,24 @@ function canWebGL(): boolean {
     return !!document.createElement("canvas").getContext("webgl2");
   } catch {
     return false;
+  }
+}
+
+/**
+ * Catches a failed load of the 3D chunk (offline on a first visit, a flaky connection, a blocked file)
+ * and anything the picture throws while it starts. The page then carries on with the still posters:
+ * the words and the call to action never depend on the picture.
+ */
+class PictureBoundary extends Component<{ onFail: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onFail();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
   }
 }
 
@@ -117,9 +135,11 @@ function Page({ playhead, reduced }: { playhead: Playhead; reduced: boolean }) {
           ))}
           <div ref={stageRef} className="lp-stage" data-cut={cuts === 0 ? undefined : cuts % 2 ? "a" : "b"}>
             {picture !== "off" ? (
-              <Suspense fallback={null}>
-                <Stage3D playhead={playhead} stageRef={stageRef} onLost={onLost} onReady={onReady} />
-              </Suspense>
+              <PictureBoundary onFail={onLost}>
+                <Suspense fallback={null}>
+                  <Stage3D playhead={playhead} stageRef={stageRef} onLost={onLost} onReady={onReady} />
+                </Suspense>
+              </PictureBoundary>
             ) : null}
             <div className="lp-scenes">
               <Scenes />
