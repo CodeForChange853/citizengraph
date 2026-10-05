@@ -1,0 +1,612 @@
+{
+  "fees/cheapest/plain": {
+    "cypher": [
+      "MATCH (o:Office {id: $oid})-[:OFFERS]->(s:Service)-[:HAS_FEE]->(f:Fee)",
+      "RETURN s.id, s.name, min(f.amount_min) AS lowest",
+      "ORDER BY lowest, s.id",
+      "LIMIT 5"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "oid"
+    ]
+  },
+  "fees/compare_fees/plain": {
+    "cypher": [
+      "MATCH (s:Service)",
+      "WHERE s.id IN [$sid, $sid2]",
+      "OPTIONAL MATCH (s)-[:HAS_FEE]->(f:Fee)",
+      "RETURN s.id, s.name, s.total_fee_text, count(f) AS n_fees, min(f.amount_min) AS lowest, max(f.amount_max) AS highest",
+      "ORDER BY s.id",
+      "LIMIT 2"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "sid",
+      "sid2"
+    ]
+  },
+  "fees/fee_time/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)",
+      "OPTIONAL MATCH (st)-[:CHARGES]->(f:Fee)",
+      "WHERE NOT EXISTS {",
+      "MATCH (f)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (f)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "RETURN s.total_time_text, st.id, st.order, st.dur_min, st.dur_max, st.dur_unit, st.day_type, st.external_agency, f.id, f.label, f.amount_min, f.amount_max, f.unit, f.note, f.condition_text",
+      "ORDER BY st.order, f.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "fees",
+      "processing_time"
+    ],
+    "params": [
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "fees/fee_time/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)",
+      "OPTIONAL MATCH (st)-[:CHARGES]->(f:Fee)",
+      "RETURN s.total_time_text, st.id, st.order, st.dur_min, st.dur_max, st.dur_unit, st.day_type, st.external_agency, f.id, f.label, f.amount_min, f.amount_max, f.unit, f.note, f.condition_text",
+      "ORDER BY st.order, f.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "fees",
+      "processing_time"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "fees/fees_total/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_FEE]->(f:Fee)",
+      "WHERE NOT EXISTS {",
+      "MATCH (f)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (f)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "RETURN s.total_fee_text, sum(f.amount_min) AS total_min, sum(f.amount_max) AS total_max, count(f) AS n_fees, count(CASE WHEN f.condition_text IS NOT NULL AND NOT EXISTS { MATCH (f)-[:APPLIES_WHEN]->(:Variant) } THEN 1 END) AS n_unresolved",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "fees/fees_total/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_FEE]->(f:Fee)",
+      "RETURN s.total_fee_text, sum(f.amount_min) AS total_min, sum(f.amount_max) AS total_max, count(f) AS n_fees, count(CASE WHEN f.condition_text IS NOT NULL AND NOT EXISTS { MATCH (f)-[:APPLIES_WHEN]->(:Variant) } THEN 1 END) AS n_unresolved",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "fees/list/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_FEE]->(f:Fee)",
+      "WHERE NOT EXISTS {",
+      "MATCH (f)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (f)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "RETURN f.id, f.label, f.amount_min, f.amount_max, f.unit, f.note, f.condition_text",
+      "ORDER BY f.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "fees/list/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_FEE]->(f:Fee)",
+      "RETURN f.id, f.label, f.amount_min, f.amount_max, f.unit, f.note, f.condition_text",
+      "ORDER BY f.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "fees/no_fee_rows/plain": {
+    "cypher": [
+      "MATCH (o:Office {id: $oid})-[:OFFERS]->(s:Service)",
+      "WHERE NOT EXISTS { MATCH (s)-[:HAS_FEE]->(:Fee) }",
+      "RETURN s.id, s.name",
+      "ORDER BY s.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "oid"
+    ]
+  },
+  "fees/per_step/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)-[:CHARGES]->(f:Fee)",
+      "WHERE NOT EXISTS {",
+      "MATCH (f)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (f)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "RETURN st.id, st.order, st.citizen_action, f.id, f.label, f.amount_min, f.amount_max, f.unit, f.note, f.condition_text",
+      "ORDER BY st.order, f.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "fees/per_step/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)-[:CHARGES]->(f:Fee)",
+      "RETURN st.id, st.order, st.citizen_action, f.id, f.label, f.amount_min, f.amount_max, f.unit, f.note, f.condition_text",
+      "ORDER BY st.order, f.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "fees"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "office/list/plain": {
+    "cypher": [
+      "MATCH (o:Office)-[:OFFERS]->(s:Service {id: $sid})",
+      "RETURN o.id, o.name",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "office"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "office/office_count/plain": {
+    "cypher": [
+      "MATCH (o:Office {id: $oid})-[:OFFERS]->(s:Service)",
+      "RETURN o.name, count(s) AS n",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "office"
+    ],
+    "params": [
+      "oid"
+    ]
+  },
+  "office/office_services/plain": {
+    "cypher": [
+      "MATCH (o:Office {id: $oid})-[:OFFERS]->(s:Service)",
+      "RETURN o.name, s.id, s.name",
+      "ORDER BY s.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "office"
+    ],
+    "params": [
+      "oid"
+    ]
+  },
+  "processing_time/compare_time/plain": {
+    "cypher": [
+      "MATCH (s:Service)-[:HAS_STEP]->(st:Step)",
+      "WHERE s.id IN [$sid, $sid2]",
+      "RETURN s.id, s.name, s.total_time_text, st.id, st.order, st.dur_min, st.dur_max, st.dur_unit, st.day_type",
+      "ORDER BY s.id, st.order",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "processing_time"
+    ],
+    "params": [
+      "sid",
+      "sid2"
+    ]
+  },
+  "processing_time/list/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)",
+      "RETURN s.total_time_text, st.id, st.order, st.dur_min, st.dur_max, st.dur_unit, st.day_type, st.external_agency",
+      "ORDER BY st.order",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "processing_time"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "processing_time/longest_step/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)",
+      "WHERE st.minutes_max IS NOT NULL",
+      "RETURN st.id, st.order, st.citizen_action, st.agency_action, st.dur_min, st.dur_max, st.dur_unit, st.day_type, st.external_agency",
+      "ORDER BY st.minutes_max DESC, st.order",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "processing_time"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "requirements/compare_requirements/plain": {
+    "cypher": [
+      "MATCH (s:Service)",
+      "WHERE s.id IN [$sid, $sid2]",
+      "RETURN s.id, s.name, COUNT { (s)-[:REQUIRES]->(r:Requirement) WHERE r.group = false } AS n_requirements, COUNT { (s)-[:HAS_STEP]->(:Step) } AS n_steps",
+      "ORDER BY s.id",
+      "LIMIT 2"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "sid",
+      "sid2"
+    ]
+  },
+  "requirements/count/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)",
+      "WHERE r.group = false AND NOT EXISTS {",
+      "MATCH (r)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (r)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "RETURN count(r) AS n",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "requirements/count/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)",
+      "WHERE r.group = false",
+      "RETURN count(r) AS n",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "requirements/doc_in_service/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)",
+      "WHERE toLower(r.text) CONTAINS $doc AND NOT EXISTS {",
+      "MATCH (r)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (r)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "RETURN r.id, r.text, r.condition_text",
+      "ORDER BY r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "doc",
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "requirements/doc_in_service/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)",
+      "WHERE toLower(r.text) CONTAINS $doc",
+      "RETURN r.id, r.text, r.condition_text",
+      "ORDER BY r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "doc",
+      "sid"
+    ]
+  },
+  "requirements/doc_services/plain": {
+    "cypher": [
+      "MATCH (s:Service)-[:REQUIRES]->(r:Requirement)",
+      "WHERE toLower(r.text) CONTAINS $doc",
+      "RETURN s.id, s.name, r.id, r.text",
+      "ORDER BY s.id, r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "doc"
+    ]
+  },
+  "requirements/list/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)",
+      "WHERE NOT EXISTS {",
+      "MATCH (r)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (r)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "RETURN r.id, r.text, r.group, r.parent_id, r.min_required, r.condition_text",
+      "ORDER BY r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "requirements/list/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)",
+      "RETURN r.id, r.text, r.group, r.parent_id, r.min_required, r.condition_text",
+      "ORDER BY r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "requirements/office_req_counts/plain": {
+    "cypher": [
+      "MATCH (o:Office {id: $oid})-[:OFFERS]->(s:Service)",
+      "RETURN s.id, s.name, COUNT { (s)-[:REQUIRES]->(r:Requirement) WHERE r.group = false } AS n",
+      "ORDER BY n DESC, s.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "requirements"
+    ],
+    "params": [
+      "oid"
+    ]
+  },
+  "steps/count/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)",
+      "RETURN count(st) AS n",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "steps"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "steps/external_steps/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)",
+      "WHERE st.external_agency IS NOT NULL",
+      "RETURN st.id, st.order, st.citizen_action, st.agency_action, st.external_agency",
+      "ORDER BY st.order",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "steps"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "steps/list/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:HAS_STEP]->(st:Step)",
+      "RETURN st.id, st.order, st.citizen_action, st.agency_action, st.external_agency",
+      "ORDER BY st.order",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "steps"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "where_to_secure/agency_services/plain": {
+    "cypher": [
+      "MATCH (s:Service)-[:REQUIRES]->(r:Requirement)-[:SECURED_AT]->(a:Agency {id: $aid})",
+      "RETURN s.id, s.name, a.name, count(r) AS n",
+      "ORDER BY s.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "where_to_secure"
+    ],
+    "params": [
+      "aid"
+    ]
+  },
+  "where_to_secure/doc_where/plain": {
+    "cypher": [
+      "MATCH (s:Service)-[:REQUIRES]->(r:Requirement)-[:SECURED_AT]->(a:Agency)",
+      "WHERE toLower(r.text) CONTAINS $doc",
+      "RETURN s.id, r.id, r.text, a.name",
+      "ORDER BY s.id, r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "where_to_secure"
+    ],
+    "params": [
+      "doc"
+    ]
+  },
+  "where_to_secure/go_first/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)",
+      "WHERE NOT EXISTS {",
+      "MATCH (r)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (r)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "OPTIONAL MATCH (r)-[:SATISFIED_BY]->(d:Service)<-[:OFFERS]-(o1:Office)",
+      "OPTIONAL MATCH (r)-[:SECURED_AT]->(a:Agency)-[:IS_OFFICE]->(o2:Office)",
+      "WITH r, d, o1, a, o2",
+      "WHERE d IS NOT NULL OR o2 IS NOT NULL",
+      "RETURN r.id, r.text, d.name, o1.name, a.name, o2.name",
+      "ORDER BY r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "where_to_secure"
+    ],
+    "params": [
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "where_to_secure/go_first/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)",
+      "OPTIONAL MATCH (r)-[:SATISFIED_BY]->(d:Service)<-[:OFFERS]-(o1:Office)",
+      "OPTIONAL MATCH (r)-[:SECURED_AT]->(a:Agency)-[:IS_OFFICE]->(o2:Office)",
+      "WITH r, d, o1, a, o2",
+      "WHERE d IS NOT NULL OR o2 IS NOT NULL",
+      "RETURN r.id, r.text, d.name, o1.name, a.name, o2.name",
+      "ORDER BY r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "where_to_secure"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "where_to_secure/list/filtered": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)-[:SECURED_AT]->(a:Agency)",
+      "WHERE NOT EXISTS {",
+      "MATCH (r)-[:APPLIES_WHEN]->(v:Variant)",
+      "WHERE EXISTS { MATCH (x:Variant) WHERE x.id IN $variant_ids AND x.dimension = v.dimension }",
+      "AND NOT EXISTS { MATCH (r)-[:APPLIES_WHEN]->(w:Variant) WHERE w.id IN $variant_ids AND w.dimension = v.dimension }",
+      "}",
+      "RETURN r.id, r.text, r.condition_text, a.name",
+      "ORDER BY r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "where_to_secure"
+    ],
+    "params": [
+      "sid",
+      "variant_ids"
+    ]
+  },
+  "where_to_secure/list/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})-[:REQUIRES]->(r:Requirement)-[:SECURED_AT]->(a:Agency)",
+      "RETURN r.id, r.text, r.condition_text, a.name",
+      "ORDER BY r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "where_to_secure"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "where_to_secure/office_prereqs/plain": {
+    "cypher": [
+      "MATCH (o:Office {id: $oid})-[:OFFERS]->(s:Service)-[:REQUIRES]->(r:Requirement)",
+      "OPTIONAL MATCH (r)-[:SATISFIED_BY]->(d:Service)<-[:OFFERS]-(o1:Office)",
+      "OPTIONAL MATCH (r)-[:SECURED_AT]->(a:Agency)-[:IS_OFFICE]->(o2:Office)",
+      "WITH s, r, d, o1, a, o2",
+      "WHERE (d IS NOT NULL AND o1.id <> $oid) OR (o2 IS NOT NULL AND o2.id <> $oid)",
+      "RETURN s.id, r.id, r.text, d.name, o1.name, a.name, o2.name",
+      "ORDER BY s.id, r.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "where_to_secure"
+    ],
+    "params": [
+      "oid"
+    ]
+  },
+  "who_may_avail/list/plain": {
+    "cypher": [
+      "MATCH (s:Service {id: $sid})",
+      "RETURN s.id, s.name, s.who_may_avail",
+      "LIMIT 1"
+    ],
+    "intents": [
+      "who_may_avail"
+    ],
+    "params": [
+      "sid"
+    ]
+  },
+  "who_may_avail/office_who/plain": {
+    "cypher": [
+      "MATCH (o:Office {id: $oid})-[:OFFERS]->(s:Service)",
+      "RETURN s.id, s.name, s.who_may_avail",
+      "ORDER BY s.id",
+      "LIMIT 50"
+    ],
+    "intents": [
+      "who_may_avail"
+    ],
+    "params": [
+      "oid"
+    ]
+  }
+}
