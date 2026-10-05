@@ -233,6 +233,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.setClearColor(new THREE.Color(TOKENS.stage), 1);
   renderer.autoClear = true;
+  renderer.debug.checkShaderErrors = false; // reading the compile log back stalls the first frames
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);

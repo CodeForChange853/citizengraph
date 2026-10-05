@@ -10,7 +10,7 @@
 //     more than 10 ms over at least 20 frames;
 //   - a gap of 250 ms or more means the picture was idle (nothing to draw), so it is not counted;
 //   - after a step the window starts again, so the next step needs fresh evidence at the new level.
-// The canvas also ignores the first half second after it mounts, while the chunk and fonts settle.
+// The canvas also ignores the first second and a half after it mounts, while the chunk and fonts settle.
 // Quality only ever goes down during a visit.
 
 export const LATE_MS = 25;
@@ -19,7 +19,7 @@ export const LATE_LIMIT = 6;
 export const IDLE_GAP_MS = 250;
 export const DRAW_BUDGET_MS = 10;
 export const DRAW_MIN_FRAMES = 20;
-export const WARMUP_MS = 500;
+export const WARMUP_MS = 1500;
 
 export class FrameBudget {
   private late: boolean[] = [];

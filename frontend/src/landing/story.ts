@@ -22,7 +22,10 @@ export function paint(root: HTMLElement, playhead: Playhead, aspect: number): vo
   const set = (el: HTMLElement, name: string, value: string) => {
     if (el.style.getPropertyValue(name) !== value) el.style.setProperty(name, value);
   };
-  set(root, "--lp-f", posToFraction(u).toFixed(4));
+  // The progress bar gets its own transform: a variable on the root would restyle the whole page every frame.
+  const bar = root.querySelector<HTMLElement>(".lp-progress");
+  const scaleX = `scaleX(${posToFraction(u).toFixed(4)})`;
+  if (bar && bar.style.transform !== scaleX) bar.style.transform = scaleX;
   const subject = subjectPoint(u, aspect);
   set(root, "--sx", subject.x.toFixed(4));
   set(root, "--sy", subject.y.toFixed(4));
@@ -64,12 +67,18 @@ export function useStory(playhead: Playhead, still: boolean, rootRef: RefObject<
     let last = 0;
     const aspect = () => stage.clientWidth / Math.max(1, stage.clientHeight);
 
+    // the track's place on the page changes only when the window does: measure once, not every scroll event
+    let box = measure(track, stage);
+    function remeasure() {
+      box = measure(track!, stage!);
+      onScroll();
+    }
     function read() {
-      const { top, range } = measure(track!, stage!);
+      const { top, range } = box;
       playhead.setTarget(fractionToPos(clamp01((window.scrollY - top) / range)));
     }
     function scrollToPos(u: number) {
-      const { top, range } = measure(track!, stage!);
+      const { top, range } = box;
       window.scrollTo(0, top + posToFraction(u) * range);
     }
     function stopFilm() {
@@ -78,7 +87,7 @@ export function useStory(playhead: Playhead, still: boolean, rootRef: RefObject<
       setFilming(false);
     }
     function loop(now: number) {
-      raf = 0;
+      raf = -1; // running: a wake() from inside this frame must not schedule a second loop
       const step = last ? Math.min(now - last, MAX_STEP_MS) : 0;
       last = now;
       if (film.current.on) {
@@ -90,7 +99,7 @@ export function useStory(playhead: Playhead, still: boolean, rootRef: RefObject<
       playhead.tick(step);
       paint(root!, playhead, aspect());
       if ((playhead.moving || film.current.on) && !document.hidden) raf = requestAnimationFrame(loop);
-      else last = 0;
+      else raf = last = 0;
     }
     function wake() {
       if (!raf && !document.hidden) raf = requestAnimationFrame(loop);
@@ -119,7 +128,9 @@ export function useStory(playhead: Playhead, still: boolean, rootRef: RefObject<
     api.current = { wake, scrollToPos };
     const unsubscribe = playhead.subscribe(wake);
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", remeasure);
+    const resizer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(remeasure);
+    resizer?.observe(stage);
     document.addEventListener("visibilitychange", wake);
     for (const type of ["wheel", "touchstart", "keydown", "pointerdown"]) window.addEventListener(type, interrupt, { passive: true });
     root.addEventListener("focusin", onFocus);
@@ -130,11 +141,12 @@ export function useStory(playhead: Playhead, still: boolean, rootRef: RefObject<
     return () => {
       unsubscribe();
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", remeasure);
+      resizer?.disconnect();
       document.removeEventListener("visibilitychange", wake);
       for (const type of ["wheel", "touchstart", "keydown", "pointerdown"]) window.removeEventListener(type, interrupt);
       root.removeEventListener("focusin", onFocus);
-      if (raf) cancelAnimationFrame(raf);
+      if (raf > 0) cancelAnimationFrame(raf);
       film.current.on = false;
     };
   }, [playhead, still, rootRef, trackRef, stageRef]);

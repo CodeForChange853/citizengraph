@@ -30,7 +30,7 @@ export const fadeIn = (a: number, b: number): Vars => ({ "--a": a, "--b": b });
 /** In over [a, b], out over [c, d]. */
 export const fadeWindow = (a: number, b: number, c: number, d: number): Vars => ({ "--a": a, "--b": b, "--c": c, "--d": d });
 
-function Frame({ id, children, label }: { id: SceneId; children: ReactNode; label: string }) {
+function Frame({ id, children, label, poster }: { id: SceneId; children: ReactNode; label: string; poster?: Vars }) {
   const index = sceneIndex(id);
   const still = useStill();
   return (
@@ -42,7 +42,7 @@ function Frame({ id, children, label }: { id: SceneId; children: ReactNode; labe
       data-active={still ? "true" : "false"}
       aria-labelledby={`lp-h-${id}`}
     >
-      <div className="lp-poster">
+      <div className={poster ? "lp-poster lp-win" : "lp-poster"} style={poster}>
         <Poster scene={id} label={label} />
       </div>
       {children}
@@ -138,7 +138,7 @@ function Journey() {
   const [q0, q1] = BEAT.question;
   const step = (q1 - q0) / SAMPLE_QUESTION.length;
   return (
-    <Frame id="journey" label={t("landing.scenes.journey.poster")}>
+    <Frame id="journey" label={t("landing.scenes.journey.poster")} poster={fadeWindow(BEAT.stars[0], BEAT.stars[1], 5, 6)}>
       <div className="lp-copy">
         <h2 id="lp-h-journey" className="lp-kicker">
           {t("landing.scenes.journey.kicker")}
@@ -175,12 +175,12 @@ function Journey() {
       </div>
       <ul className="lp-offices">
         {offices.map((office, i) => (
-          <li key={office} className="lp-label" data-anchor={`office${i}`} data-n={i}>
+          <li key={office} className="lp-label lp-win" data-anchor={`office${i}`} data-n={i} style={fadeWindow(BEAT.offices[0], BEAT.offices[1], i === 0 ? 3.74 : 3.52, i === 0 ? 3.8 : 3.6)}>
             {office}
           </li>
         ))}
       </ul>
-      <p className="lp-label lp-label-hot" data-anchor="service" aria-hidden="true">
+      <p className="lp-label lp-label-hot lp-win" data-anchor="service" aria-hidden="true" style={fadeWindow(3.66, 3.72, 3.95, 4.0)}>
         {t("landing.scenes.journey.service")}
       </p>
     </Frame>
@@ -195,7 +195,7 @@ function Answer() {
   const ticked = still ? rows.length : counted;
   const [a0, a1, a2, a3] = BEAT.arc;
   return (
-    <Frame id="answer" label={t("landing.scenes.answer.poster")}>
+    <Frame id="answer" label={t("landing.scenes.answer.poster")} poster={fadeWindow(3.9, 4, BEAT.card[0], BEAT.card[1])}>
       <Copy id="answer" />
       <div className="lp-subject lp-orbzone">
         <svg className="lp-arc lp-win" viewBox="0 0 200 200" aria-hidden="true" style={fadeWindow(a0, a1, a2, a3)}>
@@ -232,10 +232,10 @@ function Request() {
   return (
     <Frame id="request" label={t("landing.scenes.request.poster")}>
       <Copy id="request" />
-      <p className="lp-label lp-label-idle" data-anchor="outside">
+      <p className="lp-label lp-label-idle lp-win" data-anchor="outside" style={fadeWindow(6.32, 6.4, 6.93, 6.99)}>
         {t("landing.scenes.request.outside")}
       </p>
-      <div className="lp-label lp-alert" data-anchor="alert">
+      <div className="lp-label lp-alert lp-win" data-anchor="alert" style={fadeWindow(BEAT.alert[0], BEAT.alert[0] + 0.06, 6.93, 6.99)}>
         <p className="lp-alerttag">{t("landing.scenes.request.alertTag")}</p>
         <p className="lp-alerttitle">{t("landing.scenes.request.alertTitle")}</p>
         <p className="lp-alertbody">{t("landing.scenes.request.alertBody")}</p>

@@ -412,6 +412,90 @@
   display: block;
 }
 
+.lp-posterart {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lp-posterart .c {
+  stroke: var(--lp-accent);
+}
+.lp-posterart .o {
+  stroke: var(--lp-neon);
+}
+.lp-posterart .w {
+  stroke: var(--lp-text);
+}
+.lp-posterart .g {
+  stroke: var(--lp-idle);
+}
+.lp-posterart .cf {
+  fill: var(--lp-accent);
+}
+.lp-posterart .of {
+  fill: var(--lp-neon);
+}
+.lp-posterart .wf {
+  fill: var(--lp-heading);
+}
+.lp-posterart .hole {
+  fill: var(--lp-stage);
+}
+.lp-posterart .halo {
+  opacity: 0.16;
+}
+.lp-posterart .shine {
+  opacity: 0.55;
+}
+.lp-posterart .beam {
+  opacity: 0.55;
+}
+.lp-posterart .thread {
+  stroke-width: 2.5;
+}
+.lp-posterart .hot {
+  stroke: var(--lp-heading);
+  stroke-width: 3.5;
+}
+.lp-posterart .dash {
+  stroke-dasharray: 5 5;
+}
+.lp-posterart .hand {
+  stroke-width: 2.5;
+}
+.lp-posterart .node {
+  fill: var(--lp-stage);
+  stroke-width: 2.5;
+}
+/* without the 3D picture the pinned labels sit at fixed places round the poster */
+.lp[data-motion="full"][data-gl="off"] .lp-label {
+  visibility: visible;
+  left: calc(var(--sx) * 100%);
+  top: calc(var(--sy) * 100%);
+}
+.lp[data-motion="full"][data-gl="off"] .lp-label[data-anchor="office0"] {
+  translate: -160% -40%;
+}
+.lp[data-motion="full"][data-gl="off"] .lp-label[data-anchor="office1"] {
+  translate: -30% -420%;
+}
+.lp[data-motion="full"][data-gl="off"] .lp-label[data-anchor="office2"] {
+  translate: 60% 60%;
+}
+.lp[data-motion="full"][data-gl="off"] .lp-label[data-anchor="office3"] {
+  translate: -120% 420%;
+}
+.lp[data-motion="full"][data-gl="off"] .lp-label[data-anchor="service"] {
+  translate: -150% 120%;
+}
+.lp[data-motion="full"][data-gl="off"] .lp-label[data-anchor="outside"] {
+  translate: -50% -230%;
+}
+.lp[data-motion="full"][data-gl="off"] .lp-label[data-anchor="alert"] {
+  translate: -10% 40%;
+}
+
 /* scene 2: three language callouts round Core 1 */
 .lp-langs {
   pointer-events: none;
@@ -846,7 +930,7 @@
   height: 2px;
   background: linear-gradient(90deg, var(--lp-accent), var(--lp-neon));
   transform-origin: left;
-  transform: scaleX(var(--lp-f, 0));
+  transform: scaleX(0);
 }
 
 /* ---- tall, narrow stages (phones): subject above, words below ----------------------------------- */
@@ -967,6 +1051,7 @@
   display: block;
   max-width: 22rem;
 }
+.lp[data-motion="static"] .lp-copy::before,
 .lp[data-motion="static"] .lp-crop,
 .lp[data-motion="static"] .lp-hint,
 .lp[data-motion="static"] .lp-arc,
@@ -1028,4 +1113,10 @@
 .lp[data-motion="static"] .lp-closing {
   justify-content: flex-start;
   padding: 0;
+}
+.lp[data-motion="static"] .lp-label-hot {
+  display: none;
+}
+.lp[data-motion="static"] .lp-service {
+  width: fit-content;
 }
