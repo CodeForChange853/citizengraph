@@ -1,6 +1,8 @@
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import type { Section } from "../api/types";
+import { AnswerCard } from "./AnswerCard";
 import { ChecklistCard } from "./ChecklistCard";
 import { ClarifyButtons } from "./ClarifyButtons";
 import { FallbackCard } from "./FallbackCard";
@@ -109,6 +111,50 @@ describe("pending_lgu", () => {
         "This checklist is being verified with the office. Please confirm with them before you go.",
       ),
     ).toBeInTheDocument();
+  });
+});
+
+describe("answer card parts no confirmed sample service has", () => {
+  // Invented on purpose (not charter data): several fees with a total, a step with no time and
+  // a step at another office. The sample services that are confirmed today have none of these.
+  const invented: Section = {
+    service_id: "t2",
+    service_name: "Test service",
+    office: "Test office",
+    info_status: "confirmed",
+    summary: { requirement_count: 1, fee_text: "₱3.00", time_text: "7 minutes" },
+    checklist: ["Form"],
+    fees: [
+      { label: "Test fee A", amount_text: "₱1.00" },
+      { label: "Test fee B", amount_text: "₱2.00" },
+    ],
+    steps: [
+      { order: 1, text: "First test step", time_text: "1-2 minutes", external: false },
+      { order: 2, text: "Second test step", time_text: null, external: true },
+    ],
+    notes: [],
+    related: [],
+  };
+
+  it("shows the stated total under several fees", () => {
+    render(<AnswerCard section={invented} />);
+    const fees = within(screen.getByRole("heading", { name: "What it costs" }).closest("section")!);
+    expect(fees.getByText("Test fee A")).toBeInTheDocument();
+    expect(fees.getByText("₱2.00")).toBeInTheDocument();
+    expect(fees.getByText("Total")).toBeInTheDocument();
+    expect(fees.getByText("₱3.00")).toBeInTheDocument();
+  });
+
+  it("shows no total row for a single fee", () => {
+    render(<AnswerCard section={{ ...invented, fees: invented.fees.slice(0, 1) }} />);
+    expect(screen.queryByText("Total")).not.toBeInTheDocument();
+  });
+
+  it("shows a time range as given, says when a time is not listed and marks a step at another office", () => {
+    render(<AnswerCard section={invented} />);
+    expect(screen.getByText("Time: 1-2 minutes")).toBeInTheDocument();
+    expect(screen.getAllByText("Time not listed")).toHaveLength(1);
+    expect(screen.getAllByText("At another office")).toHaveLength(1);
   });
 });
 

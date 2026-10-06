@@ -17,16 +17,18 @@ describe("home screen", () => {
   it("asks 'What do you need to do?' first and lists services with an information scent line", async () => {
     await home();
     expect(screen.getByLabelText("What do you need to do?")).toBeInTheDocument();
-    const row = getRow("Business Permit");
-    expect(row).toHaveTextContent("14 requirements · ₱235.50 · about 37 minutes");
-    expect(row).toHaveTextContent("Business Permits & Licensing Office");
+    const row = getRow("Sanitary Permit");
+    expect(row).toHaveTextContent("1 requirement · fee not listed · about 3 days, 10 minutes");
+    expect(row).toHaveTextContent("City Health Office");
   });
 
   it("shows pending services without numbers", async () => {
     await home();
-    const row = getRow("Death Registration");
-    expect(row).toHaveTextContent("Being checked with the office");
-    expect(row).not.toHaveTextContent(/\d/);
+    for (const name of ["Death Registration", "Birth Registration", "Business Permit"]) {
+      const row = getRow(name);
+      expect(row).toHaveTextContent("Being checked with the office");
+      expect(row).not.toHaveTextContent(/\d/);
+    }
   });
 
   it("does not turn a missing fee into 'free'", async () => {

@@ -69,13 +69,13 @@ describe("saved lists", () => {
     const user = userEvent.setup();
     renderApp(<AppRoutes />, { route: "/chat", state: { message: "medical certificate" } });
     await screen.findByRole("article", { name: "Medical Certificate (for employment)" });
-    // no documents listed, so there is nothing to tick; business permit has items
+    // no documents listed, so there is nothing to tick; referrals has items
     await user.click(screen.getByRole("button", { name: "New question" }));
-    await user.type(await screen.findByLabelText("What do you need to do?"), "business permit{Enter}");
-    const article = await screen.findByRole("article", { name: "Business Permit" });
-    await user.click(within(article).getByRole("checkbox", { name: "Fire Safety Inspection Certification" }));
+    await user.type(await screen.findByLabelText("What do you need to do?"), "referral{Enter}");
+    const article = await screen.findByRole("article", { name: "Referrals" });
+    await user.click(within(article).getByRole("checkbox", { name: "Medical Abstract" }));
     await user.click(screen.getByRole("link", { name: "Saved" }));
-    expect(await screen.findByRole("article", { name: "Business Permit" })).toHaveTextContent("1 of 14 ready");
+    expect(await screen.findByRole("article", { name: "Referrals" })).toHaveTextContent("1 of 5 ready");
   });
 });
 

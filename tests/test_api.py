@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from citizengraph.api.main import app
+from citizengraph.api.main import app, mock_fixtures
 
 client = TestClient(app)
 
@@ -10,7 +10,7 @@ def test_health():
 
 
 def test_chat_answer_en():
-    r = client.post("/chat", json={"message": "business permit", "lang": "en"})
+    r = client.post("/chat", json={"message": "referral", "lang": "en"})
     body = r.json()
     assert r.status_code == 200
     assert body["kind"] == "answer"
@@ -36,28 +36,35 @@ def _chat(message, lang="en"):
 
 
 def test_answer_section_has_summary_and_related():
-    sec = _chat("business permit")["sections"][0]
+    sec = _chat("referral")["sections"][0]
     assert sec["info_status"] == "confirmed"
+    assert sec["checklist"]
     assert sec["summary"] == {
         "requirement_count": len(sec["checklist"]),
-        "fee_text": "₱235.50",
-        "time_text": "37 minutes",
+        "fee_text": None,
+        "time_text": "1 week, 1 hour, 40 minutes",
     }
-    assert sec["related"][0]["office"] == "City Health Office"
+    assert sec["related"][0]["office"] == "Business Permits & Licensing Office"
 
 
-def test_business_permit_fees_add_up_to_stated_total():
-    sec = _chat("business permit")["sections"][0]
-    total = sum(float(f["amount_text"].removeprefix("₱")) for f in sec["fees"])
-    assert f"₱{total:.2f}" == sec["summary"]["fee_text"]
+def test_confirmed_fees_add_up_to_the_stated_total():
+    checked = 0
+    for sec in mock_fixtures()["sections"]["en"].values():
+        if sec["info_status"] != "confirmed" or not sec["fees"]:
+            continue
+        total = sum(float(f["amount_text"].removeprefix("₱")) for f in sec["fees"])
+        assert f"₱{total:.2f}" == sec["summary"]["fee_text"], sec["service_id"]
+        checked += 1
+    assert checked, "no confirmed mock service has fees, so nothing was checked"
 
 
 def test_pending_lgu_sections_carry_no_numbers():
-    for msg in ("birth registration", "death registration"):
+    for msg in ("business permit", "birth registration", "death registration"):
         sec = _chat(msg)["sections"][0]
         assert sec["info_status"] == "pending_lgu"
         assert sec["summary"] == {"requirement_count": None, "fee_text": None, "time_text": None}
         assert sec["checklist"] == [] and sec["fees"] == [] and sec["steps"] == []
+        assert sec["notes"] == [] and sec["related"] == []
 
 
 def test_pending_lgu_answers_use_their_own_lead_in_in_both_languages():
@@ -66,7 +73,8 @@ def test_pending_lgu_answers_use_their_own_lead_in_in_both_languages():
         "fil": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
     }
     for lang, expected in lead_ins.items():
-        for msg in ("birth registration", "death registration", "namatay ang tatay ko"):
+        for msg in ("business permit", "kailangan ko ng business permit", "birth registration",
+                    "death registration", "namatay ang tatay ko"):
             body = _chat(msg, lang)
             assert body["kind"] == "answer"
             assert body["text"] == expected
@@ -75,17 +83,23 @@ def test_pending_lgu_answers_use_their_own_lead_in_in_both_languages():
 
 
 def test_mixed_message_introduces_only_confirmed_services_as_what_you_need():
-    body = _chat("business permit and death registration")
+    body = _chat("sanitary permit and death registration")
     assert body["text"] == (
-        "Here is what you need for Business Permit. "
+        "Here is what you need for Sanitary Permit. "
         "This checklist is still being checked with the office."
     )
     assert "Death Registration" not in body["text"]
 
 
+def test_a_message_naming_only_pending_services_gets_only_the_pending_lead_in():
+    body = _chat("business permit and death registration")
+    assert body["text"] == "This checklist is still being checked with the office."
+    assert [s["info_status"] for s in body["sections"]] == ["pending_lgu", "pending_lgu"]
+
+
 def test_confirmed_answers_keep_the_normal_lead_in():
-    assert _chat("business permit")["text"] == "Here is what you need for Business Permit."
-    assert _chat("business permit", "fil")["text"].startswith("Narito ang kailangan mo para sa")
+    assert _chat("sanitary permit")["text"] == "Here is what you need for Sanitary Permit."
+    assert _chat("sanitary permit", "fil")["text"].startswith("Narito ang kailangan mo para sa")
 
 
 def test_multi_service_message_returns_one_section_each():

@@ -13,53 +13,49 @@ function openChat(message?: string, client = createFixtureAdapter()) {
 
 describe("answer card", () => {
   it("shows summary, checklist, fees, steps, where to go and the related route, in that order", async () => {
-    openChat("business permit");
-    const c = within(await screen.findByRole("article", { name: "Business Permit" }));
+    openChat("referral");
+    const c = within(await screen.findByRole("article", { name: "Referrals" }));
     const headings = c.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
     expect(headings).toEqual(["What to bring", "What it costs", "Steps", "Where to go", "You will also need"]);
-    expect(c.getByText("14 requirements · ₱235.50 · about 37 minutes")).toBeInTheDocument();
-    expect(c.getByText("0 of 14 ready")).toBeInTheDocument();
+    expect(c.getByText("5 requirements · fee not listed · about 1 week, 1 hour, 40 minutes")).toBeInTheDocument();
+    expect(c.getByText("0 of 5 ready")).toBeInTheDocument();
   });
 
-  it("lists fees with a total that matches the fees", async () => {
-    openChat("business permit");
-    const c = within(await screen.findByRole("article", { name: "Business Permit" }));
-    expect(c.getByText("Zoning")).toBeInTheDocument();
-    expect(c.getAllByText("₱100.00")).toHaveLength(2);
-    expect(c.getAllByText("₱235.50").length).toBeGreaterThan(0);
-    expect(c.getByText("Total")).toBeInTheDocument();
+  it("lists the fee the office charges", async () => {
+    openChat("medical certificate");
+    const c = within(await screen.findByRole("article", { name: "Medical Certificate (for employment)" }));
+    const fees = within(c.getByRole("heading", { name: "What it costs" }).closest("section")!);
+    expect(fees.getByText("₱30.00")).toBeInTheDocument();
+    expect(fees.queryByText(/does not list a fee/)).not.toBeInTheDocument();
   });
 
-  it("shows each step with its time, and marks steps at another office", async () => {
-    openChat("business permit");
-    const c = within(await screen.findByRole("article", { name: "Business Permit" }));
-    expect(c.getByText("Time: 5-10 minutes")).toBeInTheDocument();
-    expect(c.getAllByText("Time not listed").length).toBe(2);
-    expect(c.getByText("At another office")).toBeInTheDocument();
+  it("shows each step with its time", async () => {
+    openChat("referral");
+    const c = within(await screen.findByRole("article", { name: "Referrals" }));
+    expect(c.getByText("Time: 30 minutes")).toBeInTheDocument();
+    expect(c.getByText("Time: 1 week")).toBeInTheDocument();
   });
 
   it("shows where to go as office chips and the cross-office route", async () => {
-    openChat("business permit");
-    const c = within(await screen.findByRole("article", { name: "Business Permit" }));
+    openChat("referral");
+    const c = within(await screen.findByRole("article", { name: "Referrals" }));
     const where = c.getByRole("heading", { name: "Where to go" }).closest("section")!;
     expect(within(where).getAllByRole("listitem").map((li) => li.textContent)).toEqual([
+      "City Social Welfare Development Office",
       "Business Permits & Licensing Office",
-      "City Health Office",
     ]);
     const also = c.getByRole("heading", { name: "You will also need" }).closest("section")!;
-    expect(also).toHaveTextContent("Go to City Health Office first");
-    expect(also).toHaveTextContent("Sanitary Permit to Operate");
+    expect(also).toHaveTextContent("Go to Business Permits & Licensing Office first");
+    expect(also).toHaveTextContent("Certification from BPLO that the client has no existing business");
   });
 
   it("ticks are saved on the device and progress updates", async () => {
     const user = userEvent.setup();
-    openChat("business permit");
-    const c = within(await screen.findByRole("article", { name: "Business Permit" }));
-    await user.click(c.getByRole("checkbox", { name: "City Solid Waste Certification" }));
-    expect(c.getByText("1 of 14 ready")).toBeInTheDocument();
-    expect(JSON.parse(localStorage.getItem(CHECKLIST_KEY)!).business_permit.ticked).toEqual([
-      "City Solid Waste Certification",
-    ]);
+    openChat("referral");
+    const c = within(await screen.findByRole("article", { name: "Referrals" }));
+    await user.click(c.getByRole("checkbox", { name: "Medical Abstract" }));
+    expect(c.getByText("1 of 5 ready")).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem(CHECKLIST_KEY)!).cswdo_referrals.ticked).toEqual(["Medical Abstract"]);
   });
 
   it("says fee not listed and the office lists nothing to bring, without inventing anything", async () => {
@@ -67,6 +63,17 @@ describe("answer card", () => {
     const c = within(await screen.findByRole("article", { name: "Sanitary Permit" }));
     expect(c.getByText(/does not list a fee/)).toBeInTheDocument();
     expect(c.getByText("1 requirement · fee not listed · about 3 days, 10 minutes")).toBeInTheDocument();
+  });
+
+  it("pending_lgu: Business Permit shows no checklist, fee or step while its list is being checked", async () => {
+    openChat("business permit");
+    const article = await screen.findByRole("article", { name: "Business Permit" });
+    const c = within(article);
+    expect(c.getByRole("note")).toBeInTheDocument();
+    expect(article).not.toHaveTextContent(/₱|\d/);
+    expect(c.queryByRole("checkbox")).not.toBeInTheDocument();
+    expect(c.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Where to go"]);
+    expect(c.getByText("Business Permits & Licensing Office")).toBeInTheDocument();
   });
 
   it("pending_lgu: calm banner, office only, no numbers", async () => {
@@ -199,12 +206,14 @@ describe("chat behaviour", () => {
 describe("Filipino time display", () => {
   it("shows step times and the summary with Filipino units, numbers unchanged", async () => {
     const user = userEvent.setup();
-    openChat("business permit");
-    const c = within(await screen.findByRole("article", { name: "Business Permit" }));
+    openChat("referral");
+    const c = within(await screen.findByRole("article", { name: "Referrals" }));
     await user.click(screen.getByRole("button", { name: "Filipino" }));
-    expect(c.getByText("Oras: 5-10 minuto")).toBeInTheDocument();
-    expect(c.getByText("Oras: 3-5 minuto")).toBeInTheDocument();
-    expect(c.getByText("14 na requirement · ₱235.50 · mga 37 minuto")).toBeInTheDocument();
+    expect(c.getByText("Oras: 30 minuto")).toBeInTheDocument();
+    expect(c.getByText("Oras: 10 minuto")).toBeInTheDocument();
+    expect(
+      c.getByText("5 na requirement · walang nakalistang bayad · mga 1 linggo, 1 oras, 40 minuto"),
+    ).toBeInTheDocument();
   });
 
   it("shows a list of times in Filipino units", async () => {

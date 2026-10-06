@@ -23,7 +23,8 @@ import tokensJson from "../design/tokens.json";
 const tokens = tokensJson as Tokens;
 const results = checkPairs(tokens);
 const problems = [...checkPalette(tokens), ...checkUseRules(tokens)];
-const sample = (fixtures.sections.en as unknown as Record<string, Section>).business_permit!;
+// A confirmed sample service; pending ones carry no checklist to show.
+const sample = (fixtures.sections.en as unknown as Record<string, Section>).cswdo_referrals!;
 const pendingSample = (fixtures.sections.en as unknown as Record<string, Section>)
   .death_registration_timely!;
 
@@ -46,7 +47,7 @@ function Pass({ ok }: { ok: boolean }) {
 }
 
 const TYPE_SCALE = [
-  ["text-fact font-bold", "Key fact 1.5rem: ₱235.50"],
+  ["text-fact font-bold", "Key fact 1.5rem: ₱30.00"],
   ["text-heading font-bold", "Heading 1.75rem"],
   ["text-title font-bold", "Title 1.375rem"],
   ["text-lead", "Lead 1.125rem: what to bring"],
