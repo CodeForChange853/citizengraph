@@ -6,11 +6,11 @@
       "office": "Business Permits & Licensing Office",
       "group": "business",
       "summary": {
-        "requirement_count": 14,
-        "fee_text": "₱235.50",
-        "time_text": "37 minutes"
+        "requirement_count": null,
+        "fee_text": null,
+        "time_text": null
       },
-      "info_status": "confirmed"
+      "info_status": "pending_lgu"
     },
     {
       "id": "cho_sanitary_permit",
@@ -197,7 +197,7 @@
       "message": "business permit",
       "lang": "en",
       "kind": "answer",
-      "text": "Here is what you need for Business Permit.",
+      "text": "This checklist is still being checked with the office.",
       "service_ids": [
         "business_permit"
       ],
@@ -207,7 +207,7 @@
       "message": "business permit",
       "lang": "fil",
       "kind": "answer",
-      "text": "Narito ang kailangan mo para sa Business Permit.",
+      "text": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
       "service_ids": [
         "business_permit"
       ],
@@ -217,7 +217,7 @@
       "message": "kailangan ko ng business permit",
       "lang": "en",
       "kind": "answer",
-      "text": "Here is what you need for Business Permit.",
+      "text": "This checklist is still being checked with the office.",
       "service_ids": [
         "business_permit"
       ],
@@ -227,7 +227,7 @@
       "message": "kailangan ko ng business permit",
       "lang": "fil",
       "kind": "answer",
-      "text": "Narito ang kailangan mo para sa Business Permit.",
+      "text": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
       "service_ids": [
         "business_permit"
       ],
@@ -391,7 +391,7 @@
       "message": "business permit and death registration",
       "lang": "en",
       "kind": "answer",
-      "text": "Here is what you need for Business Permit. This checklist is still being checked with the office.",
+      "text": "This checklist is still being checked with the office.",
       "service_ids": [
         "business_permit",
         "death_registration_timely"
@@ -402,9 +402,31 @@
       "message": "business permit and death registration",
       "lang": "fil",
       "kind": "answer",
-      "text": "Narito ang kailangan mo para sa Business Permit. Sinusuri pa ang listahang ito kasama ang tanggapan.",
+      "text": "Sinusuri pa ang listahang ito kasama ang tanggapan.",
       "service_ids": [
         "business_permit",
+        "death_registration_timely"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "sanitary permit and death registration",
+      "lang": "en",
+      "kind": "answer",
+      "text": "Here is what you need for Sanitary Permit. This checklist is still being checked with the office.",
+      "service_ids": [
+        "cho_sanitary_permit",
+        "death_registration_timely"
+      ],
+      "clarify_ids": []
+    },
+    {
+      "message": "sanitary permit and death registration",
+      "lang": "fil",
+      "kind": "answer",
+      "text": "Narito ang kailangan mo para sa Sanitary Permit. Sinusuri pa ang listahang ito kasama ang tanggapan.",
+      "service_ids": [
+        "cho_sanitary_permit",
         "death_registration_timely"
       ],
       "clarify_ids": []
@@ -464,118 +486,17 @@
         "service_id": "business_permit",
         "service_name": "Business Permit",
         "office": "Business Permits & Licensing Office",
-        "info_status": "confirmed",
+        "info_status": "pending_lgu",
         "summary": {
-          "requirement_count": 14,
-          "fee_text": "₱235.50",
-          "time_text": "37 minutes"
+          "requirement_count": null,
+          "fee_text": null,
+          "time_text": null
         },
-        "checklist": [
-          "Duly accomplished Mayor’s Permit Application Form",
-          "Brgy. Business Clearance & Solid Waste Certification",
-          "City Solid Waste Certification",
-          "Single Proprietor – Owner’s Cedula; Corporation – Corporation Cedula",
-          "Single Proprietor: DTI Certification of Registration",
-          "Corporation: SEC Certificate of Incorporation",
-          "Corporation: By-Laws (for new business)",
-          "Corporation: Articles of Incorporation (for new business)",
-          "Association: SEC Certificate of Registration",
-          "Corporation: CDA Certificate of Registration",
-          "Fire Safety Inspection Certification",
-          "Sanitary Permit to Operate",
-          "Employee’s Occupational Permit (proof of payment only)",
-          "Locational Clearance (subject to assessment of location)"
-        ],
-        "fees": [
-          {
-            "label": "Zoning",
-            "amount_text": "₱30.00"
-          },
-          {
-            "label": "Sanitary Services",
-            "amount_text": "₱100.00"
-          },
-          {
-            "label": "Business Name Clearance",
-            "amount_text": "₱5.50"
-          },
-          {
-            "label": "Signboard",
-            "amount_text": "₱100.00"
-          }
-        ],
-        "steps": [
-          {
-            "order": 1,
-            "text": "Approach receiving employee",
-            "time_text": "2 minutes",
-            "external": false
-          },
-          {
-            "order": 2,
-            "text": "Submit complete requirements with citizen’s signature & filled-out Mayor’s Permit application form",
-            "time_text": "2 minutes",
-            "external": false
-          },
-          {
-            "order": 3,
-            "text": "Wait for the TOP",
-            "time_text": "5 minutes",
-            "external": false
-          },
-          {
-            "order": 4,
-            "text": "Signs TOP / Release Book",
-            "time_text": "5-10 minutes",
-            "external": false
-          },
-          {
-            "order": 5,
-            "text": "Proceed to the City Treasurer’s Office for payment",
-            "time_text": null,
-            "external": true
-          },
-          {
-            "order": 6,
-            "text": "Proceed to the BPLO main office with the proof of payment (official receipt) and complete set of documents",
-            "time_text": "5 minutes",
-            "external": false
-          },
-          {
-            "order": 7,
-            "text": "Prepare & print Business/Mayor’s Permit",
-            "time_text": "5 minutes",
-            "external": false
-          },
-          {
-            "order": 8,
-            "text": "Approval of Business/Mayor’s Permit",
-            "time_text": "3-5 minutes",
-            "external": false
-          },
-          {
-            "order": 9,
-            "text": "Record and release approved Business/Mayor’s",
-            "time_text": "2-3 minutes",
-            "external": false
-          },
-          {
-            "order": 10,
-            "text": "Receive permit & sign on the release record book",
-            "time_text": null,
-            "external": false
-          }
-        ],
-        "notes": [
-          "Some items are only for some kinds of business. Bring the ones for yours."
-        ],
-        "related": [
-          {
-            "label": "Sanitary Permit to Operate",
-            "office": "City Health Office",
-            "note": "Get this first, then come back."
-          }
-        ]
+        "checklist": [],
+        "fees": [],
+        "steps": [],
+        "notes": [],
+        "related": []
       },
       "cho_sanitary_permit": {
         "service_id": "cho_sanitary_permit",
@@ -750,118 +671,17 @@
         "service_id": "business_permit",
         "service_name": "Business Permit",
         "office": "Business Permits & Licensing Office",
-        "info_status": "confirmed",
+        "info_status": "pending_lgu",
         "summary": {
-          "requirement_count": 14,
-          "fee_text": "₱235.50",
-          "time_text": "37 minutes"
+          "requirement_count": null,
+          "fee_text": null,
+          "time_text": null
         },
-        "checklist": [
-          "Duly accomplished Mayor’s Permit Application Form",
-          "Brgy. Business Clearance & Solid Waste Certification",
-          "City Solid Waste Certification",
-          "Single Proprietor – Owner’s Cedula; Corporation – Corporation Cedula",
-          "Single Proprietor: DTI Certification of Registration",
-          "Corporation: SEC Certificate of Incorporation",
-          "Corporation: By-Laws (for new business)",
-          "Corporation: Articles of Incorporation (for new business)",
-          "Association: SEC Certificate of Registration",
-          "Corporation: CDA Certificate of Registration",
-          "Fire Safety Inspection Certification",
-          "Sanitary Permit to Operate",
-          "Employee’s Occupational Permit (proof of payment only)",
-          "Locational Clearance (subject to assessment of location)"
-        ],
-        "fees": [
-          {
-            "label": "Zoning",
-            "amount_text": "₱30.00"
-          },
-          {
-            "label": "Sanitary Services",
-            "amount_text": "₱100.00"
-          },
-          {
-            "label": "Business Name Clearance",
-            "amount_text": "₱5.50"
-          },
-          {
-            "label": "Signboard",
-            "amount_text": "₱100.00"
-          }
-        ],
-        "steps": [
-          {
-            "order": 1,
-            "text": "Approach receiving employee",
-            "time_text": "2 minutes",
-            "external": false
-          },
-          {
-            "order": 2,
-            "text": "Submit complete requirements with citizen’s signature & filled-out Mayor’s Permit application form",
-            "time_text": "2 minutes",
-            "external": false
-          },
-          {
-            "order": 3,
-            "text": "Wait for the TOP",
-            "time_text": "5 minutes",
-            "external": false
-          },
-          {
-            "order": 4,
-            "text": "Signs TOP / Release Book",
-            "time_text": "5-10 minutes",
-            "external": false
-          },
-          {
-            "order": 5,
-            "text": "Proceed to the City Treasurer’s Office for payment",
-            "time_text": null,
-            "external": true
-          },
-          {
-            "order": 6,
-            "text": "Proceed to the BPLO main office with the proof of payment (official receipt) and complete set of documents",
-            "time_text": "5 minutes",
-            "external": false
-          },
-          {
-            "order": 7,
-            "text": "Prepare & print Business/Mayor’s Permit",
-            "time_text": "5 minutes",
-            "external": false
-          },
-          {
-            "order": 8,
-            "text": "Approval of Business/Mayor’s Permit",
-            "time_text": "3-5 minutes",
-            "external": false
-          },
-          {
-            "order": 9,
-            "text": "Record and release approved Business/Mayor’s",
-            "time_text": "2-3 minutes",
-            "external": false
-          },
-          {
-            "order": 10,
-            "text": "Receive permit & sign on the release record book",
-            "time_text": null,
-            "external": false
-          }
-        ],
-        "notes": [
-          "May mga papel na para lang sa ilang uri ng negosyo. Dalhin ang para sa iyo."
-        ],
-        "related": [
-          {
-            "label": "Sanitary Permit to Operate",
-            "office": "City Health Office",
-            "note": "Kunin muna ito, saka bumalik dito."
-          }
-        ]
+        "checklist": [],
+        "fees": [],
+        "steps": [],
+        "notes": [],
+        "related": []
       },
       "cho_sanitary_permit": {
         "service_id": "cho_sanitary_permit",

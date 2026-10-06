@@ -2,6 +2,8 @@
 
 Mock content comes only from the curated seed (graph/seed/*.yaml), copied by hand:
 six services, wording as in the charters (typos of display names aside, see DESIGN.md).
+A service the default loader marks info_status = pending_lgu is pending here too
+(tests/test_api_holdback.py). `related` routes are link suggestions the loader does not write yet.
 Sentences around the facts are templates in EN and FIL (FIL is NEEDS-NATIVE-REVIEW).
 """
 
@@ -38,48 +40,13 @@ def _s(order: int, text: str, time: str | None = None, external: bool = False) -
 # id -> service. `notes` and `related` hold codes / (requirement, office) pairs that are
 # turned into sentences by the templates below. Pending services carry no numbers at all.
 _SERVICES: dict[str, dict] = {
-    "business_permit": {  # BPLO-01, seed ids business_permit-*
+    # BPLO-01: the default loader (graph/load.py) holds back part of its checklist until the
+    # LGU confirms it, so the service is pending_lgu in the graph and here. Like the two
+    # pending services at the end, it sends nothing but name and office.
+    "business_permit": {
         "name": "Business Permit", "office": _BPLO, "group": "business",
-        "info_status": "confirmed",
-        "summary": Summary(requirement_count=14, fee_text="₱235.50", time_text="37 minutes"),
-        "checklist": [
-            "Duly accomplished Mayor’s Permit Application Form",
-            "Brgy. Business Clearance & Solid Waste Certification",
-            "City Solid Waste Certification",
-            "Single Proprietor – Owner’s Cedula; Corporation – Corporation Cedula",
-            "Single Proprietor: DTI Certification of Registration",
-            "Corporation: SEC Certificate of Incorporation",
-            "Corporation: By-Laws (for new business)",
-            "Corporation: Articles of Incorporation (for new business)",
-            "Association: SEC Certificate of Registration",
-            "Corporation: CDA Certificate of Registration",
-            "Fire Safety Inspection Certification",
-            "Sanitary Permit to Operate",
-            "Employee’s Occupational Permit (proof of payment only)",
-            "Locational Clearance (subject to assessment of location)",
-        ],
-        "fees": [
-            FeeItem(label="Zoning", amount_text="₱30.00"),
-            FeeItem(label="Sanitary Services", amount_text="₱100.00"),
-            FeeItem(label="Business Name Clearance", amount_text="₱5.50"),
-            FeeItem(label="Signboard", amount_text="₱100.00"),
-        ],
-        "steps": [
-            _s(1, "Approach receiving employee", "2 minutes"),
-            _s(2, "Submit complete requirements with citizen’s signature & filled-out "
-                  "Mayor’s Permit application form", "2 minutes"),
-            _s(3, "Wait for the TOP", "5 minutes"),
-            _s(4, "Signs TOP / Release Book", "5-10 minutes"),
-            _s(5, "Proceed to the City Treasurer’s Office for payment", None, True),
-            _s(6, "Proceed to the BPLO main office with the proof of payment (official "
-                  "receipt) and complete set of documents", "5 minutes"),
-            _s(7, "Prepare & print Business/Mayor’s Permit", "5 minutes"),
-            _s(8, "Approval of Business/Mayor’s Permit", "3-5 minutes"),
-            _s(9, "Record and release approved Business/Mayor’s", "2-3 minutes"),
-            _s(10, "Receive permit & sign on the release record book"),
-        ],
-        "notes": ["business_type"],
-        "related": [("Sanitary Permit to Operate", _CHO)],
+        "info_status": "pending_lgu", "summary": Summary(),
+        "checklist": [], "fees": [], "steps": [], "notes": [], "related": [],
     },
     "cho_sanitary_permit": {  # CHO-10
         "name": "Sanitary Permit", "office": _CHO, "group": "health",
@@ -294,7 +261,7 @@ def chat(req: ChatRequest) -> ChatResponse:
 _PARITY_MESSAGES = [
     "business permit", "kailangan ko ng business permit", "hello", "permit", "certificate",
     "sanitary permit and medical certificate", "birth", "namatay ang tatay ko", "referral",
-    "business permit and death registration",
+    "business permit and death registration", "sanitary permit and death registration",
     "delete everything", "what is the weather", "passport",
 ]
 

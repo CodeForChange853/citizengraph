@@ -16,19 +16,26 @@ describe("fixture adapter", () => {
     );
   });
 
-  it("answers a business permit question with a checklist, fees and steps", async () => {
-    const res = await fx.chat({ message: "business permit", lang: "en" });
+  it("answers a confirmed service with its checklist, steps and the related route", async () => {
+    const res = await fx.chat({ message: "referral", lang: "en" });
     expect(res.kind).toBe("answer");
     expect(res.meta.mock).toBe(true);
     const section = res.sections[0]!;
-    expect(section.summary.fee_text).toBe("₱235.50");
+    expect(section.info_status).toBe("confirmed");
+    expect(section.checklist.length).toBeGreaterThan(0);
     expect(section.checklist.length).toBe(section.summary.requirement_count);
-    expect(section.fees).toHaveLength(4);
-    expect(section.related[0]?.office).toBe("City Health Office");
+    expect(section.steps.length).toBeGreaterThan(0);
+    expect(section.related[0]?.office).toBe("Business Permits & Licensing Office");
+  });
+
+  it("answers with the fee the office lists", async () => {
+    const section = (await fx.chat({ message: "medical certificate", lang: "en" })).sections[0]!;
+    expect(section.summary.fee_text).toBe("₱30.00");
+    expect(section.fees.map((fee) => fee.amount_text)).toEqual(["₱30.00"]);
   });
 
   it("returns pending_lgu sections without any numbers", async () => {
-    for (const message of ["birth registration", "death registration"]) {
+    for (const message of ["business permit", "birth registration", "death registration"]) {
       const s = (await fx.chat({ message, lang: "en" })).sections[0]!;
       expect(s.info_status).toBe("pending_lgu");
       expect(s.summary).toEqual({ requirement_count: null, fee_text: null, time_text: null });
@@ -48,8 +55,10 @@ describe("fixture adapter", () => {
         expect(res.text).toBe(lead[lang]);
       }
     }
-    const mixed = await fx.chat({ message: "business permit and death registration", lang: "en" });
-    expect(mixed.text).toBe("Here is what you need for Business Permit. " + lead.en);
+    const mixed = await fx.chat({ message: "sanitary permit and death registration", lang: "en" });
+    expect(mixed.text).toBe("Here is what you need for Sanitary Permit. " + lead.en);
+    const bothPending = await fx.chat({ message: "business permit and death registration", lang: "en" });
+    expect(bothPending.text).toBe(lead.en);
   });
 
   it("splits a multi-service message into one section each", async () => {
