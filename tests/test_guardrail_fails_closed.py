@@ -41,7 +41,7 @@ def accepted(query: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "bad", [None, 42, 3.5, b"MATCH (s:Service) RETURN s LIMIT 1", [], {}, object()]
+    "bad", [None, 42, 3.5, b"MATCH (s:Service) RETURN s.name LIMIT 1", [], {}, object()]
 )
 def test_non_string_input_is_rejected_not_raised(bad):
     rejected(bad, "string")
@@ -60,9 +60,9 @@ def test_empty_input_is_rejected(empty):
         ")))(((",
         "{{{{",
         "]]]]",
-        "MATCH (s:Service RETURN s LIMIT 1",
-        "MATCH (s:Service)) RETURN s LIMIT 1",
-        "MATCH s:Service RETURN s LIMIT",
+        "MATCH (s:Service RETURN s.name LIMIT 1",
+        "MATCH (s:Service)) RETURN s.name LIMIT 1",
+        "MATCH s:Service RETURN s.name LIMIT",
         "'",
         '"',
         "/*",
@@ -70,9 +70,9 @@ def test_empty_input_is_rejected(empty):
         "$",
         "\\",
         "@@@",
-        "MATCH (s:) RETURN s LIMIT 1",
-        "MATCH (s:Service:) RETURN s LIMIT 1",
-        "MATCH (s:Service) RETURN s LIMIT",
+        "MATCH (s:) RETURN s.name LIMIT 1",
+        "MATCH (s:Service:) RETURN s.name LIMIT 1",
+        "MATCH (s:Service) RETURN s.name LIMIT",
         # Long inputs get short ids: pytest puts the id in PYTEST_CURRENT_TEST, and Windows
         # rejects environment variables over 32,767 characters.
         pytest.param("😀" * 500, id="emoji-500"),
@@ -92,7 +92,7 @@ def test_internal_error_fails_closed(monkeypatch):
         raise RuntimeError("tokenizer exploded")
 
     monkeypatch.setattr(validator, "tokenize", boom)
-    result = validate_cypher("MATCH (s:Service) RETURN s LIMIT 1")
+    result = validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 1")
     assert result.ok is False
     assert any("internal" in r.lower() for r in result.reasons)
 
@@ -201,32 +201,32 @@ def casings(word: str) -> list[str]:
 @pytest.mark.parametrize("case", range(5))
 def test_forbidden_keyword_in_every_casing_mid_query(keyword, case):
     word = casings(keyword)[case]
-    rejected(f"{BASE}{word} (x:Service) RETURN s LIMIT 5", keyword)
+    rejected(f"{BASE}{word} (x:Service) RETURN s.name LIMIT 5", keyword)
 
 
 @pytest.mark.parametrize("keyword", FORBIDDEN)
 def test_forbidden_keyword_at_start_middle_and_end(keyword):
-    rejected(f"{keyword} (n:Service) MATCH (s:Service) RETURN s LIMIT 5", keyword)
-    rejected(f"MATCH (s:Service) {keyword} s RETURN s LIMIT 5", keyword)
-    rejected(f"MATCH (s:Service) RETURN s LIMIT 5 {keyword} s", keyword)
+    rejected(f"{keyword} (n:Service) MATCH (s:Service) RETURN s.name LIMIT 5", keyword)
+    rejected(f"MATCH (s:Service) {keyword} s RETURN s.name LIMIT 5", keyword)
+    rejected(f"MATCH (s:Service) RETURN s.name LIMIT 5 {keyword} s", keyword)
 
 
 @pytest.mark.parametrize("keyword", FORBIDDEN)
 def test_forbidden_keyword_split_by_whitespace_variants(keyword):
     for ws in ("\n", "\t", "\r\n", "  "):
-        rejected(f"MATCH (s:Service){ws}{keyword}{ws}s RETURN s LIMIT 5", keyword)
+        rejected(f"MATCH (s:Service){ws}{keyword}{ws}s RETURN s.name LIMIT 5", keyword)
 
 
 @pytest.mark.parametrize(
     "query, word",
     [
         ("MATCH (s:Service) DETACH DELETE s", "DELETE"),
-        ("MATCH (s:Service) SET s.name = 'x' RETURN s LIMIT 1", "SET"),
-        ("MATCH (s:Service) REMOVE s.name RETURN s LIMIT 1", "REMOVE"),
-        ("MATCH (s:Service) REMOVE s:Service RETURN s LIMIT 1", "REMOVE"),
-        ("CREATE (s:Service {id: 'x'}) RETURN s LIMIT 1", "CREATE"),
-        ("MERGE (s:Service {id: 'x'}) RETURN s LIMIT 1", "MERGE"),
-        ("MATCH (s:Service) FOREACH (x IN [1] | SET s.a = x) RETURN s LIMIT 1", "FOREACH"),
+        ("MATCH (s:Service) SET s.name = 'x' RETURN s.name LIMIT 1", "SET"),
+        ("MATCH (s:Service) REMOVE s.name RETURN s.name LIMIT 1", "REMOVE"),
+        ("MATCH (s:Service) REMOVE s:Service RETURN s.name LIMIT 1", "REMOVE"),
+        ("CREATE (s:Service {id: 'x'}) RETURN s.name LIMIT 1", "CREATE"),
+        ("MERGE (s:Service {id: 'x'}) RETURN s.name LIMIT 1", "MERGE"),
+        ("MATCH (s:Service) FOREACH (x IN [1] | SET s.a = x) RETURN s.name LIMIT 1", "FOREACH"),
         ("LOAD CSV FROM 'file:///x.csv' AS row RETURN row LIMIT 1", "LOAD"),
         ("LOAD CSV WITH HEADERS FROM 'http://evil/x' AS row RETURN row LIMIT 1", "LOAD"),
         ("DROP INDEX foo", "DROP"),
@@ -234,9 +234,9 @@ def test_forbidden_keyword_split_by_whitespace_variants(keyword):
         ("MATCH (s:Service) CALL db.labels() YIELD label RETURN label LIMIT 1", "CALL"),
         ("CALL apoc.cypher.run('CREATE (n)', {}) YIELD value RETURN value LIMIT 1", "CALL"),
         ("CALL apoc.periodic.iterate('a','b',{}) YIELD batches RETURN batches LIMIT 1", "CALL"),
-        ("CALL { MATCH (s:Service) RETURN s LIMIT 1 } RETURN s LIMIT 1", "CALL"),
+        ("CALL { MATCH (s:Service) RETURN s.name LIMIT 1 } RETURN s.name LIMIT 1", "CALL"),
         ("CALL dbms.security.createUser('a','b',false)", "CALL"),
-        ("MATCH (s:Service) WHERE EXISTS { CREATE (x) } RETURN s LIMIT 1", "CREATE"),
+        ("MATCH (s:Service) WHERE EXISTS { CREATE (x) } RETURN s.name LIMIT 1", "CREATE"),
         ("MATCH (s:Service) RETURN [x IN [1] | x] AS l LIMIT 1 UNION MATCH (s) DELETE s", "UNION"),
     ],
 )
@@ -269,18 +269,18 @@ def test_named_attack_queries(query, word):
     ],
 )
 def test_clauses_outside_allow_list_are_rejected(keyword):
-    rejected(f"{BASE}{keyword} x RETURN s LIMIT 5")
-    rejected(f"{keyword} MATCH (s:Service) RETURN s LIMIT 5")
+    rejected(f"{BASE}{keyword} x RETURN s.name LIMIT 5")
+    rejected(f"{keyword} MATCH (s:Service) RETURN s.name LIMIT 5")
 
 
 def test_query_must_start_with_an_allowed_clause():
     for prefix in ("EXPLAIN ", "PROFILE ", "CYPHER 5 ", "USE neo4j "):
-        rejected(prefix + "MATCH (s:Service) RETURN s LIMIT 5")
+        rejected(prefix + "MATCH (s:Service) RETURN s.name LIMIT 5")
 
 
 def test_optional_and_order_must_be_followed_by_their_partner():
-    rejected("OPTIONAL (s:Service) RETURN s LIMIT 5")
-    rejected("MATCH (s:Service) RETURN s ORDER s.name LIMIT 5")
+    rejected("OPTIONAL (s:Service) RETURN s.name LIMIT 5")
+    rejected("MATCH (s:Service) RETURN s.name ORDER s.name LIMIT 5")
 
 
 def test_keyword_as_property_is_checked_against_schema_not_keyword_list():
@@ -302,14 +302,14 @@ def test_keyword_prefix_or_suffix_identifiers_are_not_false_positives():
 
 @pytest.mark.parametrize("keyword", FORBIDDEN)
 def test_line_comment_cannot_hide_a_real_clause(keyword):
-    rejected(f"MATCH (s:Service) // harmless\n{keyword} s RETURN s LIMIT 5", keyword)
-    rejected(f"MATCH (s:Service) // {keyword} in comment\n{keyword} s RETURN s LIMIT 5", keyword)
+    rejected(f"MATCH (s:Service) // harmless\n{keyword} s RETURN s.name LIMIT 5", keyword)
+    rejected(f"MATCH (s:Service) // {keyword} in comment\n{keyword} s RETURN s.name LIMIT 5", keyword)
 
 
 @pytest.mark.parametrize("keyword", FORBIDDEN)
 def test_block_comment_cannot_hide_a_real_clause(keyword):
-    rejected(f"MATCH (s:Service) /* x */ {keyword} s RETURN s LIMIT 5", keyword)
-    rejected(f"MATCH (s:Service) /* {keyword} */ {keyword} s RETURN s LIMIT 5", keyword)
+    rejected(f"MATCH (s:Service) /* x */ {keyword} s RETURN s.name LIMIT 5", keyword)
+    rejected(f"MATCH (s:Service) /* {keyword} */ {keyword} s RETURN s.name LIMIT 5", keyword)
 
 
 @pytest.mark.parametrize("keyword", FORBIDDEN)
@@ -321,38 +321,38 @@ def test_keyword_only_inside_comments_is_harmless(keyword):
 
 def test_comments_around_a_keyword_do_not_hide_it():
     # A comment between tokens is a separator, so a real keyword next to comments is still seen.
-    rejected("MATCH (s:Service) /**/CREATE/**/ (x:Service) RETURN s LIMIT 5", "CREATE")
+    rejected("MATCH (s:Service) /**/CREATE/**/ (x:Service) RETURN s.name LIMIT 5", "CREATE")
 
 
 def test_unterminated_block_comment_is_rejected():
-    rejected("MATCH (s:Service) RETURN s LIMIT 5 /* CREATE", "comment")
-    rejected("MATCH (s:Service) /* never closed RETURN s LIMIT 5", "comment")
+    rejected("MATCH (s:Service) RETURN s.name LIMIT 5 /* CREATE", "comment")
+    rejected("MATCH (s:Service) /* never closed RETURN s.name LIMIT 5", "comment")
 
 
 def test_block_comment_does_not_nest():
     # In Cypher `/* a /* b */` is closed by the first `*/`; the remainder is real code.
-    rejected("MATCH (s:Service) /* a /* b */ DELETE s */ RETURN s LIMIT 5", "DELETE")
+    rejected("MATCH (s:Service) /* a /* b */ DELETE s */ RETURN s.name LIMIT 5", "DELETE")
 
 
 def test_comment_markers_inside_strings_are_not_comments():
-    rejected("MATCH (s:Service) WHERE s.name = '//' DELETE s RETURN s LIMIT 5", "DELETE")
-    rejected("MATCH (s:Service) WHERE s.name = '/*' DELETE s RETURN s LIMIT 5 // */", "DELETE")
+    rejected("MATCH (s:Service) WHERE s.name = '//' DELETE s RETURN s.name LIMIT 5", "DELETE")
+    rejected("MATCH (s:Service) WHERE s.name = '/*' DELETE s RETURN s.name LIMIT 5 // */", "DELETE")
 
 
 @pytest.mark.parametrize("sep", ["\u2028", "\u2029", "\x85", "\x0b", "\x0c", "\r"])
 def test_unicode_line_separators_cannot_end_a_comment_unseen(sep):
     # Neo4j may treat these as newlines, ending the comment; we must not hide what follows.
-    result = validate_cypher(f"MATCH (s:Service) // note{sep}DELETE s RETURN s LIMIT 5")
+    result = validate_cypher(f"MATCH (s:Service) // note{sep}DELETE s RETURN s.name LIMIT 5")
     assert result.ok is False
 
 
 def test_line_comment_after_limit_does_not_defeat_limit_rule():
-    rejected("MATCH (s:Service) RETURN s // LIMIT 5", "limit")
+    rejected("MATCH (s:Service) RETURN s.name // LIMIT 5", "limit")
 
 
 def test_limit_inside_comment_does_not_count():
-    rejected("MATCH (s:Service) RETURN s /* LIMIT 5 */", "limit")
-    rejected("MATCH (s:Service) RETURN s // LIMIT 5", "limit")
+    rejected("MATCH (s:Service) RETURN s.name /* LIMIT 5 */", "limit")
+    rejected("MATCH (s:Service) RETURN s.name // LIMIT 5", "limit")
 
 
 # --------------------------------------------------------------------------- string literals
@@ -380,18 +380,18 @@ def test_escaped_quote_does_not_end_string_early():
 
 def test_escaped_backslash_then_quote_does_end_string():
     # 'a\\' is a complete string (escaped backslash); the following DELETE is real code.
-    rejected("MATCH (s:Service) WHERE s.name = 'a\\\\' DELETE s RETURN s LIMIT 5", "DELETE")
+    rejected("MATCH (s:Service) WHERE s.name = 'a\\\\' DELETE s RETURN s.name LIMIT 5", "DELETE")
 
 
 def test_quote_break_out_attempt_is_caught():
-    rejected("MATCH (s:Service) WHERE s.name = 'x' DELETE s //' RETURN s LIMIT 5", "DELETE")
-    rejected("MATCH (s:Service) WHERE s.name = 'x' OR 1=1 DELETE s RETURN s LIMIT 5", "DELETE")
+    rejected("MATCH (s:Service) WHERE s.name = 'x' DELETE s //' RETURN s.name LIMIT 5", "DELETE")
+    rejected("MATCH (s:Service) WHERE s.name = 'x' OR 1=1 DELETE s RETURN s.name LIMIT 5", "DELETE")
 
 
 def test_unterminated_string_is_rejected():
-    rejected("MATCH (s:Service) WHERE s.name = 'abc RETURN s LIMIT 5", "string")
-    rejected('MATCH (s:Service) WHERE s.name = "abc RETURN s LIMIT 5', "string")
-    rejected("MATCH (s:Service) WHERE s.name = 'abc\\' RETURN s LIMIT 5", "string")
+    rejected("MATCH (s:Service) WHERE s.name = 'abc RETURN s.name LIMIT 5", "string")
+    rejected('MATCH (s:Service) WHERE s.name = "abc RETURN s.name LIMIT 5', "string")
+    rejected("MATCH (s:Service) WHERE s.name = 'abc\\' RETURN s.name LIMIT 5", "string")
 
 
 def test_string_concatenation_cannot_build_a_clause():
@@ -401,7 +401,7 @@ def test_string_concatenation_cannot_build_a_clause():
 
 
 def test_limit_inside_string_does_not_count():
-    rejected("MATCH (s:Service) WHERE s.name = 'LIMIT 5' RETURN s", "limit")
+    rejected("MATCH (s:Service) WHERE s.name = 'LIMIT 5' RETURN s.name", "limit")
 
 
 # --------------------------------------------------------------------------- semicolons
@@ -410,16 +410,16 @@ def test_limit_inside_string_does_not_count():
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service) RETURN s LIMIT 5;",
-        "MATCH (s:Service) RETURN s LIMIT 5 ;",
-        "MATCH (s:Service) RETURN s LIMIT 5; MATCH (t:Service) RETURN t LIMIT 5",
-        "MATCH (s:Service) RETURN s LIMIT 5; DELETE s",
-        "MATCH (s:Service) RETURN s LIMIT 5;\nMATCH (n) DETACH DELETE n",
-        "MATCH (s:Service) RETURN s LIMIT 5;;;",
+        "MATCH (s:Service) RETURN s.name LIMIT 5;",
+        "MATCH (s:Service) RETURN s.name LIMIT 5 ;",
+        "MATCH (s:Service) RETURN s.name LIMIT 5; MATCH (t:Service) RETURN t.id LIMIT 5",
+        "MATCH (s:Service) RETURN s.name LIMIT 5; DELETE s",
+        "MATCH (s:Service) RETURN s.name LIMIT 5;\nMATCH (n) DETACH DELETE n",
+        "MATCH (s:Service) RETURN s.name LIMIT 5;;;",
         ";",
-        "; MATCH (s:Service) RETURN s LIMIT 5",
-        "MATCH (s:Service) RETURN s LIMIT 5 /* c */ ;",
-        "MATCH (s:Service) RETURN s LIMIT 5 // c\n;",
+        "; MATCH (s:Service) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) RETURN s.name LIMIT 5 /* c */ ;",
+        "MATCH (s:Service) RETURN s.name LIMIT 5 // c\n;",
     ],
 )
 def test_semicolons_and_multiple_statements_are_rejected(query):
@@ -427,7 +427,7 @@ def test_semicolons_and_multiple_statements_are_rejected(query):
 
 
 def test_two_statements_without_semicolon_are_rejected():
-    rejected("MATCH (s:Service) RETURN s LIMIT 5 MATCH (t:Service) RETURN t LIMIT 5")
+    rejected("MATCH (s:Service) RETURN s.name LIMIT 5 MATCH (t:Service) RETURN t.id LIMIT 5")
 
 
 # --------------------------------------------------------------------------- backticks
@@ -436,18 +436,18 @@ def test_two_statements_without_semicolon_are_rejected():
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:`Service`) RETURN s LIMIT 5",
+        "MATCH (s:`Service`) RETURN s.name LIMIT 5",
         "MATCH (`s`:Service) RETURN `s` LIMIT 5",
         "MATCH (s:Service) RETURN s.`name` LIMIT 5",
-        "MATCH (s:Service)-[:`REQUIRES`]->(r) RETURN r LIMIT 5",
-        "MATCH (s:Service) `CREATE` (x) RETURN s LIMIT 5",
+        "MATCH (s:Service)-[:`REQUIRES`]->(r) RETURN r.id LIMIT 5",
+        "MATCH (s:Service) `CREATE` (x) RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN s.`na``me` LIMIT 5",
         "MATCH (s:Service) RETURN s.`secret` LIMIT 5",
-        "MATCH (s:Service) RETURN s LIMIT 5 `",
+        "MATCH (s:Service) RETURN s.name LIMIT 5 `",
         "MATCH (s:Service) RETURN s.`unterminated LIMIT 5",
-        "MATCH (s:`Ser``vice`) RETURN s LIMIT 5",
-        "MATCH (s:Service) CRE`ATE` (x) RETURN s LIMIT 5",
-        "MATCH (s:Service) `MATCH` (s) RETURN s LIMIT 5",
+        "MATCH (s:`Ser``vice`) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) CRE`ATE` (x) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) `MATCH` (s) RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN s.`` LIMIT 5",
     ],
 )
@@ -482,20 +482,20 @@ HOMOGLYPH_KEYWORDS = {
 @pytest.mark.parametrize("name", list(HOMOGLYPH_KEYWORDS))
 def test_homoglyph_keywords_are_rejected(name):
     word = HOMOGLYPH_KEYWORDS[name]
-    rejected(f"MATCH (s:Service) {word} (x) RETURN s LIMIT 5", "non-ascii")
+    rejected(f"MATCH (s:Service) {word} (x) RETURN s.name LIMIT 5", "non-ascii")
 
 
 @pytest.mark.parametrize("ch", ["\u200b", "\u200c", "\u200d", "\u2060", "\ufeff", "\u00ad"])
 def test_zero_width_characters_inside_identifiers_are_rejected(ch):
-    rejected(f"MATCH (s:Service) CRE{ch}ATE (x) RETURN s LIMIT 5", "non-ascii")
-    rejected(f"MATCH (s:Serv{ch}ice) RETURN s LIMIT 5", "non-ascii")
+    rejected(f"MATCH (s:Service) CRE{ch}ATE (x) RETURN s.name LIMIT 5", "non-ascii")
+    rejected(f"MATCH (s:Serv{ch}ice) RETURN s.name LIMIT 5", "non-ascii")
     rejected(f"MATCH (s:Service) RETURN s.na{ch}me LIMIT 5", "non-ascii")
 
 
 @pytest.mark.parametrize("ws", ["\u00a0", "\u2003", "\u3000", "\u2028", "\u2029", "\x85", "\u1680"])
 def test_non_ascii_whitespace_outside_strings_is_rejected(ws):
-    rejected(f"MATCH{ws}(s:Service) RETURN s LIMIT 5", "non-ascii")
-    rejected(f"MATCH (s:Service) RETURN s{ws}LIMIT 5", "non-ascii")
+    rejected(f"MATCH{ws}(s:Service) RETURN s.name LIMIT 5", "non-ascii")
+    rejected(f"MATCH (s:Service) RETURN s.name{ws}LIMIT 5", "non-ascii")
 
 
 @pytest.mark.parametrize(
@@ -503,13 +503,13 @@ def test_non_ascii_whitespace_outside_strings_is_rejected(ws):
 )
 def test_lookalike_punctuation_is_rejected(op):
     # curly quotes, fullwidth/Greek semicolon, division slash
-    rejected(f"MATCH (s:Service) WHERE s.name = {op}x{op} RETURN s LIMIT 5", "non-ascii")
-    rejected(f"MATCH (s:Service) RETURN s LIMIT 5{op}", "non-ascii")
+    rejected(f"MATCH (s:Service) WHERE s.name = {op}x{op} RETURN s.name LIMIT 5", "non-ascii")
+    rejected(f"MATCH (s:Service) RETURN s.name LIMIT 5{op}", "non-ascii")
 
 
 def test_unicode_digits_in_limit_are_rejected():
-    rejected("MATCH (s:Service) RETURN s LIMIT \u0665", "non-ascii")
-    rejected("MATCH (s:Service) RETURN s LIMIT \uff15", "non-ascii")
+    rejected("MATCH (s:Service) RETURN s.name LIMIT \u0665", "non-ascii")
+    rejected("MATCH (s:Service) RETURN s.name LIMIT \uff15", "non-ascii")
 
 
 def test_non_ascii_text_inside_string_literals_is_allowed():
@@ -530,8 +530,8 @@ def test_non_ascii_inside_comments_is_allowed_but_controls_are_not():
 
 @pytest.mark.parametrize("ctl", ["\x00", "\x01", "\x07", "\x1b", "\x7f"])
 def test_control_characters_are_rejected(ctl):
-    rejected(f"MATCH (s:Service){ctl}RETURN s LIMIT 5")
-    rejected(f"MATCH (s:Service) RETURN s LIMIT 5{ctl}")
+    rejected(f"MATCH (s:Service){ctl}RETURN s.name LIMIT 5")
+    rejected(f"MATCH (s:Service) RETURN s.name LIMIT 5{ctl}")
 
 
 # --------------------------------------------------------------------------- LIMIT
@@ -540,13 +540,13 @@ def test_control_characters_are_rejected(ctl):
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service) RETURN s",
-        "MATCH (s:Service) RETURN s ORDER BY s.name",
-        "MATCH (s:Service) RETURN s SKIP 5",
+        "MATCH (s:Service) RETURN s.name",
+        "MATCH (s:Service) RETURN s.name ORDER BY s.name",
+        "MATCH (s:Service) RETURN s.name SKIP 5",
         "MATCH (s:Service) RETURN s.name AS limit_name",
-        "MATCH (s:Service) WITH s LIMIT 5 RETURN s",
-        "MATCH (s:Service) RETURN s ORDER BY s.name LIMIT",
-        "MATCH (s:Service) RETURN s LIMIT 5 SKIP 1",
+        "MATCH (s:Service) WITH s LIMIT 5 RETURN s.name",
+        "MATCH (s:Service) RETURN s.name ORDER BY s.name LIMIT",
+        "MATCH (s:Service) RETURN s.name LIMIT 5 SKIP 1",
     ],
 )
 def test_missing_limit_is_rejected(query):
@@ -554,19 +554,19 @@ def test_missing_limit_is_rejected(query):
 
 
 def test_limit_in_intermediate_with_does_not_satisfy_final_limit():
-    rejected("MATCH (s:Service) WITH s LIMIT 3 MATCH (t:Service) RETURN t", "limit")
+    rejected("MATCH (s:Service) WITH s LIMIT 3 MATCH (t:Service) RETURN t.id", "limit")
 
 
 def test_limit_in_subquery_or_brackets_does_not_count():
     rejected(
-        "MATCH (s:Service) WHERE EXISTS { MATCH (t:Service) RETURN t LIMIT 1 } RETURN s", "limit"
+        "MATCH (s:Service) WHERE EXISTS { MATCH (t:Service) RETURN t.id LIMIT 1 } RETURN s.name", "limit"
     )
     rejected("MATCH (s:Service) RETURN [x IN [1,2,3] | x] AS l", "limit")
 
 
 @pytest.mark.parametrize("n", [MAX_LIMIT + 1, MAX_LIMIT * 2, 1000, 10**12, 10**40])
 def test_excessive_limit_is_rejected(n):
-    rejected(f"MATCH (s:Service) RETURN s LIMIT {n}", "limit", str(MAX_LIMIT))
+    rejected(f"MATCH (s:Service) RETURN s.name LIMIT {n}", "limit", str(MAX_LIMIT))
 
 
 @pytest.mark.parametrize("n", [1, 2, 10, MAX_LIMIT - 1, MAX_LIMIT])
@@ -586,7 +586,7 @@ def test_explicit_max_limit_argument_overrides_config():
 
 @pytest.mark.parametrize("bad_max", [0, -1, True, 1.5, "50", []])
 def test_invalid_max_limit_argument_fails_closed(bad_max):
-    result = validate_cypher("MATCH (s:Service) RETURN s LIMIT 1", max_limit=bad_max)
+    result = validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 1", max_limit=bad_max)
     assert result.ok is False
 
 
@@ -626,12 +626,12 @@ def test_invalid_max_limit_argument_fails_closed(bad_max):
     ],
 )
 def test_limit_must_be_a_plain_positive_decimal_integer(lit):
-    rejected(f"MATCH (s:Service) RETURN s LIMIT {lit}", "limit")
+    rejected(f"MATCH (s:Service) RETURN s.name LIMIT {lit}", "limit")
 
 
 def test_only_last_top_level_return_and_limit_count():
-    rejected("MATCH (s:Service) RETURN s LIMIT 5 RETURN s", "limit")
-    rejected("MATCH (s:Service) RETURN s LIMIT 1000", "limit")
+    rejected("MATCH (s:Service) RETURN s.name LIMIT 5 RETURN s.name", "limit")
+    rejected("MATCH (s:Service) RETURN s.name LIMIT 1000", "limit")
 
 
 def test_query_without_return_is_rejected():
@@ -664,31 +664,31 @@ def test_limit_does_not_apply_when_inside_string_or_after_semicolon():
     ],
 )
 def test_unknown_node_label_is_rejected(label):
-    rejected(f"MATCH (n:{label}) RETURN n LIMIT 5", "label", label)
+    rejected(f"MATCH (n:{label}) RETURN n.id LIMIT 5", "label", label)
 
 
 @pytest.mark.parametrize(
     "rel", ["OWNS", "AT_STEP", "requires", "REQUIRE", "HAS_STAFF", "KNOWS", "Requires", "HAS_STEPS"]
 )
 def test_unknown_relationship_type_is_rejected(rel):
-    rejected(f"MATCH (s:Service)-[:{rel}]->(x) RETURN x LIMIT 5", "relationship", rel)
+    rejected(f"MATCH (s:Service)-[:{rel}]->(x) RETURN x.id LIMIT 5", "relationship", rel)
 
 
 @pytest.mark.parametrize("rel", ["OWNS", "AT_STEP"])
 def test_unknown_relationship_type_in_variable_and_alt_forms(rel):
-    rejected(f"MATCH (s:Service)-[r:{rel}]->(x) RETURN x LIMIT 5", rel)
-    rejected(f"MATCH (s:Service)-[r:REQUIRES|{rel}]->(x) RETURN x LIMIT 5", rel)
-    rejected(f"MATCH (s:Service)<-[:{rel}]-(x) RETURN x LIMIT 5", rel)
-    rejected(f"MATCH (s:Service)-[r:{rel}*1..3]->(x) RETURN x LIMIT 5", rel)
+    rejected(f"MATCH (s:Service)-[r:{rel}]->(x) RETURN x.id LIMIT 5", rel)
+    rejected(f"MATCH (s:Service)-[r:REQUIRES|{rel}]->(x) RETURN x.id LIMIT 5", rel)
+    rejected(f"MATCH (s:Service)<-[:{rel}]-(x) RETURN x.id LIMIT 5", rel)
+    rejected(f"MATCH (s:Service)-[r:{rel}*1..3]->(x) RETURN x.id LIMIT 5", rel)
 
 
 @pytest.mark.parametrize("label", ["Person", "Application"])
 def test_unknown_label_in_alternative_and_where_forms(label):
-    rejected(f"MATCH (n:Service:{label}) RETURN n LIMIT 5", label)
-    rejected(f"MATCH (n:Service|{label}) RETURN n LIMIT 5", label)
-    rejected(f"MATCH (n) WHERE n:{label} RETURN n LIMIT 5", label)
+    rejected(f"MATCH (n:Service:{label}) RETURN n.id LIMIT 5", label)
+    rejected(f"MATCH (n:Service|{label}) RETURN n.id LIMIT 5", label)
+    rejected(f"MATCH (n) WHERE n:{label} RETURN n.id LIMIT 5", label)
     rejected(f"MATCH (:{label}) RETURN 1 AS x LIMIT 5", label)
-    rejected(f"OPTIONAL MATCH (n:{label}) RETURN n LIMIT 5", label)
+    rejected(f"OPTIONAL MATCH (n:{label}) RETURN n.id LIMIT 5", label)
 
 
 @pytest.mark.parametrize(
@@ -708,38 +708,38 @@ def test_unknown_label_in_alternative_and_where_forms(label):
 )
 def test_unknown_property_is_rejected(prop):
     rejected(f"MATCH (s:Service) RETURN s.{prop} LIMIT 5", "property", prop)
-    rejected(f"MATCH (s:Service) WHERE s.{prop} = 'x' RETURN s LIMIT 5", prop)
-    rejected(f"MATCH (s:Service) RETURN s LIMIT 5 ORDER BY s.{prop}", prop)
-    rejected(f"MATCH (s:Service {{{prop}: 'x'}}) RETURN s LIMIT 5", prop)
+    rejected(f"MATCH (s:Service) WHERE s.{prop} = 'x' RETURN s.name LIMIT 5", prop)
+    rejected(f"MATCH (s:Service) RETURN s.name LIMIT 5 ORDER BY s.{prop}", prop)
+    rejected(f"MATCH (s:Service {{{prop}: 'x'}}) RETURN s.name LIMIT 5", prop)
     rejected(f"MATCH (s:Service) WITH s.{prop} AS x RETURN x LIMIT 5", prop)
 
 
 def test_unknown_property_in_order_by_before_limit():
-    rejected("MATCH (s:Service) RETURN s ORDER BY s.secret LIMIT 5", "secret")
+    rejected("MATCH (s:Service) RETURN s.name ORDER BY s.secret LIMIT 5", "secret")
 
 
 def test_unknown_property_in_relationship_map():
-    rejected("MATCH (s:Service)-[r:REQUIRES {weight: 1}]->(x) RETURN x LIMIT 5", "weight")
+    rejected("MATCH (s:Service)-[r:REQUIRES {weight: 1}]->(x) RETURN x.id LIMIT 5", "weight")
 
 
 def test_unknown_property_deep_in_expressions():
-    rejected("MATCH (s:Service) WHERE toLower(s.secret) = 'x' RETURN s LIMIT 5", "secret")
+    rejected("MATCH (s:Service) WHERE toLower(s.secret) = 'x' RETURN s.name LIMIT 5", "secret")
     rejected(
         "MATCH (s:Service) RETURN CASE WHEN s.secret = 1 THEN 1 ELSE 0 END AS c LIMIT 5", "secret"
     )
-    rejected("MATCH (s:Service) WHERE NOT (s.a = 1) RETURN s LIMIT 5", "property")
+    rejected("MATCH (s:Service) WHERE NOT (s.a = 1) RETURN s.name LIMIT 5", "property")
 
 
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service) RETURN s['secret'] LIMIT 5",
-        "MATCH (s:Service) RETURN s[$key] LIMIT 5",
+        "MATCH (s:Service) RETURN s.name['secret'] LIMIT 5",
+        "MATCH (s:Service) RETURN s.name[$key] LIMIT 5",
         "MATCH (s:Service) RETURN s.name['x'] LIMIT 5",
         "MATCH (s:Service) RETURN (s)['secret'] LIMIT 5",
-        "MATCH (s:Service) WHERE s['secret'] = 1 RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE s['secret'] = 1 RETURN s.name LIMIT 5",
         "MATCH (s:Service) WITH [s] AS l RETURN l[0]['secret'] LIMIT 5",
-        "MATCH (s:Service) RETURN s .secret LIMIT 5",
+        "MATCH (s:Service) RETURN s.name .secret LIMIT 5",
         "MATCH (s:Service) RETURN s. secret LIMIT 5",
     ],
 )
@@ -756,7 +756,7 @@ def test_dynamic_or_hidden_property_access_is_rejected(query):
         "MATCH (s:Service) RETURN properties(s) LIMIT 5",
         "MATCH (s:Service) RETURN keys(s) LIMIT 5",
         "MATCH (s:Service) RETURN PROPERTIES(s) LIMIT 5",
-        "MATCH (s:Service) RETURN s += {a: 1} LIMIT 5",
+        "MATCH (s:Service) RETURN s.name += {a: 1} LIMIT 5",
     ],
 )
 def test_property_introspection_is_rejected(query):
@@ -784,14 +784,14 @@ def test_namespaced_function_calls_are_rejected(fn):
 
 
 def test_schema_is_case_sensitive_and_exact():
-    rejected("MATCH (s:service) RETURN s LIMIT 5", "label")
+    rejected("MATCH (s:service) RETURN s.name LIMIT 5", "label")
     rejected("MATCH (s:Service) RETURN s.Id LIMIT 5", "property")
 
 
 def test_workflow_labels_are_not_in_the_official_schema():
     # docs/specs.md section 1: workflow data never mixes with the official graph.
     rejected(
-        "MATCH (a:Application)-[:AT_STEP]->(st:Step) RETURN a LIMIT 5", "Application", "AT_STEP"
+        "MATCH (a:Application)-[:AT_STEP]->(st:Step) RETURN a.id LIMIT 5", "Application", "AT_STEP"
     )
     rejected("MATCH (s:Service) RETURN s.submitted_at LIMIT 5", "property")
 
@@ -805,7 +805,7 @@ def test_custom_schema_can_be_supplied():
         properties=frozenset({"x"}),
     )
     assert validate_cypher("MATCH (t:Thing) RETURN t.x LIMIT 5", schema=custom).ok is True
-    assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 5", schema=custom).ok is False
+    assert validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 5", schema=custom).ok is False
 
 
 def test_default_schema_matches_specs_section_1():
@@ -925,7 +925,7 @@ def test_config_value_is_read_from_yaml(limits_file):
 def test_unreadable_or_invalid_config_fails_closed(limits_file, content):
     if content is not None:
         limits_file.write_text(content)
-    result = validate_cypher("MATCH (s:Service) RETURN s LIMIT 1")
+    result = validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 1")
     assert result.ok is False
     assert any("config" in r.lower() for r in result.reasons)
 

@@ -88,18 +88,18 @@ def test_realistic_core1_queries_are_accepted(name):
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (n) RETURN n LIMIT 5",
-        "MATCH (n)-[:REQUIRES]->(r:Requirement) RETURN r LIMIT 5",
-        "MATCH (s:Service)-[:REQUIRES]->(x) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x) RETURN x LIMIT 10",
-        "MATCH (s:Service)<-[:OFFERS]-(o) RETURN o LIMIT 5",
-        "MATCH (n {id: 'x'}) RETURN n LIMIT 5",
+        "MATCH (n) RETURN n.id LIMIT 5",
+        "MATCH (n)-[:REQUIRES]->(r:Requirement) RETURN r.id LIMIT 5",
+        "MATCH (s:Service)-[:REQUIRES]->(x) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x) RETURN x.id LIMIT 10",
+        "MATCH (s:Service)<-[:OFFERS]-(o) RETURN o.id LIMIT 5",
+        "MATCH (n {id: 'x'}) RETURN n.id LIMIT 5",
         "MATCH (n {id: $id}) RETURN n.name LIMIT 5",
-        "OPTIONAL MATCH (n) RETURN n LIMIT 5",
-        "MATCH (s:Service) MATCH (n) RETURN n LIMIT 5",
-        "MATCH (s:Service), (n) RETURN n LIMIT 5",
-        "MATCH p = (n)-[:NEXT]->(m:Step) RETURN m LIMIT 5",
-        "MATCH (s:Service) OPTIONAL MATCH (s)-[:HAS_STEP]->(t) RETURN t LIMIT 5",
+        "OPTIONAL MATCH (n) RETURN n.id LIMIT 5",
+        "MATCH (s:Service) MATCH (n) RETURN n.id LIMIT 5",
+        "MATCH (s:Service), (n) RETURN n.id LIMIT 5",
+        "MATCH p = (n)-[:NEXT]->(m:Step) RETURN m.id LIMIT 5",
+        "MATCH (s:Service) OPTIONAL MATCH (s)-[:HAS_STEP]->(t) RETURN t.id LIMIT 5",
     ],
 )
 def test_node_without_a_label_is_rejected(query):
@@ -107,7 +107,7 @@ def test_node_without_a_label_is_rejected(query):
 
 
 def test_the_reason_names_the_variable():
-    rejected("MATCH (s:Service)-[:REQUIRES]->(zork) RETURN zork LIMIT 5", "zork")
+    rejected("MATCH (s:Service)-[:REQUIRES]->(zork) RETURN zork.id LIMIT 5", "zork")
 
 
 @pytest.mark.parametrize(
@@ -116,9 +116,9 @@ def test_the_reason_names_the_variable():
         "MATCH () RETURN 1 AS x LIMIT 5",
         "MATCH ({id: 'x'}) RETURN 1 AS x LIMIT 5",
         "MATCH ({id: $id}) RETURN 1 AS x LIMIT 5",
-        "MATCH ()-[:REQUIRES]->(r:Requirement) RETURN r LIMIT 5",
-        "MATCH (s:Service)-[:REQUIRES]->() RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE (s)-[:HAS_FEE]->() RETURN s LIMIT 5",
+        "MATCH ()-[:REQUIRES]->(r:Requirement) RETURN r.id LIMIT 5",
+        "MATCH (s:Service)-[:REQUIRES]->() RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE (s)-[:HAS_FEE]->() RETURN s.name LIMIT 5",
     ],
 )
 def test_anonymous_node_without_a_label_is_rejected(query):
@@ -140,26 +140,26 @@ def test_anonymous_node_with_a_label_is_accepted(query):
 
 
 def test_the_spec_examples_are_blocked():
-    rejected("MATCH (n) RETURN n LIMIT 5")
-    rejected("MATCH ()-[r]->() RETURN r LIMIT 5")
+    rejected("MATCH (n) RETURN n.id LIMIT 5")
+    rejected("MATCH ()-[r]->() RETURN r.id LIMIT 5")
 
 
 @pytest.mark.parametrize(
     "query",
     [
         # a negated label "carries a label" but matches every node that is not a Service
-        "MATCH (n:!Service) RETURN n LIMIT 5",
-        "MATCH (n:Service|!Office) RETURN n LIMIT 5",
-        "MATCH (n:!Service&!Office) RETURN n LIMIT 5",
-        "MATCH (s:Service) WHERE s:!Service RETURN s LIMIT 5",
-        "MATCH (s:Service)-[:REQUIRES]->(x:!Fee) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[:REQUIRES|!HAS_FEE]->(x:Requirement) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[r:REQUIRES|!HAS_FEE]->(x:Requirement) RETURN x LIMIT 5",
+        "MATCH (n:!Service) RETURN n.id LIMIT 5",
+        "MATCH (n:Service|!Office) RETURN n.id LIMIT 5",
+        "MATCH (n:!Service&!Office) RETURN n.id LIMIT 5",
+        "MATCH (s:Service) WHERE s:!Service RETURN s.name LIMIT 5",
+        "MATCH (s:Service)-[:REQUIRES]->(x:!Fee) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[:REQUIRES|!HAS_FEE]->(x:Requirement) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[r:REQUIRES|!HAS_FEE]->(x:Requirement) RETURN x.id LIMIT 5",
         (
             "MATCH (s:Service) WHERE EXISTS { (s)-[:REQUIRES|!HAS_FEE]->(:Requirement) } "
-            "RETURN s LIMIT 5"
+            "RETURN s.name LIMIT 5"
         ),
-        "MATCH (s:Service) WHERE (s)-[:HAS_STEP]->(:!Fee) RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE (s)-[:HAS_STEP]->(:!Fee) RETURN s.name LIMIT 5",
     ],
 )
 def test_negated_label_and_type_expressions_are_rejected(query):
@@ -172,16 +172,16 @@ def test_negated_label_and_type_expressions_are_rejected(query):
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service)-[r]->(x:Fee) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[]->(x:Fee) RETURN x LIMIT 5",
-        "MATCH (s:Service)<-[r]-(o:Office) RETURN o LIMIT 5",
-        "MATCH (s:Service)-[]-(o:Office) RETURN o LIMIT 5",
-        "MATCH (s:Service)-[*]->(x:Fee) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[r*1..3]->(x:Step) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[*1..3]->(x:Step) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[r {note: 'x'}]->(x:Fee) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[:!REQUIRES]->(x:Fee) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[r:!REQUIRES]->(x:Fee) RETURN x LIMIT 5",
+        "MATCH (s:Service)-[r]->(x:Fee) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[]->(x:Fee) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)<-[r]-(o:Office) RETURN o.id LIMIT 5",
+        "MATCH (s:Service)-[]-(o:Office) RETURN o.id LIMIT 5",
+        "MATCH (s:Service)-[*]->(x:Fee) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[r*1..3]->(x:Step) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[*1..3]->(x:Step) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[r {note: 'x'}]->(x:Fee) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[:!REQUIRES]->(x:Fee) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)-[r:!REQUIRES]->(x:Fee) RETURN x.id LIMIT 5",
     ],
 )
 def test_relationship_without_a_type_is_rejected(query):
@@ -191,12 +191,12 @@ def test_relationship_without_a_type_is_rejected(query):
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH ()-[r]->() RETURN r LIMIT 5",
-        "MATCH (s:Service)-->(x:Fee) RETURN x LIMIT 5",
-        "MATCH (s:Service)<--(x:Office) RETURN x LIMIT 5",
-        "MATCH (s:Service)--(x:Office) RETURN x LIMIT 5",
-        "MATCH (s:Service)- -(x:Office) RETURN x LIMIT 5",
-        "MATCH (s:Service)- - >(x:Office) RETURN x LIMIT 5",
+        "MATCH ()-[r]->() RETURN r.id LIMIT 5",
+        "MATCH (s:Service)-->(x:Fee) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)<--(x:Office) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)--(x:Office) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)- -(x:Office) RETURN x.id LIMIT 5",
+        "MATCH (s:Service)- - >(x:Office) RETURN x.id LIMIT 5",
     ],
 )
 def test_shorthand_and_empty_relationships_are_rejected(query):
@@ -259,23 +259,23 @@ def test_reusing_a_variable_bound_with_a_label_is_accepted(query):
     [
         # WITH drops s, so the later (s) is a fresh, unlabeled variable
         "MATCH (s:Service) WITH count(s) AS c MATCH (s)-[:HAS_STEP]->(st:Step) RETURN c LIMIT 5",
-        "MATCH (s:Service) WITH s.name AS n MATCH (s)-[:HAS_STEP]->(st:Step) RETURN n LIMIT 5",
-        "MATCH (s:Service) WITH s AS svc MATCH (s)-[:HAS_STEP]->(st:Step) RETURN st LIMIT 5",
+        "MATCH (s:Service) WITH s.name AS n MATCH (s)-[:HAS_STEP]->(st:Step) RETURN n.id LIMIT 5",
+        "MATCH (s:Service) WITH s AS svc MATCH (s)-[:HAS_STEP]->(st:Step) RETURN st.id LIMIT 5",
         # an alias of a non-node value is not a labeled node
-        "MATCH (s:Service) WITH s.name AS n MATCH (n)-[:HAS_STEP]->(st:Step) RETURN st LIMIT 5",
-        "UNWIND ['a'] AS x MATCH (x)-[:HAS_STEP]->(st:Step) RETURN st LIMIT 5",
+        "MATCH (s:Service) WITH s.name AS n MATCH (n)-[:HAS_STEP]->(st:Step) RETURN st.id LIMIT 5",
+        "UNWIND ['a'] AS x MATCH (x)-[:HAS_STEP]->(st:Step) RETURN st.id LIMIT 5",
         # labeled only later, or only inside a subquery or comprehension
-        "MATCH (a)-[:NEXT]->(b:Step), (a:Step) RETURN b LIMIT 5",
+        "MATCH (a)-[:NEXT]->(b:Step), (a:Step) RETURN b.id LIMIT 5",
         (
             "MATCH (s:Service) WHERE EXISTS { MATCH (t:Step) } MATCH (t)-[:NEXT]->(u:Step) "
-            "RETURN u LIMIT 5"
+            "RETURN u.id LIMIT 5"
         ),
         (
             "MATCH (s:Service) WITH s, [(s)-[:HAS_STEP]->(st:Step) | st.id] AS ids "
-            "MATCH (st)-[:NEXT]->(u:Step) RETURN u LIMIT 5"
+            "MATCH (st)-[:NEXT]->(u:Step) RETURN u.id LIMIT 5"
         ),
         # a different variable is not the bound one
-        "MATCH (s:Service) MATCH (t)-[:HAS_STEP]->(st:Step) RETURN st LIMIT 5",
+        "MATCH (s:Service) MATCH (t)-[:HAS_STEP]->(st:Step) RETURN st.id LIMIT 5",
     ],
 )
 def test_reusing_a_variable_that_is_not_bound_with_a_label_is_rejected(query):
@@ -288,16 +288,16 @@ def test_reusing_a_variable_that_is_not_bound_with_a_label_is_rejected(query):
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service) WHERE EXISTS { (s)-[:HAS_FEE]->(x) } RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE EXISTS { (n) } RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE EXISTS { MATCH (s)-[:HAS_FEE]->(x) } RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE EXISTS { (s)-[:HAS_FEE]->(x:Fee), (y) } RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { (s)-[:HAS_FEE]->(x) } RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { (n) } RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { MATCH (s)-[:HAS_FEE]->(x) } RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { (s)-[:HAS_FEE]->(x:Fee), (y) } RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN s.name, COUNT { (s)-[:HAS_FEE]->(x) } AS n LIMIT 5",
         "MATCH (s:Service) RETURN COUNT { (n) } AS n LIMIT 5",
-        "MATCH (s:Service) WHERE (s)-[:HAS_FEE]->(x) RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE (n)-[:HAS_FEE]->(:Fee) RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE NOT (s)-[:HAS_FEE]->(x) RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE s.id = 'x' AND (s)-[:HAS_FEE]->(x) RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE (s)-[:HAS_FEE]->(x) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE (n)-[:HAS_FEE]->(:Fee) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE NOT (s)-[:HAS_FEE]->(x) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE s.id = 'x' AND (s)-[:HAS_FEE]->(x) RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN [(s)-[:HAS_STEP]->(x) | x.id] AS ids LIMIT 5",
         "MATCH (s:Service) RETURN size([(n)-[:HAS_STEP]->(:Step) | 1]) AS c LIMIT 5",
     ],
@@ -309,13 +309,13 @@ def test_unlabeled_nodes_inside_subqueries_and_predicates_are_rejected(query):
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service) WHERE EXISTS { (s)-[r]->(:Fee) } RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE EXISTS { (s)-[]->(:Fee) } RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE EXISTS { (s)-->(:Fee) } RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { (s)-[r]->(:Fee) } RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { (s)-[]->(:Fee) } RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { (s)-->(:Fee) } RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN COUNT { (s)-[r]->(:Fee) } AS n LIMIT 5",
-        "MATCH (s:Service) WHERE (s)-[r]->(:Fee) RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE (s)-->(:Fee) RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE NOT (s)--(:Fee) RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE (s)-[r]->(:Fee) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE (s)-->(:Fee) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE NOT (s)--(:Fee) RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN [(s)-[r]->(:Step) | 1] AS c LIMIT 5",
     ],
 )
@@ -349,7 +349,7 @@ def test_labeled_subqueries_and_predicates_are_accepted(query):
 def test_variables_do_not_leak_out_of_a_comprehension_or_subquery():
     rejected(
         "MATCH (s:Service) WITH s, [(s)-[:HAS_STEP]->(st:Step) | st.id] AS ids "
-        "MATCH (st)-[:NEXT]->(u:Step) RETURN u LIMIT 5",
+        "MATCH (st)-[:NEXT]->(u:Step) RETURN u.id LIMIT 5",
         "has no label",
     )
 
@@ -401,7 +401,7 @@ def test_query_over_the_maximum_length_is_rejected():
 
 
 def test_a_huge_query_is_rejected_for_length_without_being_analysed():
-    result = rejected("MATCH (s:Service) RETURN s LIMIT 5 " + "x" * 200_000, "too long")
+    result = rejected("MATCH (s:Service) RETURN s.name LIMIT 5 " + "x" * 200_000, "too long")
     assert len(result.reasons) == 1
 
 
@@ -423,7 +423,7 @@ def test_explicit_max_chars_argument_overrides_config():
 
 @pytest.mark.parametrize("bad", [0, -1, True, 1.5, "2000", []])
 def test_invalid_max_chars_argument_fails_closed(bad):
-    result = validate_cypher("MATCH (s:Service) RETURN s LIMIT 5", max_chars=bad)
+    result = validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 5", max_chars=bad)
     assert result.ok is False
     assert any("max_chars" in r for r in result.reasons)
 
