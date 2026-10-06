@@ -20,7 +20,8 @@ Purpose: keep Core 1 queries inside the official charter graph. `MATCH (n) RETUR
   (`RETURN (s)-[:T]->(:X)`, in a list, a map, CASE or a function) it would be a list of whole
   paths, so it is refused. A predicate pattern cannot introduce a variable either.
 - A node next to a `-` must have a relationship bracket on that side: `(a)-(b)`, `(a)->(b)`,
-  `-(s)` and `<-[:T]->` are refused.
+  `-(s)` and `<-[:T]->` are refused. A relationship bracket must have a node pattern on both
+  sides: `(s.name)-[:T]->(:X)` and `(1)-[:T]->(:X)` are refused.
 
 Scope follows Cypher: `WITH` keeps only the variables it projects (`WITH s`, `WITH s AS t`,
 `WITH *`), and variables bound inside a subquery or a `[...]` do not leak out of it.
@@ -342,9 +343,26 @@ def _wraps_a_pattern(tokens: list[Token], i: int, pairs: dict[int, int]) -> bool
 
 
 def _check_relationship(
-    tokens: list[Token], i: int, close: int, info: PatternInfo, add: Callable[[str], None]
+    tokens: list[Token],
+    i: int,
+    close: int,
+    pairs: dict[int, int],
+    starts: dict[int, int],
+    info: PatternInfo,
+    add: Callable[[str], None],
 ) -> None:
+    """Check the relationship bracket at `i`. `starts` maps a closing bracket to its opener."""
     body = tokens[i + 1 : close]
+    # Both neighbours are node patterns. `(s.name)-[:T]->(:X)` and `(1)-[:T]->(:X)` are not
+    # shaped like nodes, so the node checks would pass over them in silence.
+    left_close = i - 3 if i >= 3 and _is_punct(tokens[i - 2], "<") else i - 2
+    left_open = starts.get(left_close) if left_close >= 0 else None
+    if (
+        left_open is None
+        or not _is_punct(tokens[left_close], ")")
+        or _parse_node_body(tokens[left_open + 1 : left_close]) is None
+    ):
+        add(_BAD_LINK)
     if not _relationship_is_typed(body):
         add("relationship pattern must specify a type, e.g. [:REQUIRES]")
     if not _relationship_is_one_hop(body):
@@ -366,6 +384,8 @@ def _check_relationship(
         j += 1
     if not (ok and j < len(tokens) and _is_punct(tokens[j], "(")):
         add(_BAD_RELATIONSHIP)
+    elif _parse_node_body(tokens[j + 1 : pairs[j]]) is None:
+        add(_BAD_LINK)
 
 
 def check_patterns(tokens: list[Token], add: Callable[[str], None]) -> PatternInfo | None:
@@ -377,6 +397,7 @@ def check_patterns(tokens: list[Token], add: Callable[[str], None]) -> PatternIn
     if pairs is None:
         return None
 
+    starts = {close: start for start, close in pairs.items()}
     info = PatternInfo()
     bound: set[str] = set()  # variables bound with a label and still in scope
     restore: dict[int, set[str]] = {}  # closing bracket index -> scope to return to
@@ -413,7 +434,7 @@ def check_patterns(tokens: list[Token], add: Callable[[str], None]) -> PatternIn
                         info.entity_vars.add(var)
                 elif tok.value == "[":
                     if _is_punct(prev, "-"):
-                        _check_relationship(tokens, i, close, info, add)
+                        _check_relationship(tokens, i, close, pairs, starts, info, add)
                     else:
                         if in_match:
                             add(_BAD_MATCH)

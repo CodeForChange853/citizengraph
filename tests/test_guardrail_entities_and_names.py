@@ -672,6 +672,45 @@ def test_bounded_variable_length_is_rejected_too():
         rejected(query, "variable-length, quantified or filtered")
 
 
+# ------------------------------------------------- found by the independent review, round 2
+# A chain whose end is not shaped like a node (`(s.name)`, `(1)`) was passed over by the
+# node checks, so the placement rule never saw the pattern.
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "MATCH (s:Service) RETURN (s.name)-[:REQUIRES]->(:Requirement) LIMIT 5",
+        "MATCH (s:Service) RETURN (s.id)-[:REQUIRES]->(s) LIMIT 5",
+        "MATCH (s:Service) RETURN (1)-[:REQUIRES]->(:Requirement) LIMIT 5",
+        "MATCH (s:Service) WHERE (s)-[:REQUIRES]->(s.name) RETURN s.name LIMIT 5",
+        ("MATCH (s:Service) RETURN s.name ORDER BY (s.name)-[:REQUIRES]->(:Requirement) LIMIT 5"),
+        "MATCH (s:Service) RETURN (s.name)<-[:OFFERS]-(:Office) LIMIT 5",
+        "MATCH (s:Service) RETURN (:Office)-[:OFFERS]->(s.name) LIMIT 5",
+        "MATCH (s:Service) RETURN s.name-[:REQUIRES]->(:Requirement) LIMIT 5",
+        "MATCH (s:Service) RETURN [1]-[:REQUIRES]->(:Requirement) LIMIT 5",
+        "MATCH (s:Service) RETURN (s)-[:REQUIRES]->(s.id)-[:REQUIRES]->(:Requirement) LIMIT 5",
+    ],
+)
+def test_a_relationship_needs_a_node_pattern_on_both_sides(query):
+    rejected(query, "a relationship must be written")
+
+
+def test_a_pattern_value_right_before_a_clause_word_is_rejected():
+    rejected(
+        "MATCH (s:Service) RETURN (s)-[:REQUIRES]->(:Requirement) LIMIT 5",
+        "a pattern outside MATCH",
+    )
+    # NOT makes it a boolean: accepted, and nothing but true/false comes back.
+    accepted("MATCH (s:Service) RETURN NOT (s)-[:HAS_FEE]->(:Fee) LIMIT 5")
+
+
+def test_map_keys_are_property_names():
+    # Safe-side over-rejection: a result map may only use allow-listed property names as keys.
+    rejected("MATCH (s:Service) RETURN {myKey: s.name} AS m LIMIT 5", "unknown property")
+    accepted("MATCH (s:Service) RETURN {name: s.name} AS m LIMIT 5")
+
+
 # ------------------------------------------------------------------------- fail closed
 
 
