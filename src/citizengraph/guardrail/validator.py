@@ -6,6 +6,10 @@ an unexpected internal error or an unreadable config, is a rejection (fail close
 The check runs on tokens from ``lexer.tokenize``, never on raw text, so comments and string
 literals can neither hide a clause nor fake one. The guardrail is one layer: queries must
 still run in a read transaction (``session.execute_read``), see docs/specs.md section 4.
+
+Three passes share the tokens: this module (clauses, labels, properties, LIMIT),
+``patterns.py`` (explicit labels and types, one-hop relationships) and ``variables.py``
+(no whole node, relationship or path as a value; no keyword or schema word as a name).
 """
 
 import re
@@ -15,82 +19,32 @@ from pathlib import Path
 
 import yaml
 
+from .keywords import (
+    CLAUSE_STARTERS,
+    DISALLOWED_CLAUSES,
+    FORBIDDEN_FUNCTIONS,
+    FORBIDDEN_KEYWORDS,
+    LIST_PREFIX_KEYWORDS,
+    OPENERS,
+)
 from .lexer import NUMBER, PUNCT, WORD, LexError, Token, tokenize
-from .patterns import check_patterns
+from .patterns import check_patterns, opens_subquery
 from .schema import OFFICIAL_SCHEMA, Schema
+from .variables import check_variables
 
 LIMITS_PATH = Path(__file__).resolve().parents[3] / "config" / "limits.yaml"
 
 MAX_REASONS = 50
 MAX_REASON_CHARS = 200
 
-# Mutating or unsafe (docs/specs.md section 4). CALL is denied outright, including apoc.*.
-FORBIDDEN_KEYWORDS = frozenset(
-    {"CREATE", "MERGE", "SET", "DELETE", "DETACH", "REMOVE", "DROP", "FOREACH", "LOAD", "CALL"}
-)
-# Not mutating in themselves, but outside the clause allow-list. Words that are also legal
-# variable names in Cypher are rejected as variables too: over-rejecting is the safe side.
-DISALLOWED_CLAUSES = frozenset(
-    {
-        "CSV",
-        "YIELD",
-        "UNION",
-        "USE",
-        "USING",
-        "START",
-        "FINISH",
-        "SHOW",
-        "TERMINATE",
-        "ALTER",
-        "GRANT",
-        "DENY",
-        "REVOKE",
-        "RENAME",
-        "CONSTRAINT",
-        "INDEX",
-        "PROFILE",
-        "EXPLAIN",
-        "CYPHER",
-        "INSERT",
-        "FILTER",
-        "LET",
-        "NEXT",
-        "OFFSET",
-        "ON",
-        "COMMIT",
-        "TRANSACTIONS",
-    }
-)
-# Clause words allowed to open a query, and clauses that may not follow the final RETURN.
-OPENERS = frozenset({"MATCH", "OPTIONAL", "WITH", "UNWIND", "RETURN"})
-CLAUSE_STARTERS = frozenset({"MATCH", "OPTIONAL", "WHERE", "WITH", "UNWIND", "RETURN"})
-# Functions that expose properties the schema check cannot see.
-FORBIDDEN_FUNCTIONS = frozenset({"PROPERTIES", "KEYS"})
-# A `[` after any other word, `)`, `]`, string, number or parameter is a subscript such as
-# `s['secret']`, which would read a property by a dynamic key.
-LIST_PREFIX_KEYWORDS = frozenset(
-    {
-        "IN",
-        "RETURN",
-        "WHERE",
-        "AND",
-        "OR",
-        "XOR",
-        "NOT",
-        "WITH",
-        "UNWIND",
-        "BY",
-        "THEN",
-        "ELSE",
-        "WHEN",
-        "CASE",
-        "IS",
-        "AS",
-        "CONTAINS",
-        "LIMIT",
-        "SKIP",
-    }
-)
+# What a word is, for the words that are not names (see variables.py).
+ROLE_LABEL = "label"
+ROLE_PROPERTY = "property"
+# On the bracket stack: the `{` of an EXISTS, COUNT or COLLECT subquery, which is not a map.
+_SUBQUERY = "subquery"
+# The `[` of a relationship pattern: a word after ':' in it is a type, elsewhere a label.
+_RELATIONSHIP = "relationship"
+
 PLAIN_POSITIVE_INT = re.compile(r"[1-9][0-9]*")
 
 
@@ -155,6 +109,7 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
 
     stack: list[str] = []
     depths: list[int] = []
+    roles: list[str | None] = [None] * len(tokens)
     expect_label = False
     last_was_label = False
     return_idx: int | None = None
@@ -163,6 +118,7 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
     for i, tok in enumerate(tokens):
         prev = tokens[i - 1] if i else None
         nxt = tokens[i + 1] if i + 1 < n else None
+        nxt2 = tokens[i + 2] if i + 2 < n else None
         depths.append(len(stack))
         in_map = bool(stack) and stack[-1] == "{"
 
@@ -170,16 +126,23 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
         if tok.kind == PUNCT and tok.value in "([{":
             if tok.value == "[" and prev is not None:
                 subscript = (
-                    _is_punct(prev, ")", "]")
+                    _is_punct(prev, ")", "]", "}")
                     or prev.kind != PUNCT
                     and not _is_word(prev, *LIST_PREFIX_KEYWORDS)
+                    # `by['x']`: BY opens a list only as part of ORDER BY
+                    or (_is_word(prev, "BY") and not (i >= 2 and _is_word(tokens[i - 2], "ORDER")))
                 )
                 if subscript:
                     add("subscripts and dynamic property access are not allowed")
-            stack.append(tok.value)
+            if tok.value == "{" and opens_subquery(tokens, i):
+                stack.append(_SUBQUERY)
+            elif tok.value == "[" and _is_punct(prev, "-"):
+                stack.append(_RELATIONSHIP)
+            else:
+                stack.append(tok.value)
         elif tok.kind == PUNCT and tok.value in ")]}":
-            opener = {")": "(", "]": "[", "}": "{"}[tok.value]
-            if stack and stack[-1] == opener:
+            opener = {")": ("(",), "]": ("[", _RELATIONSHIP), "}": ("{", _SUBQUERY)}[tok.value]
+            if stack and stack[-1] in opener:
                 stack.pop()
             else:
                 add("unbalanced brackets")
@@ -190,6 +153,7 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
         if expect_label:
             if tok.kind == WORD:
                 _check_label(tok, stack, schema, add)
+                roles[i] = ROLE_LABEL
                 expect_label = False
                 last_was_label = True
                 continue
@@ -206,8 +170,12 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
             last_was_label = False
             continue
         last_was_label = False
-        if _is_punct(tok, ":") and not in_map:
-            expect_label = True
+        if _is_punct(tok, ":"):
+            if not in_map:
+                expect_label = True
+            elif i == 0 or roles[i - 1] != ROLE_PROPERTY:
+                # in a map a ':' only follows a key; `{id: s:Application}` is not a key
+                add("malformed map: ':' must follow a property name")
             continue
 
         if _is_punct(tok, "."):
@@ -220,8 +188,11 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
 
         # Property key: after '.' or as a map key inside {...}.
         if _is_punct(prev, ".") or (in_map and _is_punct(nxt, ":")):
+            roles[i] = ROLE_PROPERTY
             if tok.value not in schema.properties:
                 add(f"unknown property '{_clip(tok.value, 40)}'")
+            if not _is_punct(prev, ".", "{", ","):
+                add("malformed map: a key must follow '{' or ','")
             if _is_punct(prev, ".") and _is_punct(nxt, "("):
                 add(f"namespaced function calls are not allowed ('...{_clip(tok.value, 40)}(')")
             continue
@@ -238,6 +209,11 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
             add("OPTIONAL must be followed by MATCH")
         if word in FORBIDDEN_FUNCTIONS and _is_punct(nxt, "("):
             add(f"function {word.lower()}() is not allowed")
+        # `x IS Label`, `(x IS %)`, `IS :: INTEGER`: only the null tests are allowed.
+        if word == "IS" and not (
+            _is_word(nxt, "NULL") or (_is_word(nxt, "NOT") and _is_word(nxt2, "NULL"))
+        ):
+            add("IS may only be followed by NULL or NOT NULL (no IS label or type tests)")
 
         if not stack and word in CLAUSE_STARTERS and not _is_word(prev, "STARTS", "ENDS"):
             if return_idx is not None:
@@ -250,14 +226,16 @@ def _analyze(tokens: list[Token], schema: Schema, max_limit: int) -> list[str]:
     if stack:
         add("unbalanced brackets")
 
-    check_patterns(tokens, add)
+    info = check_patterns(tokens, add)
+    if info is not None:
+        check_variables(tokens, roles, info, schema, add)
     _check_limit(tokens, depths, return_idx, max_limit, add)
     return list(reasons)
 
 
 def _check_label(tok: Token, stack: list[str], schema: Schema, add) -> None:
     name = _clip(tok.value, 40)
-    if stack and stack[-1] == "[":
+    if stack and stack[-1] == _RELATIONSHIP:
         if tok.value not in schema.relationship_types:
             add(f"unknown relationship type '{name}'")
     elif tok.value not in schema.labels:
@@ -311,6 +289,11 @@ def _validate(
     # Checked before tokenizing, so an oversized query costs one comparison.
     if len(query) > max_chars:
         return _reject(f"query too long ({len(query)} characters; the maximum is {max_chars})")
+
+    # A parser that expands \uXXXX before it tokenizes would see other text than we do:
+    # an escaped quote could end a string early, an escaped newline a comment.
+    if "\\u" in query or "\\U" in query:
+        return _reject("unicode escapes (backslash-u) are not allowed anywhere in a query")
 
     try:
         tokens = tokenize(query)

@@ -209,12 +209,10 @@ def test_shorthand_and_empty_relationships_are_rejected(query):
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service)-[:REQUIRES]->(r:Requirement) RETURN r LIMIT 5",
-        "MATCH (s:Service)-[q:REQUIRES]->(r:Requirement) RETURN r LIMIT 5",
-        "MATCH (s:Service)<-[:OFFERS]-(o:Office) RETURN o LIMIT 5",
-        "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x:Requirement|Fee) RETURN x LIMIT 5",
-        "MATCH (s:Service)-[:HAS_STEP*1..3]->(st:Step) RETURN st LIMIT 5",
-        "MATCH (a:Step)-[r:NEXT*1..2]->(b:Step) RETURN b LIMIT 5",
+        "MATCH (s:Service)-[:REQUIRES]->(r:Requirement) RETURN r.id LIMIT 5",
+        "MATCH (s:Service)-[q:REQUIRES]->(r:Requirement) RETURN r.id LIMIT 5",
+        "MATCH (s:Service)<-[:OFFERS]-(o:Office) RETURN o.id LIMIT 5",
+        "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x:Requirement|Fee) RETURN x.id LIMIT 5",
     ],
 )
 def test_typed_relationships_are_accepted(query):
@@ -239,11 +237,11 @@ def test_typed_relationships_are_accepted(query):
         "MATCH (s:Service)-[:HAS_STEP]->(a:Step), (a)-[:NEXT]->(b:Step) RETURN b.id LIMIT 5",
         "MATCH (s:Service) WHERE (s)-[:HAS_STEP]->(:Step) RETURN s.name LIMIT 5",
         "MATCH (s:Service) WITH s MATCH (s)-[:HAS_STEP]->(st:Step) RETURN st.order LIMIT 5",
-        "MATCH (s:Service) WITH DISTINCT s MATCH (s)-[:HAS_STEP]->(st:Step) RETURN st LIMIT 5",
-        "MATCH (s:Service) WITH s AS svc MATCH (svc)-[:HAS_STEP]->(st:Step) RETURN st LIMIT 5",
+        "MATCH (s:Service) WITH DISTINCT s MATCH (s)-[:HAS_STEP]->(st:Step) RETURN st.id LIMIT 5",
+        "MATCH (s:Service) WITH s AS svc MATCH (svc)-[:HAS_STEP]->(st:Step) RETURN st.id LIMIT 5",
         "MATCH (s:Service) WITH s, count(s) AS c MATCH (s)-[:HAS_STEP]->(st:Step) RETURN c LIMIT 5",
-        "MATCH (s:Service) WITH * MATCH (s)-[:HAS_STEP]->(st:Step) RETURN st LIMIT 5",
-        "MATCH (s:Service) WITH s WHERE s.id = 'x' MATCH (s)-[:HAS_FEE]->(f:Fee) RETURN f LIMIT 5",
+        "MATCH (s:Service) WITH * MATCH (s)-[:HAS_STEP]->(st:Step) RETURN st.id LIMIT 5",
+        "MATCH (s:Service) WITH s WHERE s.id = 'x' MATCH (s)-[:HAS_FEE]->(f:Fee) RETURN f.id LIMIT 5",
         "MATCH (s:Service {id: $sid}) MATCH (s)-[:HAS_FEE]->(f:Fee) RETURN f.label LIMIT 5",
         "MATCH (s:Service) MATCH (s {id: $sid})-[:HAS_FEE]->(f:Fee) RETURN f.label LIMIT 5",
         (
@@ -331,17 +329,17 @@ def test_untyped_relationships_inside_subqueries_and_predicates_are_rejected(que
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service) WHERE EXISTS { (s)-[:HAS_FEE]->(:Fee) } RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { (s)-[:HAS_FEE]->(:Fee) } RETURN s.name LIMIT 5",
         (
             "MATCH (s:Service) WHERE EXISTS { MATCH (s)-[:HAS_FEE]->(f:Fee) WHERE f.unit = 'x' } "
-            "RETURN s LIMIT 5"
+            "RETURN s.name LIMIT 5"
         ),
-        "MATCH (s:Service) WHERE EXISTS { (s) } RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { (s) } RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN COUNT { (s)-[:HAS_FEE]->(:Fee) } AS n LIMIT 5",
-        "MATCH (s:Service) WHERE (s)-[:HAS_FEE]->(:Fee) RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE NOT (s)-[:HAS_FEE]->(:Fee) RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE (s)-[:HAS_FEE]->(:Fee) RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE NOT (s)-[:HAS_FEE]->(:Fee) RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN [(s)-[:HAS_STEP]->(st:Step) | st.id] AS ids LIMIT 5",
-        "MATCH (s:Service) WHERE EXISTS { MATCH (t:Step) } MATCH (t:Step) RETURN t LIMIT 5",
+        "MATCH (s:Service) WHERE EXISTS { MATCH (t:Step) } MATCH (t:Step) RETURN t.id LIMIT 5",
     ],
 )
 def test_labeled_subqueries_and_predicates_are_accepted(query):
@@ -362,12 +360,12 @@ def test_variables_do_not_leak_out_of_a_comprehension_or_subquery():
 @pytest.mark.parametrize(
     "query",
     [
-        "MATCH (s:Service) WHERE (s.id = 'x') RETURN s LIMIT 5",
-        "MATCH (s:Service) WHERE (s.id = 'x' OR s.id = 'y') AND s.name IS NOT NULL RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE (s.id = 'x') RETURN s.name LIMIT 5",
+        "MATCH (s:Service) WHERE (s.id = 'x' OR s.id = 'y') AND s.name IS NOT NULL RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN s.name, (size(s.name) + 1) AS n LIMIT 5",
         "MATCH (s:Service) RETURN s.name, size(s.name) - (size(s.id)) AS n LIMIT 5",
         "MATCH (s:Service) WITH s, count(*) AS c WHERE c > (1 + 1) RETURN s.name LIMIT 5",
-        "MATCH (s:Service) WHERE toLower(s.name) = toLower($name) RETURN s LIMIT 5",
+        "MATCH (s:Service) WHERE toLower(s.name) = toLower($name) RETURN s.name LIMIT 5",
         "MATCH (s:Service) RETURN count(DISTINCT s.name) AS n LIMIT 5",
     ],
 )
@@ -410,7 +408,7 @@ def test_a_huge_query_is_rejected_for_length_without_being_analysed():
 def test_length_is_counted_in_characters_not_bytes():
     # one emoji is one character, so MAX_CHARS characters pass even though they exceed MAX_CHARS bytes
     base = "MATCH (s:Service) WHERE s.name = '"
-    tail = "' RETURN s LIMIT 5"
+    tail = "' RETURN s.name LIMIT 5"
     query = base + "\U0001f600" * (MAX_CHARS - len(base) - len(tail)) + tail
     assert len(query) == MAX_CHARS and len(query.encode()) > MAX_CHARS
     accepted(query)

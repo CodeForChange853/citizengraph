@@ -107,8 +107,8 @@ def test_result_reasons_are_bounded():
 # --------------------------------------------------------------------------- valid queries
 
 VALID = [
-    "MATCH (s:Service) RETURN s LIMIT 1",
-    "match (s:Service) return s limit 1",
+    "MATCH (s:Service) RETURN s.name LIMIT 1",
+    "match (s:Service) return s.name limit 1",
     "MATCH (s:Service {id: 'bplo_new_permit'}) RETURN s.name LIMIT 1",
     (
         'MATCH (s:Service {id: "bplo_new_permit"})-[:REQUIRES]->(r:Requirement) '
@@ -133,20 +133,20 @@ VALID = [
     "MATCH (r:Requirement)-[:PART_OF]->(p:Requirement) RETURN r.id, p.id, r.parent_id LIMIT 50",
     "MATCH (s:Service)-[:KNOWN_AS]->(al:Alias) WHERE al.lang = 'fil' RETURN al.text, al.lang LIMIT 10",
     # was `->(x)`; an unlabeled node is now rejected (tests/test_guardrail_patterns.py)
-    "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x:Requirement|Fee) RETURN x LIMIT 10",
+    "MATCH (s:Service)-[:REQUIRES|HAS_FEE]->(x:Requirement|Fee) RETURN x.id LIMIT 10",
     (
         "MATCH (s:Service)-[:REQUIRES]->(r:Requirement)-[:SECURED_AT]->(a:Agency) "
         "RETURN a.name, count(r) AS n ORDER BY n DESC SKIP 5 LIMIT 10"
     ),
     "MATCH (s:Service) WITH s, size(s.name) AS len WHERE len > 3 RETURN s.name, len LIMIT 10",
     "MATCH (s:Service) WHERE s.id IN ['a', 'b', 'c'] RETURN s.name LIMIT 3",
-    "MATCH (s:Service) WHERE s.name STARTS WITH 'Bus' AND NOT s.name CONTAINS 'Old' RETURN s LIMIT 5",
+    "MATCH (s:Service) WHERE s.name STARTS WITH 'Bus' AND NOT s.name CONTAINS 'Old' RETURN s.name LIMIT 5",
     "MATCH (s:Service) WHERE s:Service RETURN s.id LIMIT 5",
     "MATCH (s:Service) WHERE s.description IS NOT NULL RETURN s.description LIMIT 5",
     "UNWIND ['a', 'b'] AS sid MATCH (s:Service {id: sid}) RETURN s.name LIMIT 5",
     "MATCH (s:Service) RETURN DISTINCT s.classification ORDER BY s.classification ASC LIMIT 5",
     (
-        "MATCH (s:Service) RETURN s.id AS id, CASE WHEN s.total_fee_text IS NULL THEN 'n/a' "
+        "MATCH (s:Service) RETURN s.id AS sid, CASE WHEN s.total_fee_text IS NULL THEN 'n/a' "
         "ELSE s.total_fee_text END AS fee LIMIT 5"
     ),
     (
@@ -156,18 +156,18 @@ VALID = [
     "MATCH (s:Service) RETURN s.who_may_avail, s.transaction_type, s.total_time_text LIMIT 5",
     "MATCH (r:Requirement) RETURN r.condition_text, r.parent_id LIMIT 5",
     "MATCH (v:Variant) RETURN v.dimension, v.value LIMIT 5",
-    "MATCH (s:Service) WHERE s.name = 'a;b' RETURN s LIMIT 5",
-    "MATCH (s:Service) RETURN s LIMIT 5  ",
-    "MATCH (s:Service)\n  WHERE s.id = 'x' // trailing note\n  RETURN s /* inline */ LIMIT 5\n",
-    "MATCH (s:Service) WHERE s.name = 'Kasal — Ñandú' RETURN s LIMIT 5",
-    f"MATCH (s:Service) RETURN s LIMIT {MAX_LIMIT}",
+    "MATCH (s:Service) WHERE s.name = 'a;b' RETURN s.name LIMIT 5",
+    "MATCH (s:Service) RETURN s.name LIMIT 5  ",
+    "MATCH (s:Service)\n  WHERE s.id = 'x' // trailing note\n  RETURN s.name /* inline */ LIMIT 5\n",
+    "MATCH (s:Service) WHERE s.name = 'Kasal — Ñandú' RETURN s.name LIMIT 5",
+    f"MATCH (s:Service) RETURN s.name LIMIT {MAX_LIMIT}",
     "MATCH (s:Service) RETURN s.name LIMIT 1",
-    "MATCH (s:Service) WHERE s.name = 'it\\'s' RETURN s LIMIT 5",
+    "MATCH (s:Service) WHERE s.name = 'it\\'s' RETURN s.name LIMIT 5",
     (
         "MATCH (s:Service)-[:REQUIRES]->(r:Requirement) WITH s, collect(r.text) AS reqs "
         "RETURN s.name, reqs LIMIT 5"
     ),
-    "MATCH (s:Service) WHERE toLower(s.name) = toLower($name) RETURN s LIMIT 5",
+    "MATCH (s:Service) WHERE toLower(s.name) = toLower($name) RETURN s.name LIMIT 5",
 ]
 
 
@@ -314,9 +314,9 @@ def test_block_comment_cannot_hide_a_real_clause(keyword):
 
 @pytest.mark.parametrize("keyword", FORBIDDEN)
 def test_keyword_only_inside_comments_is_harmless(keyword):
-    accepted(f"MATCH (s:Service) // {keyword}\nRETURN s LIMIT 5")
-    accepted(f"MATCH (s:Service) /* {keyword} s */ RETURN s LIMIT 5")
-    accepted(f"MATCH (s:Service) RETURN s LIMIT 5 // {keyword} s")
+    accepted(f"MATCH (s:Service) // {keyword}\nRETURN s.name LIMIT 5")
+    accepted(f"MATCH (s:Service) /* {keyword} s */ RETURN s.name LIMIT 5")
+    accepted(f"MATCH (s:Service) RETURN s.name LIMIT 5 // {keyword} s")
 
 
 def test_comments_around_a_keyword_do_not_hide_it():
@@ -360,22 +360,22 @@ def test_limit_inside_comment_does_not_count():
 
 @pytest.mark.parametrize("keyword", FORBIDDEN)
 def test_keyword_inside_string_literal_is_data(keyword):
-    accepted(f"MATCH (s:Service) WHERE s.name = '{keyword} everything' RETURN s LIMIT 5")
-    accepted(f'MATCH (s:Service) WHERE s.name = "{keyword} everything" RETURN s LIMIT 5')
-    accepted(f"MATCH (s:Service) WHERE s.name CONTAINS '{keyword.lower()}' RETURN s LIMIT 5")
+    accepted(f"MATCH (s:Service) WHERE s.name = '{keyword} everything' RETURN s.name LIMIT 5")
+    accepted(f'MATCH (s:Service) WHERE s.name = "{keyword} everything" RETURN s.name LIMIT 5')
+    accepted(f"MATCH (s:Service) WHERE s.name CONTAINS '{keyword.lower()}' RETURN s.name LIMIT 5")
 
 
 def test_string_literal_with_semicolon_and_comment_markers_is_data():
-    accepted("MATCH (s:Service) WHERE s.name = 'a; DROP b' RETURN s LIMIT 5")
-    accepted("MATCH (s:Service) WHERE s.name = '// not a comment' RETURN s LIMIT 5")
-    accepted("MATCH (s:Service) WHERE s.name = '/* nor this */' RETURN s LIMIT 5")
-    accepted("MATCH (s:Service) WHERE s.name = 'x`y' RETURN s LIMIT 5")
+    accepted("MATCH (s:Service) WHERE s.name = 'a; DROP b' RETURN s.name LIMIT 5")
+    accepted("MATCH (s:Service) WHERE s.name = '// not a comment' RETURN s.name LIMIT 5")
+    accepted("MATCH (s:Service) WHERE s.name = '/* nor this */' RETURN s.name LIMIT 5")
+    accepted("MATCH (s:Service) WHERE s.name = 'x`y' RETURN s.name LIMIT 5")
 
 
 def test_escaped_quote_does_not_end_string_early():
-    accepted("MATCH (s:Service) WHERE s.name = 'a\\' DELETE s //' RETURN s LIMIT 5")
-    accepted('MATCH (s:Service) WHERE s.name = "a\\" DELETE s //" RETURN s LIMIT 5')
-    accepted("MATCH (s:Service) WHERE s.name = 'a\\\\' RETURN s LIMIT 5")
+    accepted("MATCH (s:Service) WHERE s.name = 'a\\' DELETE s //' RETURN s.name LIMIT 5")
+    accepted('MATCH (s:Service) WHERE s.name = "a\\" DELETE s //" RETURN s.name LIMIT 5')
+    accepted("MATCH (s:Service) WHERE s.name = 'a\\\\' RETURN s.name LIMIT 5")
 
 
 def test_escaped_backslash_then_quote_does_end_string():
@@ -396,8 +396,8 @@ def test_unterminated_string_is_rejected():
 
 def test_string_concatenation_cannot_build_a_clause():
     # Concatenated strings are inert data; a real clause smuggled next to them is still caught.
-    accepted("MATCH (s:Service) WHERE s.name = 'CRE' + 'ATE' RETURN s LIMIT 5")
-    rejected("MATCH (s:Service) WHERE s.name = 'CRE' + 'ATE' CREATE (x) RETURN s LIMIT 5", "CREATE")
+    accepted("MATCH (s:Service) WHERE s.name = 'CRE' + 'ATE' RETURN s.name LIMIT 5")
+    rejected("MATCH (s:Service) WHERE s.name = 'CRE' + 'ATE' CREATE (x) RETURN s.name LIMIT 5", "CREATE")
 
 
 def test_limit_inside_string_does_not_count():
@@ -456,12 +456,12 @@ def test_backtick_identifiers_are_rejected(query):
 
 
 def test_backtick_inside_string_is_not_an_identifier():
-    accepted("MATCH (s:Service) WHERE s.name = 'a`b' RETURN s LIMIT 5")
+    accepted("MATCH (s:Service) WHERE s.name = 'a`b' RETURN s.name LIMIT 5")
 
 
 def test_backtick_inside_comment_is_ignored():
-    accepted("MATCH (s:Service) // `x\nRETURN s LIMIT 5")
-    accepted("MATCH (s:Service) /* ` */ RETURN s LIMIT 5")
+    accepted("MATCH (s:Service) // `x\nRETURN s.name LIMIT 5")
+    accepted("MATCH (s:Service) /* ` */ RETURN s.name LIMIT 5")
 
 
 # --------------------------------------------------------------------------- unicode
@@ -515,17 +515,17 @@ def test_unicode_digits_in_limit_are_rejected():
 def test_non_ascii_text_inside_string_literals_is_allowed():
     accepted(
         "MATCH (s:Service) WHERE s.name CONTAINS 'Pagpaparehistro ng Kapanganakan ñ é' "
-        "RETURN s LIMIT 5"
+        "RETURN s.name LIMIT 5"
     )
-    accepted("MATCH (s:Service) WHERE s.name = '\u0421REATE \u200b' RETURN s LIMIT 5")
+    accepted("MATCH (s:Service) WHERE s.name = '\u0421REATE \u200b' RETURN s.name LIMIT 5")
 
 
 def test_non_ascii_inside_comments_is_allowed_but_controls_are_not():
-    accepted("MATCH (s:Service) // pabalik-balik ñ é\nRETURN s LIMIT 5")
-    accepted("MATCH (s:Service) /* ñ */ RETURN s LIMIT 5")
-    rejected("MATCH (s:Service) /* \x00 */ RETURN s LIMIT 5")
-    rejected("MATCH (s:Service) /* \u2028 */ RETURN s LIMIT 5")
-    rejected("MATCH (s:Service) /* \u202e */ RETURN s LIMIT 5")  # bidi override
+    accepted("MATCH (s:Service) // pabalik-balik ñ é\nRETURN s.name LIMIT 5")
+    accepted("MATCH (s:Service) /* ñ */ RETURN s.name LIMIT 5")
+    rejected("MATCH (s:Service) /* \x00 */ RETURN s.name LIMIT 5")
+    rejected("MATCH (s:Service) /* \u2028 */ RETURN s.name LIMIT 5")
+    rejected("MATCH (s:Service) /* \u202e */ RETURN s.name LIMIT 5")  # bidi override
 
 
 @pytest.mark.parametrize("ctl", ["\x00", "\x01", "\x07", "\x1b", "\x7f"])
@@ -571,17 +571,17 @@ def test_excessive_limit_is_rejected(n):
 
 @pytest.mark.parametrize("n", [1, 2, 10, MAX_LIMIT - 1, MAX_LIMIT])
 def test_limits_within_bounds_pass(n):
-    accepted(f"MATCH (s:Service) RETURN s LIMIT {n}")
+    accepted(f"MATCH (s:Service) RETURN s.name LIMIT {n}")
 
 
 def test_limit_uses_value_from_config_file():
-    accepted(f"MATCH (s:Service) RETURN s LIMIT {MAX_LIMIT}")
-    rejected(f"MATCH (s:Service) RETURN s LIMIT {MAX_LIMIT + 1}", "limit")
+    accepted(f"MATCH (s:Service) RETURN s.name LIMIT {MAX_LIMIT}")
+    rejected(f"MATCH (s:Service) RETURN s.name LIMIT {MAX_LIMIT + 1}", "limit")
 
 
 def test_explicit_max_limit_argument_overrides_config():
-    assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 10", max_limit=10).ok is True
-    assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 11", max_limit=10).ok is False
+    assert validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 10", max_limit=10).ok is True
+    assert validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 11", max_limit=10).ok is False
 
 
 @pytest.mark.parametrize("bad_max", [0, -1, True, 1.5, "50", []])
@@ -901,8 +901,8 @@ def limits_file(tmp_path, monkeypatch):
 def test_config_value_is_read_from_yaml(limits_file):
     # cypher_max_chars is required too (missing means fail closed), so the file carries it
     limits_file.write_text("core1:\n  cypher_limit_max: 7\n  cypher_max_chars: 2000\n")
-    assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 7").ok is True
-    assert validate_cypher("MATCH (s:Service) RETURN s LIMIT 8").ok is False
+    assert validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 7").ok is True
+    assert validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 8").ok is False
 
 
 @pytest.mark.parametrize(
@@ -932,7 +932,7 @@ def test_unreadable_or_invalid_config_fails_closed(limits_file, content):
 
 def test_explicit_max_limit_does_not_need_config(limits_file):
     # config file is absent here, but explicit maxima mean it is never consulted
-    result = validate_cypher("MATCH (s:Service) RETURN s LIMIT 5", max_limit=10, max_chars=2000)
+    result = validate_cypher("MATCH (s:Service) RETURN s.name LIMIT 5", max_limit=10, max_chars=2000)
     assert result.ok is True
 
 
