@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Read(/eval/heldout/**)",
+      "Edit(/eval/heldout/**)",
+      "Edit(/data/raw/**)",
+      "Read(/.env)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"${CLAUDE_PROJECT_DIR}/.claude/hooks/ruff_on_edit.py\"; [ -f \"$f\" ] || exit 0; for p in python python3; do if \"$p\" -c \"\" </dev/null >/dev/null 2>&1; then exec \"$p\" \"$f\"; fi; done; exit 0",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}
