@@ -49,6 +49,7 @@ OFFICIAL_SCHEMA = Schema(
             "total_fee_text",
             "total_time_text",
             "description",
+            "info_status",
             # Requirement
             "text",
             "group",

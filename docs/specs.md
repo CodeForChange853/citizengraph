@@ -9,7 +9,7 @@ Keep it small and stable: Cypher generation quality depends on it. Office-agnost
 Nodes:
 
 - `Office {id, name}`
-- `Service {id, name, classification, transaction_type, who_may_avail, total_fee_text, total_time_text, description}`
+- `Service {id, name, classification, transaction_type, who_may_avail, total_fee_text, total_time_text, description, info_status}` (`info_status` is optional: it is present only with the value `"pending_lgu"`, on a service that has held-back items; see below)
 - `Requirement {id, text, group, parent_id, min_required, condition_text}`
 - `Agency {id, name}` (where a requirement is secured)
 - `Step {id, order, citizen_action, agency_action, external_agency, dur_min, dur_max, dur_unit, minutes_min, minutes_max, day_type}`
@@ -38,6 +38,14 @@ Relationships:
 ```
 
 `CHARGES` ties a fee row to the step where it is paid (`HAS_FEE` from the service stays, so both routes work). `SATISFIED_BY` says a requirement is obtained by using another charter service (for example a business-permit requirement that is the output of the Sanitary Permit service); `IS_OFFICE` marks an Agency whose name is exactly one of the four scoped offices (BPLO, LCRO, CHO, CSWDO). Both are cross-office links that start as suggestions in the seed (`links.yaml`, flag `link_suggested`); the loader writes them only once a person has marked them `reviewed` (or with an explicit switch), so unreviewed suggestions never reach the graph Core 1 reads.
+
+**Suspect records are held back too (2026-10-05).** Some curated records can be loaded but are probably wrong or incomplete in the source charter (for example a checklist copied from another service). The seed marks them as data, not code: `suspect` with a `suspect_reason` on a requirement, and `held_back` entries on a service (field `requirements` for a whole checklist that is untrusted or incomplete, or field `who_may_avail`). By default the loader:
+
+- does not write a held-back requirement, its child requirements, or any relationship that touches them. A group that loses one part is held back whole (the heading and its other parts), so a "any N of" rule never counts a missing part;
+- writes a held-back `who_may_avail` as null (the property is absent);
+- sets `info_status = "pending_lgu"` on every service that has such an item. No other service has the property, so after a default load into an empty database a missing `info_status` means nothing was held back for that service.
+
+Steps are never held back. The markers and their reasons stay in the seed and are never written to Neo4j; `info_status` is the only trace in the graph. The switch `--include-suspect-records` writes everything and sets no `info_status` (for development databases). The current list of held-back records is in `docs/seed_status.md` ("Held back by default"). The loader only adds and updates, it never deletes: a database that was loaded with these records earlier (before this rule, or with the switch) keeps them, so load into an empty database.
 
 Simulated workflow data for Core 2 uses separate labels or a separate database, never mixed into the official charter graph:
 
@@ -94,6 +102,8 @@ Reject any generated Cypher that:
 - hides keywords via case changes, comments (`//`, `/* */`), string concatenation, Unicode homoglyphs, or backtick-quoted identifiers.
 
 The property allow-list is the union of the node properties in section 1 and nothing else. The loader also stores bookkeeping properties (`review_status`, `source_sheet`, `source_row`, `source_rows`, `charter_ref`, `key`, `condition_structured`); they are **deliberately not on the allow-list**, so Core 1 cannot read them. It does not need them: it can read `condition_text` (on requirements and fees) and follow `APPLIES_WHEN` to the variant links, and a condition that could not be structured comes back as its `condition_text` and is shown as written. `tests/test_graph_schema_alignment.py` fails if this section, the allow-list, the loader and the seed drift apart.
+
+**`info_status` is readable (decision, 2026-10-05).** `info_status` on `Service` is the one property added to the allow-list for the hold-back of suspect records (section 1). Reason: when a requirement or a `who_may_avail` text is held back, a query returns fewer rows, or none. That must not be read as "nothing is required". Core 1, or a fixed server-side query, must be able to tell an incomplete answer from an empty one, so the status has to be readable. Its only value is `"pending_lgu"`. The suspect markers themselves (`suspect`, `suspect_reason`, `held_back`) are not bookkeeping properties: they are not stored in Neo4j at all, so they are not on the allow-list and cannot be read. No Core 1 template reads `info_status` yet, so the prompts and the canonical Cypher are unchanged; only the schema fingerprint line in `training/DATASET_CARD.md` changed.
 
 Use a real tokenizer that handles string literals and comments, not a regex on raw text. Validate with `EXPLAIN` when Neo4j is available. Always execute with read transactions (`session.execute_read`). Where the edition supports roles, also use a read-only user (Neo4j Community has no RBAC, so guardrail plus read transactions are the defense). This module gets the largest test suite in the repo.
 

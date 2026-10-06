@@ -54,8 +54,13 @@ def mem(seed):
 
 @pytest.fixture(scope="module")
 def graph(seed):
-    # with the suggested cross-office links, as tests/test_core1_templates_integration.py loads them
-    return graph_from_plan(_loader_module().build_plan(seed, include_unreviewed_links=True))
+    # with the suggested cross-office links, as tests/test_core1_templates_integration.py loads them,
+    # and with the suspect records: the rows are compared with InMemoryGraph, which is the full seed
+    return graph_from_plan(
+        _loader_module().build_plan(
+            seed, include_unreviewed_links=True, include_suspect_records=True
+        )
+    )
 
 
 def ask(graph, intent: str, shape: str, *targets: tuple[str, str]):

@@ -130,6 +130,7 @@ NODE_PROPERTIES: dict[str, tuple[str, ...]] = {
         "total_fee_text",
         "total_time_text",
         "description",
+        "info_status",
     ),
     "Requirement": ("id", "text", "group", "parent_id", "min_required", "condition_text"),
     "Agency": ("id", "name"),

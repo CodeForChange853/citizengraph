@@ -67,9 +67,10 @@ def counts(driver):
 def loaded(driver):
     mod = _loadmod()
     seed = load_seed(DEFAULT_SEED_DIR)
-    mod.write_seed(driver, seed, batch_size=25)
+    # the full seed: the counts and answers below are compared with the whole seed
+    mod.write_seed(driver, seed, batch_size=25, include_suspect_records=True)
     first = counts(driver)
-    mod.write_seed(driver, seed, batch_size=25)
+    mod.write_seed(driver, seed, batch_size=25, include_suspect_records=True)
     second = counts(driver)
     return seed, first, second
 

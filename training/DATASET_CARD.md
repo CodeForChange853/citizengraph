@@ -15,7 +15,7 @@ The prompt gives only the linked targets, the language and the cleaned phrase. T
 
 - seed: 0; train rounds: 1; validation/test share of ordinary cells: 0.15
 - cells (shape x targets x stated variants): 862
-- guardrail schema fingerprint: `5661d9c478ec` (labels, relationship types and properties read at runtime)
+- guardrail schema fingerprint: `fc968e7392df` (labels, relationship types and properties read at runtime)
 - alias records used from `graph/seed/aliases.yaml`: 479
 - noise levels (percent of words): 0, 10, 30
 - prompt budget: estimated tokens max 592, mean 552 (ceiling 1000); the system message is identical in every example

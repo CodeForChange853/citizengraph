@@ -75,6 +75,27 @@ class Variant(_Record):
         return self
 
 
+HeldBackField = Literal["requirements", "who_may_avail"]
+
+
+class HeldBack(_Strict):
+    """A citizen-visible part of a service that is not shown until the LGU confirms it.
+
+    ``requirements``: the whole checklist is untrusted or incomplete (an empty or partial list
+    would read as "nothing else is needed"). ``who_may_avail``: that text is suspect.
+    """
+
+    field: HeldBackField
+    reason: str = Field(min_length=1)
+
+    @field_validator("reason")
+    @classmethod
+    def _reason_says_something(cls, reason: str) -> str:
+        if not reason.strip():
+            raise ValueError("reason must not be blank")
+        return reason
+
+
 class Service(_Record):
     office_id: str
     charter_ref: str = Field(min_length=1)  # e.g. BPLO-01, the draft id of this block
@@ -87,6 +108,16 @@ class Service(_Record):
     description: str | None = None
     source: SourceRef
     total_source_row: int | None = None
+    held_back: list[HeldBack] = Field(default_factory=list)  # data marker; never stored
+
+    @model_validator(mode="after")
+    def _held_back_fields_are_distinct(self) -> Service:
+        fields = [h.field for h in self.held_back]
+        if len(fields) != len(set(fields)):
+            raise ValueError("held_back lists a field more than once")
+        if "who_may_avail" in fields and self.who_may_avail is None:
+            raise ValueError("held_back who_may_avail needs a who_may_avail text to hold")
+        return self
 
 
 class _Conditional(_Record):
@@ -124,6 +155,16 @@ class Requirement(_Conditional):
     secured_at: str | None = None  # Agency name exactly as the charter says
     source: SourceRef
     source_row: int = Field(ge=1)
+    suspect: bool = Field(default=False, strict=True)  # data marker; never stored
+    suspect_reason: str | None = None  # required when suspect
+
+    @model_validator(mode="after")
+    def _suspect_needs_a_reason(self) -> Requirement:
+        if self.suspect and not (self.suspect_reason or "").strip():
+            raise ValueError("a suspect requirement needs a suspect_reason")
+        if not self.suspect and self.suspect_reason is not None:
+            raise ValueError("suspect_reason is only for a suspect requirement")
+        return self
 
     @model_validator(mode="after")
     def _min_required_is_for_groups(self) -> Requirement:

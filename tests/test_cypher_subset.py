@@ -164,7 +164,9 @@ def test_the_loader_plan_becomes_a_graph_with_the_same_counts():
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     seed = load_seed(DEFAULT_SEED_DIR)
-    graph = graph_from_plan(module.build_plan(seed, include_unreviewed_links=True))
+    # the full seed: the counts below are the seed's own, so suspect records are not held back
+    plan = module.build_plan(seed, include_unreviewed_links=True, include_suspect_records=True)
+    graph = graph_from_plan(plan)
     assert len(graph.nodes["Service"]) == len(seed.services)
     assert len(graph.nodes["Requirement"]) == len(seed.requirements)
     offers = rows(graph, "MATCH (o:Office)-[:OFFERS]->(s:Service)\nRETURN count(s) AS n")

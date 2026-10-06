@@ -848,6 +848,7 @@ def test_default_schema_matches_specs_section_1():
         "total_fee_text",
         "total_time_text",
         "description",
+        "info_status",
         "text",
         "group",
         "parent_id",

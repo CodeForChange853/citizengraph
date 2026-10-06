@@ -3,6 +3,8 @@
     pip install -e .        # once; the script imports citizengraph.graph
     NEO4J_PASSWORD=... python graph/load.py [--uri bolt://localhost:7687] [--user neo4j]
                                             [--database NAME] [--batch-size 500] [--dry-run]
+                                            [--include-suggested-links]
+                                            [--include-suspect-records]
 
 This is the ONLY place in the repository that writes to Neo4j (CLAUDE.md rule 1: the runtime is
 read-only, this offline loader is the single admin write path). Nothing under src/citizengraph/
@@ -14,13 +16,20 @@ What it does:
   3. upserts nodes, then relationships, with parameterized `UNWIND $rows ... MERGE` statements,
      one write transaction per batch of at most --batch-size rows. Cross-office links that are
      still `needs_review` suggestions are held back unless --include-suggested-links is given.
+     Records the seed marks as suspect (`Requirement.suspect`, `Service.held_back`) are held
+     back too, with their child requirements and every relationship that touches them, and
+     the service gets `info_status = "pending_lgu"`, unless --include-suspect-records is
+     given. Which records are suspect is data in graph/seed/*.yaml, never a list in code.
 
 Re-running is idempotent: every node is MERGEd on its id and its properties are replaced, every
 relationship is MERGEd. It only adds and updates; it never deletes, so a record removed from the
-seed stays in the database until it is cleaned up by hand.
+seed stays in the database until it is cleaned up by hand. The same holds for held-back records:
+a database that was loaded with them earlier (before the markers existed, or with
+--include-suspect-records) keeps those nodes; load into an empty database to be sure.
 
 Never written to the database: staff names (`internal_person_raw`), and anything not listed in
-docs/specs.md section 1 except the review/source bookkeeping properties below.
+docs/specs.md section 1 except the review/source bookkeeping properties below. The suspect
+markers and their reasons are not written either; `info_status` is the only trace.
 """
 
 from __future__ import annotations
@@ -33,12 +42,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from citizengraph.graph.holdback import HoldBack, hold_back
 from citizengraph.graph.ids import clean_name, slug
 from citizengraph.graph.loader import DEFAULT_SEED_DIR, SeedError, load_seed
 from citizengraph.graph.models import Seed
 
 SCHEMA_PATH = Path(__file__).with_name("schema.cypher")
 DEFAULT_BATCH_SIZE = 500
+PENDING_LGU = "pending_lgu"
 
 
 @dataclass(frozen=True)
@@ -90,13 +101,28 @@ def _pairs(pairs: list[tuple[str, str]]) -> list[dict[str, Any]]:
     return [{"a": a, "b": b} for a, b in pairs]
 
 
-def build_plan(seed: Seed, *, include_unreviewed_links: bool = False) -> list[Batch]:
+def build_plan(
+    seed: Seed,
+    *,
+    include_unreviewed_links: bool = False,
+    include_suspect_records: bool = False,
+) -> list[Batch]:
     """Turn a validated seed into ordered batches (nodes first). Pure: touches no database.
 
     Cross-office links (`links.yaml`) are suggestions until a person marks them `reviewed`; by
     default only reviewed links become relationships, so unreviewed suggestions never reach the
     graph Core 1 reads. `include_unreviewed_links` writes them all (development databases).
+
+    Suspect records (see `citizengraph.graph.holdback`) are left out by default, together with
+    their child requirements and every relationship that would touch them, a held-back
+    `who_may_avail` is written as null, and each service that lost something gets
+    `info_status = "pending_lgu"`; no other service gets the property. With
+    `include_suspect_records` nothing is held back and nothing is marked pending.
     """
+    pending: frozenset[str] = frozenset()
+    if not include_suspect_records:
+        held = hold_back(seed)
+        seed, pending = held.seed, held.pending_services
     links = [x for x in seed.links if include_unreviewed_links or x.review_status == "reviewed"]
     offices = [_props(id=o.id, name=o.name, review_status=o.review_status) for o in seed.offices]
     services = [
@@ -109,6 +135,7 @@ def build_plan(seed: Seed, *, include_unreviewed_links: bool = False) -> list[Ba
             total_fee_text=s.total_fee_text,
             total_time_text=s.total_time_text,
             description=s.description,
+            info_status=PENDING_LGU if s.id in pending else None,
             charter_ref=s.charter_ref,
             review_status=s.review_status,
             source_sheet=s.source.sheet,
@@ -259,11 +286,16 @@ def write_seed(
     batch_size: int = DEFAULT_BATCH_SIZE,
     schema_path: Path = SCHEMA_PATH,
     include_unreviewed_links: bool = False,
+    include_suspect_records: bool = False,
 ) -> LoadReport:
     """Run the schema, then write every batch in its own write transaction."""
     if batch_size < 1:
         raise ValueError("batch_size must be at least 1")
-    plan = build_plan(seed, include_unreviewed_links=include_unreviewed_links)
+    plan = build_plan(
+        seed,
+        include_unreviewed_links=include_unreviewed_links,
+        include_suspect_records=include_suspect_records,
+    )
     report = LoadReport(plan=plan)
     session_args = {"database": database} if database else {}
     with driver.session(**session_args) as session:
@@ -276,6 +308,38 @@ def write_seed(
                 report.transactions += 1
             report.counts[batch.name] = len(batch.rows)
     return report
+
+
+def _suspect_note(held: HoldBack, included: bool) -> str:
+    n = len(held.requirement_ids)
+    services = len(held.by_service())
+    if included:
+        return f"suspect records in {services} services included (--include-suspect-records)"
+    return (
+        f"{n} suspect requirements held back in {services} services, "
+        f"{len(held.pending_services)} marked {PENDING_LGU} (use --include-suspect-records)"
+    )
+
+
+def held_back_lines(held: HoldBack, included: bool = False) -> list[str]:
+    """What the default load leaves out and why, one block per service (seed order)."""
+    names = {s.id: s for s in held.seed.services}
+    lines: list[str] = []
+    for sid, items in held.by_service().items():
+        pending = sid in held.pending_services and not included
+        status = f"info_status = {PENDING_LGU}" if pending else "no info_status"
+        lines.append(f"  {sid} ({names[sid].charter_ref}): {status}")
+        for item in items:
+            if included and item.kind == "link":
+                continue  # links follow --include-suggested-links, not this switch
+            what = {
+                "requirements": "whole checklist",
+                "requirement": f"requirement {item.record_id}",
+                "who_may_avail": "who_may_avail" if included else "who_may_avail (written as null)",
+                "link": f"link {item.record_id}",
+            }[item.kind]
+            lines.append(f"    - {what}: {item.reason}")
+    return lines
 
 
 def _links_note(seed: Seed, included: bool) -> str:
@@ -306,6 +370,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="also write cross-office links that are still needs_review (development only)",
     )
+    ap.add_argument(
+        "--include-suspect-records",
+        action="store_true",
+        help="also write records the seed marks as suspect, and mark no service pending_lgu "
+        "(development only; never for a database citizens are answered from)",
+    )
     args = ap.parse_args(argv)
     if args.batch_size < 1:
         ap.error("--batch-size must be at least 1")
@@ -315,12 +385,22 @@ def main(argv: list[str] | None = None) -> int:
     except SeedError as exc:
         print(exc, file=sys.stderr)
         return 1
+    held = hold_back(seed)
+    suspect_note = _suspect_note(held, args.include_suspect_records)
     if args.dry_run:
-        plan = build_plan(seed, include_unreviewed_links=args.include_suggested_links)
+        plan = build_plan(
+            seed,
+            include_unreviewed_links=args.include_suggested_links,
+            include_suspect_records=args.include_suspect_records,
+        )
         print(
             f"dry run: seed is valid ({_summary(seed)}); {len(plan)} statements planned; "
-            f"{_links_note(seed, args.include_suggested_links)}; nothing written"
+            f"{_links_note(seed, args.include_suggested_links)}; {suspect_note}; nothing written"
         )
+        if held.items:
+            verb = "NOT held back (included)" if args.include_suspect_records else "held back"
+            print(f"suspect records, {verb}:")
+            print("\n".join(held_back_lines(held, args.include_suspect_records)))
         return 0
 
     password = os.environ.get("NEO4J_PASSWORD")
@@ -342,14 +422,20 @@ def main(argv: list[str] | None = None) -> int:
                 database=args.database,
                 batch_size=args.batch_size,
                 include_unreviewed_links=args.include_suggested_links,
+                include_suspect_records=args.include_suspect_records,
             )
     except Exception as exc:  # noqa: BLE001 - admin CLI: report any driver/server failure once
         print(f"load failed: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 3
     print(
         f"loaded {_summary(seed)} in {report.transactions} write transactions; "
-        f"{_links_note(seed, args.include_suggested_links)}"
+        f"{_links_note(seed, args.include_suggested_links)}; {suspect_note}"
     )
+    if held.items and not args.include_suspect_records:
+        print(
+            "note: the loader never deletes. If this database was loaded with the held-back "
+            "records before, they are still in it; load into an empty database."
+        )
     return 0
 
 
