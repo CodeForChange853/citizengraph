@@ -132,6 +132,10 @@ services:
     - 21
     - 40
   total_source_row: 40
+  held_back:
+  - field: requirements
+    reason: the checklist has a single conditional item (AUSF) and no unconditional document (flag
+      checklist_only_conditional); the whole list is held back until the LGU confirms it is complete
   flags:
   - code: name_from_title
     message: name taken from the section title; the name cell reads 'REGISTRATION OF BIRTH CERTIFICATE
@@ -473,6 +477,10 @@ services:
     - 106
     - 117
   total_source_row: 117
+  held_back:
+  - field: who_may_avail
+    reason: the 'who may avail' cell is the Sanitary Permit text (flag who_may_avail_suspected_copy_paste);
+      held back until the LGU gives the text for this service
   flags:
   - code: no_requirements_listed
     message: the checklist says N/A; no requirement rows

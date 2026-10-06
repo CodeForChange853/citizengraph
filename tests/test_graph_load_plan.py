@@ -39,7 +39,9 @@ def seed():
 
 @pytest.fixture(scope="module")
 def plan(seed):
-    return loadmod.build_plan(seed)
+    # The FULL seed: these tests compare the plan with the whole seed, so the suspect records
+    # are not held back here. The default plan is tested in test_graph_holdback.py.
+    return loadmod.build_plan(seed, include_suspect_records=True)
 
 
 def by_name(plan):
@@ -119,7 +121,7 @@ class TestPlan:
         assert last_node < first_rel
 
     def test_plan_is_deterministic(self, seed, plan):
-        again = loadmod.build_plan(seed)
+        again = loadmod.build_plan(seed, include_suspect_records=True)
         assert [(b.name, b.cypher, b.rows) for b in again] == [
             (b.name, b.cypher, b.rows) for b in plan
         ]

@@ -75,7 +75,10 @@ def driver():
 @pytest.fixture(scope="module")
 def mem(driver):
     seed = load_seed(DEFAULT_SEED_DIR)
-    _loadmod().write_seed(driver, seed, batch_size=25, include_unreviewed_links=True)
+    # with the suspect records too: every answer is compared with InMemoryGraph (the full seed)
+    _loadmod().write_seed(
+        driver, seed, batch_size=25, include_unreviewed_links=True, include_suspect_records=True
+    )
     return InMemoryGraph(seed)
 
 

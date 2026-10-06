@@ -100,8 +100,10 @@ BPLO:
 - Indigency Certification states 16 minutes but its steps sum to 13.
 - Fishing Permits list no fees (assessed by the City Agriculture Office); total time 25 min matches the upper bounds.
 - Business Permit requirements 4 and 5 are merged-cell text; "Corporation: CDA" almost certainly means Cooperative.
+  - 2026-10-05, hold-back note (not a resolution): the repeated "Corporation:" heading and its "CDA Certificate of Registration" line (seed `business_permit-R13` and `business_permit-R14`, rows 31 and 32) are held back from the loaded graph by default until the LGU confirms who needs the CDA certificate. The service shows `info_status = pending_lgu`. The Cooperative reading is still unconfirmed.
 - Fee variants: Occupational tax P120 (company) vs P215 (individual); cockfight fees by category (MD P1,000/cock, Derby P1,500/cock, 2C P3,000, 3C P4,500, 4C P6,000, 5C P7,500).
 - Business Permit step F.4 is cut off in the source: "F.4. Record and release approved Business/Mayor's" (row 47). Step G, "G. Permit" (row 48), has no time and no person responsible.
+  - 2026-10-05, hold-back note (not a resolution): step F.4 (seed `business_permit-S09`) is not held back, because steps are never held back. The cut-off text is loaded as written, and the seed record has no flag for the cut-off. It stays an open question for the LGU.
 - Local file `BPLO-CC.xlsx` may be outdated: the city site now lists `CYPCC_BPLO.xlsx` (Oct 2025). Compare the two before curating further (see section 1).
 
 LCRO:
@@ -113,7 +115,9 @@ LCRO:
 - Service 15 has two fee variants (clerical error P1,000; change of first name P3,000) but a single range total.
 - Grammar in durations ("1 hours") is inconsistent; the parser must tolerate it.
 - Death Registration (timely), service 6: the checklist lists marriage documents, "A. Affidavit of Delayed Registration of Marriage certificate" and "B. Marriage Certificate duly signed by the solemnizing officer" (rows 156 to 157). Its step 2.1 also says "registered marriage certificate" (row 166). Looks copied from a marriage service; confirm the real death-registration requirements.
+  - 2026-10-05, hold-back note (not a resolution): both checklist rows (seed `death_registration_timely-R01` and `-R02`, rows 156 and 157) are held back from the loaded graph by default until the LGU gives the real death-registration requirements. Step 2.1 (seed `death_registration_timely-S07`, row 166) is not held back and stays an open question.
 - Birth Registration (timely), service 1: the checklist lists only the Affidavit to Use Surname of the Father, "if the child was born illegitimate" (row 29). No other requirement is listed.
+  - 2026-10-05, hold-back note (not a resolution): the whole checklist (its single row, seed `birth_registration_timely-R01`) is held back from the loaded graph by default until the LGU confirms that the list is complete.
 
 CSWDO (service 1, Referrals):
 - The processing time "1 week" (and the total "1 week, 1 hour, 40 minutes") is not marked calendar or working days.
@@ -127,8 +131,9 @@ CHO:
 - Nutrition Center Services (5): steps sum to 34 minutes (2 + 30 + 2) but the total says "35 min".
 - TB/HPN/Filariasis/Schstosomiasis/Leprosy treatment (4): the consultation step time is written "1.15  min" (row 49), which could mean 1 hour 15 minutes or 1.15 minutes. Neither matches the stated total of "1 hour 30 min" with the 10-minute receiving step.
 - "Who may avail" is a copy-paste error for Issuance of permit to transfer cadaver (9): it says "owners of business establishments seeking business permits and license" (row 110), the same text as the Sanitary Permit. It is also odd for Nutrition Center Services (5): "Clients requiring blood transfusion" (row 56).
+  - 2026-10-05, hold-back note (not a resolution): for Issuance of permit to transfer cadaver (seed `cho_cadaver_transfer_permit`), the "who may avail" text is held back from the loaded graph by default (the property is loaded as null) until the LGU gives the text for this service. Nutrition Center Services (5) is still a draft and is not loaded at all.
 - Laboratory Services (6): the total is typed "3 dsys" (row 77).
 - Dental Services (11): the fee is written "250" with no peso sign (row 140).
 - Almost all CHO checklists are "N/A" (13 of 15). The exceptions are Issuance of Sanitary Permit (10), whose only item is "Application Form" with "where to secure" N/A, and Post-Mortem examination (13), which needs a request from the Philippine National Police.
 
-Add a dated line under each issue when the LGU or adviser resolves it.
+Add a dated line under each issue when the LGU or adviser resolves it. The lines dated 2026-10-05 that begin with "hold-back note" are not resolutions. They only record that the loader keeps the record out of the graph by default (`docs/seed_status.md`, "Held back by default"), or that a step is not held back. Each of these questions is still open.

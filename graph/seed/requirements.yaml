@@ -277,6 +277,10 @@ requirements:
     - 11
     - 49
   source_row: 31
+  suspect: true
+  suspect_reason: the sheet repeats the heading 'Corporation:' above the CDA certificate (flag
+    heading_maybe_cooperative); with no variant link it would show as applying to every applicant;
+    held back until the LGU confirms who it applies to
   flags:
   - code: heading_maybe_cooperative
     message: the sheet repeats the heading 'Corporation:' above the CDA (Cooperative Development Authority)
@@ -303,6 +307,10 @@ requirements:
     - 11
     - 49
   source_row: 32
+  suspect: true
+  suspect_reason: child of the repeated 'Corporation:' heading (flag heading_maybe_cooperative);
+    with no variant link it would show as applying to every applicant; held back until the LGU
+    confirms who needs the CDA certificate
   flags:
   - code: heading_maybe_cooperative
     message: the sheet repeats the heading 'Corporation:' above the CDA (Cooperative Development Authority)
@@ -1188,6 +1196,10 @@ requirements:
     - 148
     - 168
   source_row: 156
+  suspect: true
+  suspect_reason: the charter's checklist for timely death registration is the delayed marriage registration
+    checklist word for word (flag suspected_copy_paste); held back until the LGU gives the real
+    death-registration requirements
   flags:
   - code: suspected_copy_paste
     message: this checklist is the delayed marriage registration checklist word for word (docs/charter_data.md,
@@ -1212,6 +1224,10 @@ requirements:
     - 148
     - 168
   source_row: 157
+  suspect: true
+  suspect_reason: the charter's checklist for timely death registration is the delayed marriage registration
+    checklist word for word (flag suspected_copy_paste); held back until the LGU gives the real
+    death-registration requirements
   flags:
   - code: suspected_copy_paste
     message: this checklist is the delayed marriage registration checklist word for word (docs/charter_data.md,

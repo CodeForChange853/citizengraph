@@ -4,6 +4,7 @@ Read-only. Writing the seed into Neo4j is the job of ``graph/load.py`` (an offli
 nothing under ``src/citizengraph/`` may import it or start a write transaction.
 """
 
+from citizengraph.graph.holdback import HeldItem, HoldBack, hold_back
 from citizengraph.graph.loader import (
     DEFAULT_SEED_DIR,
     SeedError,
@@ -17,11 +18,14 @@ from citizengraph.graph.models import Seed
 
 __all__ = [
     "DEFAULT_SEED_DIR",
+    "HeldItem",
+    "HoldBack",
     "InMemoryGraph",
     "Seed",
     "SeedError",
     "SeedIssue",
     "UnknownServiceError",
+    "hold_back",
     "load_seed",
     "parse_seed",
     "validate_seed",
